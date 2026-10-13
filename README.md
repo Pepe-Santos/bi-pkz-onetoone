@@ -39,12 +39,6 @@ psql "$SUPABASE_DB_URL" \
   -f 02_fdw.sql
 ```
 
-Também é possível executar o script Python:
-
-```bash
-python t.py
-```
-
 ---
 
 ## Windows (PowerShell)
@@ -76,8 +70,6 @@ Get-Content .env | ForEach-Object {
     $key, $value = $_ -split "=", 2
     $env:$key = $value.Trim('"')
 }
-
-python .\t.py
 ```
 
 ---
