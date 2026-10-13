@@ -72,4 +72,13 @@ Get-Content .env | ForEach-Object {
 }
 ```
 
+## Segredos
+- A `SUPABASE_SECRET_KEY` ignora todas as permissões. Só vai no `.env` do backend/gerador de relatórios.
+- Nunca no GitHub, no front ou em chat. Se vazar: *Project Settings → API Keys*, gere outra e apague a antiga.
+- O front usa apenas a publishable key.
+
+## Storage
+- Bucket `relatorios` é privado (criado por `sql/03_storage.sql`).
+- Usuários acessam os PDFs por URL assinada, gerada pelo backend.
+
 ---
