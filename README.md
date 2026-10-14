@@ -74,14 +74,14 @@ Consumidores      front-end · dashboards · relatórios (PDF) · IA
 
 Cada frente trabalha na sua pasta. Hoje as pastas estão vazias; o código entra conforme as tasks do ClickUp forem executadas.
 
-| Pasta | Frente | Responsáveis | Escopo |
-|---|---|---|---|
-| — | **Gerência** | Lucas e Pedro | Coordenação, interlocução com o cliente, documentação, revisão de PRs |
-| [`banco/`](banco/) | **Modelagem & Banco** | Rafael, Iago, Micael | Diagnóstico, dicionário de dados, modelo (`ENT-001`), reestruturação (`ENT-002`), migrações |
-| [`backend/`](backend/) | **Back-end** | Ewerton Arrais, Miguel Veiga, Felipe | Leitura da origem, FDW, schema `core`, carga, views `api`, segurança |
-| [`relatorios/`](relatorios/) | **Relatórios** | Roger, Gabriel Lima, Henrique | Templates HTML/CSS, gráficos, geração de PDF, endpoint, envio por e-mail |
-| [`frontend/`](frontend/) | **Front-end** | Mariana, Christian, Gian, Gabriel Melo | Sistema administrativo, painel comparativo, layouts de relatório |
-| [`docs/`](docs/) | Todas | — | Documentação geral, decisões (`AQ`/`DEC`), riscos (`RIS`), atas |
+| Pasta | Branch | Frente | Responsáveis | Escopo |
+|---|---|---|---|---|
+| [`dados/`](dados/) | `dados` | **Modelagem & Banco** | Rafael, Iago, Micael | Diagnóstico, dicionário de dados, modelo (`ENT-001`), reestruturação (`ENT-002`), migrações |
+| [`backend/`](backend/) | `backend` | **Back-end** | Ewerton Arrais, Miguel Veiga, Felipe | Leitura da origem, FDW, schema `core`, carga, views `api`, segurança |
+| [`qa/`](qa/) | `qa` | **QA** | — | Testes de dados, regras, API, relatórios, segurança e integração ponta a ponta |
+| [`docs/`](docs/) | `documentacao` | **Gerência** | Lucas e Pedro | Coordenação, decisões (`AQ`/`DEC`), riscos (`RIS`), atas, revisão de PRs |
+| [`relatorios/`](relatorios/) | — | **Relatórios** | Roger, Gabriel Lima, Henrique | Templates HTML/CSS, gráficos, geração de PDF, endpoint, envio por e-mail |
+| [`frontend/`](frontend/) | — | **Front-end** | Mariana, Christian, Gian, Gabriel Melo | Sistema administrativo, painel comparativo, layouts de relatório |
 
 **Contratos entre frentes:** as views do schema `api` são o contrato entre Back-end, Relatórios e Front-end. Mudança em view = PR revisado pelas três frentes.
 
@@ -127,11 +127,20 @@ Decisões já tomadas: **AQ-002** evoluir o app em fases (sem migração de uma 
 
 ## Como contribuir
 
-1. Pegue a task no ClickUp e coloque o ID dela no nome da branch:
-   `frente/CU-<id>-descricao-curta` — ex.: `backend/CU-86abc-views-api`
+```
+main            ← protegida: só entra por Pull Request aprovado
+├── backend     ← branch da frente
+│   └── backend/CU-86abc-views-api   ← branch da task (opcional)
+├── dados
+├── qa
+└── documentacao
+```
+
+1. Trabalhe na branch da sua frente (`backend`, `dados`, `qa` ou `documentacao`). Para tasks maiores, crie uma branch a partir dela com o ID do ClickUp: `frente/CU-<id>-descricao-curta`.
 2. Commits pequenos e descritivos, em português.
-3. Abra um **Pull Request para `main`** e marque alguém da sua frente + a gerência. Se mexer em views da `api`, marque também Relatórios e Front-end.
-4. Nada vai direto para `main`.
+3. Para levar à `main`, abra um **Pull Request** da branch da frente para a `main`. Ele precisa de **1 aprovação** de outra pessoa. Se mexer em views da `api`, peça revisão também de Relatórios e Front-end.
+4. Antes de abrir o PR, traga a `main` para a sua branch (`git pull origin main`) e resolva os conflitos.
+5. Ninguém faz push direto na `main`.
 
 ## Regras do repositório
 

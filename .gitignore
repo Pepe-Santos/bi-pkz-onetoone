@@ -11,8 +11,8 @@ supabase/.temp/
 *.sql.gz
 *.csv
 *.xlsx
-dados/
-data/
+dados-reais/
+/data/
 
 # PDFs gerados (os layouts com atleta real são confidenciais)
 relatorios/saida/
