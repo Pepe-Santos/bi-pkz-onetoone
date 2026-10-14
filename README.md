@@ -7,7 +7,7 @@ Camada de dados e indicadores para as duas unidades do cliente, construída **so
 | **Playmakerz Lab (PKZ)** — Loja G | Treino funcional infantil (ex.: Sub 12, Sub 14/15; futebol e futsal) | Evolução nos testes físicos, para **pais e responsáveis** |
 | **One to One Studio (OTO)** — Loja I | Personal para jovens adultos e adultos | Histórico de treinos, carga e progressão, para o **aluno** |
 
-> **Confidencial — uso interno.** Este repositório é privado e de uso exclusivo da equipe do projeto. Veja [Regras do repositório](#regras-do-repositório) antes do primeiro commit.
+> **Repositório público.** Tudo o que for enviado aqui fica visível para qualquer pessoa. Dados do cliente, credenciais e a documentação confidencial ficam fora — veja [Regras do repositório](#regras-do-repositório) antes do primeiro commit.
 
 ---
 
@@ -138,4 +138,5 @@ Decisões já tomadas: **AQ-002** evoluir o app em fases (sem migração de uma 
 - **Nunca** versionar credenciais (`.env`, chaves do Supabase, service role). Use `.env.example` com valores vazios.
 - **Nunca** versionar dados da produção ou da cópia: CPF, nomes, fotos, dados de saúde, dumps, CSVs. Para testes, use dados sintéticos.
 - Os layouts com atleta real (Anexo A da documentação) **não** entram aqui — só versões com dados fictícios.
-- A documentação geral (`DOC-PKZ-OTO-001`) fica na pasta compartilhada da equipe; em `docs/` vão apenas resumos, decisões e diagramas.
+- A documentação geral (`DOC-PKZ-OTO-001`) é confidencial e fica na pasta compartilhada da equipe; em `docs/` vão apenas resumos, decisões e diagramas sem dados do cliente.
+- Achados de segurança do banco do cliente são tratados só nos canais internos — nunca em issues, PRs ou commits.
