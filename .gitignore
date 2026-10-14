@@ -1,0 +1,36 @@
+# Credenciais e configuração local — nunca versionar
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+supabase/.temp/
+
+# Dados — nada de cópia da produção, CPF, fotos ou dumps no repositório
+*.dump
+*.sql.gz
+*.csv
+*.xlsx
+dados/
+data/
+
+# PDFs gerados (os layouts com atleta real são confidenciais)
+relatorios/saida/
+*.pdf
+!docs/**/*-ficticio.pdf
+
+# Dependências e build
+node_modules/
+dist/
+build/
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
