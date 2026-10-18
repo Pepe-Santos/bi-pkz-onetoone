@@ -1,8 +1,8 @@
 # Dados — Modelagem & Banco
 
-**Branch:** `dados` · **Equipe:** Rafael, Iago, Micael
+**Branch:** `dados` · **Membros:** Micael, Rafael, Iago
 
-Define como os dados do projeto são organizados: diagnóstico da base atual, modelo de dados e reestruturação.
+Consome os dados tratados pelo back-end e estrutura o banco próprio do projeto: diagnóstico da base atual, modelo de dados e reestruturação.
 
 ## Escopo
 
@@ -26,4 +26,4 @@ dados/
 ## Regras
 
 - Só estrutura e scripts: nenhum dado real, dump ou CSV da produção ou da cópia.
-- Mudança no modelo que afete o `core` ou a `api` = PR revisado também pelo Back-end.
+- Mudança no modelo que afete o `core` ou a `api` = PR revisado também pelo Desenvolvimento.

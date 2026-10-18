@@ -1,10 +1,10 @@
-# Back-end
+# Desenvolvimento — Back-end
 
-**Branch:** `backend` · **Equipe:** Ewerton Arrais, Miguel Veiga, Felipe
+**Branch:** `backend` · **Grupo:** Desenvolvimento · **Membros:** Ewerton Arrais, Miguel Veiga, Gian, Henrique, Christian, Rafael
 
-Lê o banco do app (somente leitura), transforma os dados e os expõe como contrato para Relatórios e Front-end.
+O grupo de Desenvolvimento cuida da aplicação, da área de tratamento de dados, da API que será consumida e da automação da geração e do envio dos relatórios por e-mail. Esta pasta guarda a parte de back-end; os relatórios ficam em [`relatorios/`](../relatorios/) e as telas em [`frontend/`](../frontend/), todos na mesma branch.
 
-## Escopo
+## Escopo do back-end
 
 - Conexão com a origem via `postgres_fdw` (schema `origem_pkz`) e usuário com leitura apenas nas tabelas usadas.
 - Schema `core` (modelo canônico) e carga horária em SQL com Supabase Cron, numa transação única.
@@ -13,7 +13,9 @@ Lê o banco do app (somente leitura), transforma os dados e os expõe como contr
 - Segurança: RLS por unidade, chave de serviço só no servidor.
 - Plano B: extração em Python agendada, caso o FDW não suba.
 
-**Fora do escopo:** cadastro, agenda, login, cobrança, telas e geração de PDF.
+- Automação da geração dos relatórios (template → PDF) e do envio mensal por e-mail.
+
+**Fora do escopo:** cadastro, agenda, login e cobrança, que continuam no app do cliente.
 
 ## Estrutura sugerida
 
@@ -29,5 +31,5 @@ backend/
 
 ## Regras
 
-- Mudança em view da `api` = PR revisado também por Relatórios e Front-end.
+- Mudança em view da `api` = PR revisado também por Dados e QA.
 - Teste com dados sintéticos; nada da produção ou da cópia no repositório.
