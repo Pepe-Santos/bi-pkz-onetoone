@@ -1,8 +1,8 @@
 # QA — Testes de qualidade
 
-**Branch:** `qa`
+**Branch:** `qa` · **Membros:** Roger, Gian, Mariana
 
-Garante que os dados, a API e os relatórios estão corretos antes de chegarem ao cliente. É a frente que conduz as **duas semanas de margem antes da P2**.
+Testa a qualidade do projeto e a usabilidade: garante que os dados, a API, as telas e os relatórios estão corretos antes de chegarem ao cliente. É o grupo que conduz as **duas semanas de margem antes da P2**.
 
 ## Escopo
 
@@ -11,6 +11,7 @@ Garante que os dados, a API e os relatórios estão corretos antes de chegarem a
 - **API:** cada view devolve os campos e formatos do contrato com Relatórios e Front-end.
 - **Relatórios:** os 6 layouts gerados com dados curtos, longos e incompletos; fontes, gráficos e página no tamanho certo.
 - **Segurança e LGPD:** sem acesso anônimo, cada unidade vê só os próprios dados, nenhum dado sensível fora da origem.
+- **Usabilidade:** telas do sistema administrativo e painel comparativo no celular e no computador; os relatórios são fáceis de ler para pais e alunos.
 - **Integração:** testes ponta a ponta da origem até o PDF enviado por e-mail.
 
 ## Estrutura sugerida
@@ -25,5 +26,5 @@ qa/
 
 ## Regras
 
-- Bug encontrado vira task no ClickUp, com a frente responsável e o passo a passo para reproduzir.
+- Bug encontrado vira task no ClickUp, com o grupo responsável e o passo a passo para reproduzir.
 - Só dados sintéticos; nenhum dado real de aluno, nem para reproduzir um bug.

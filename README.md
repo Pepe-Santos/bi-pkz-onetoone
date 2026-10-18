@@ -72,18 +72,19 @@ Consumidores      front-end · dashboards · relatórios (PDF) · IA
 
 ## Equipes e estrutura do repositório
 
-Cada frente trabalha na sua pasta. Hoje as pastas estão vazias; o código entra conforme as tasks do ClickUp forem executadas.
+Cada grupo trabalha na sua branch e nas suas pastas. Hoje as pastas estão vazias; o código entra conforme as tasks do ClickUp forem executadas.
 
-| Pasta | Branch | Frente | Responsáveis | Escopo |
+| Grupo | Branch | Pastas | Membros | Escopo |
 |---|---|---|---|---|
-| [`dados/`](dados/) | `dados` | **Modelagem & Banco** | Rafael, Iago, Micael | Diagnóstico, dicionário de dados, modelo (`ENT-001`), reestruturação (`ENT-002`), migrações |
-| [`backend/`](backend/) | `backend` | **Back-end** | Ewerton Arrais, Miguel Veiga, Felipe | Leitura da origem, FDW, schema `core`, carga, views `api`, segurança |
-| [`qa/`](qa/) | `qa` | **QA** | — | Testes de dados, regras, API, relatórios, segurança e integração ponta a ponta |
-| [`docs/`](docs/) | `documentacao` | **Gerência** | Lucas e Pedro | Coordenação, decisões (`AQ`/`DEC`), riscos (`RIS`), atas, revisão de PRs |
-| [`relatorios/`](relatorios/) | — | **Relatórios** | Roger, Gabriel Lima, Henrique | Templates HTML/CSS, gráficos, geração de PDF, endpoint, envio por e-mail |
-| [`frontend/`](frontend/) | — | **Front-end** | Mariana, Christian, Gian, Gabriel Melo | Sistema administrativo, painel comparativo, layouts de relatório |
+| **Desenvolvimento** | `backend` | [`backend/`](backend/) · [`relatorios/`](relatorios/) · [`frontend/`](frontend/) | Ewerton Arrais, Miguel Veiga, Gian¹, Henrique, Christian, Rafael¹ | Desenvolver a aplicação, a área de tratamento de dados e a API que será consumida; automatizar a geração e o envio dos relatórios por e-mail |
+| **Dados** | `dados` | [`dados/`](dados/) | Micael, Rafael¹, Iago | Consumir os dados tratados pelo back-end e estruturar o banco próprio |
+| **QA** | `qa` | [`qa/`](qa/) | Roger, Gian¹, Mariana | Testar a qualidade do projeto e a usabilidade |
+| **Documentação** | `documentacao` | [`docs/`](docs/) | Gabriel Melo, Gabriel Lima | Comunicar com as áreas e manter a documentação profissional e visualmente agradável até a entrega final, com algumas entregas semanais |
+| **Gerência** | — | — | Lucas e Pedro | Coordenação, interlocução com o cliente e revisão de PRs |
 
-**Contratos entre frentes:** as views do schema `api` são o contrato entre Back-end, Relatórios e Front-end. Mudança em view = PR revisado pelas três frentes.
+¹ Rafael e Gian participam de dois grupos.
+
+**Contrato entre grupos:** as views do schema `api` são o contrato entre Desenvolvimento, Dados e QA. Mudança em view = PR revisado pelos três grupos.
 
 ---
 
@@ -102,7 +103,9 @@ Cada frente trabalha na sua pasta. Hoje as pastas estão vazias; o código entra
 
 ### Plano de produção (autorizado)
 
-As tasks estão no **ClickUp**. A meta é produzir **~33% do projeto por semana** e fechar com **duas semanas de margem antes da P2**, reservadas para integração entre as frentes e correção de erros.
+As tasks estão no **ClickUp**. A meta é produzir **~33% do projeto por semana** e fechar com **duas semanas de margem antes da P2**, reservadas para integração entre os grupos e correção de erros.
+
+**Prazo: todas as tasks concluídas até 04/11.**
 
 | Período | Meta | Foco |
 |---|---|---|
@@ -129,16 +132,16 @@ Decisões já tomadas: **AQ-002** evoluir o app em fases (sem migração de uma 
 
 ```
 main            ← protegida: só entra por Pull Request aprovado
-├── backend     ← branch da frente
+├── backend     ← branch do grupo
 │   └── backend/CU-86abc-views-api   ← branch da task (opcional)
 ├── dados
 ├── qa
 └── documentacao
 ```
 
-1. Trabalhe na branch da sua frente (`backend`, `dados`, `qa` ou `documentacao`). Para tasks maiores, crie uma branch a partir dela com o ID do ClickUp: `frente/CU-<id>-descricao-curta`.
+1. Trabalhe na branch do seu grupo (`backend`, `dados`, `qa` ou `documentacao`). Para tasks maiores, crie uma branch a partir dela com o ID do ClickUp: `grupo/CU-<id>-descricao-curta`.
 2. Commits pequenos e descritivos, em português.
-3. Para levar à `main`, abra um **Pull Request** da branch da frente para a `main`. Ele precisa de **1 aprovação** de outra pessoa. Se mexer em views da `api`, peça revisão também de Relatórios e Front-end.
+3. Para levar à `main`, abra um **Pull Request** da branch do grupo para a `main`. Ele precisa de **1 aprovação** de outra pessoa. Se mexer em views da `api`, peça revisão também de Dados e QA.
 4. Antes de abrir o PR, traga a `main` para a sua branch (`git pull origin main`) e resolva os conflitos.
 5. Ninguém faz push direto na `main`.
 
