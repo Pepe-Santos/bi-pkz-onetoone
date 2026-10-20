@@ -4,7 +4,7 @@
 
 O Grupo de Desenvolvimento cuida da área de tratamento de dados, da API que será consumida e da automação da geração e do envio dos relatórios por e-mail. Esta pasta guarda a parte de back-end; os relatórios ficam em [`relatorios/`](../relatorios/) e as telas em [`frontend/`](../frontend/), todos na mesma branch.
 
-> **Origem deste código.** Até 20/10/2026 o Grupo de Desenvolvimento trabalhava em [`migsv/Proj-BI`](https://github.com/migsv/Proj-BI) (criado pelo Miguel Veiga em 13/10) e no fork [`ewerside/Proj-BI-dev`](https://github.com/ewerside/Proj-BI-dev) (Ewerton Arrais). O histórico foi trazido para cá com os autores originais: `git log -- backend/`.
+> **Origem deste código.** Até 20/10/2026 o Grupo de Desenvolvimento trabalhava em [`migsv/Proj-BI`](https://github.com/migsv/Proj-BI) (criado pelo Miguel Veiga em 13/10) e no fork [`ewerside/Proj-BI-dev`](https://github.com/ewerside/Proj-BI-dev) (Ewerton Arrais). O histórico foi trazido para cá com os autores originais. Como os arquivos ficavam na raiz daquele repositório, o histórico de cada um aparece com `git log --follow -- backend/<arquivo>` (ex.: `backend/sql/03_storage.sql`), ou no histórico completo da branch `backend`.
 
 ## Como o back-end se encaixa
 
