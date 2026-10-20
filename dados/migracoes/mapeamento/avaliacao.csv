@@ -1,0 +1,60 @@
+tabela_destino,coluna,tipo,origem,transformacao,regra_pendencia_ou_rejeicao
+metrica,id,uuid,,gen_random_uuid(),chave de reexecução: codigo
+metrica,codigo,text,"src/lib/physical-test-schema.ts, src/lib/physio-pkz-schema.ts, colunas de physio_assessments e weekly_evaluations","uma linha por métrica de avaliacao_metricas.csv (as de fisioterapia são criadas aqui também, para o script 70 usar)",
+metrica,nome,text,idem,rótulo do app (avaliacao_metricas.csv),
+metrica,dominio,text,,avaliacao_metricas.csv,
+metrica,unidade_medida,text,src/lib/physical-test-schema.ts (unit),avaliacao_metricas.csv,
+metrica,tipo_dado,text,,avaliacao_metricas.csv,
+metrica,direcao_desejada,text,,avaliacao_metricas.csv,
+metrica,valor_min,numeric,,nulo (faixa plausível ainda não definida: pendência 2),
+metrica,valor_max,numeric,,nulo (pendência 2),
+metrica,usa_lado,boolean,,avaliacao_metricas.csv,
+metrica,ativo,boolean,,true,
+metrica,ordem,integer,,ordem de avaliacao_metricas.csv,
+metrica,pendencia,text,,,avaliacao_metricas.csv (todas as de teste físico: 'unidade e faixa a confirmar')
+metrica,criado_em,timestamptz,,now(),
+metrica,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+avaliacao,id,uuid,origem.physical_test_sessions.id | origem.weekly_evaluations.id,direto,chave de reexecução
+avaliacao,aluno_id,uuid,origem.physical_test_sessions.athlete_id | origem.weekly_evaluations.athlete_id,direto,aluno inexistente no destino: carga_rejeitado
+avaliacao,unidade_id,uuid,origem.weekly_evaluations.unit,"teste físico: novo.unidade_atual_do_aluno(aluno_id); semanal: unit (program: pkz→pkz, one_to_one→one_to_one; busca novo.unidade.id pelo codigo)",semanal com unit diferente da unidade do aluno: 'unidade da avaliação diferente da unidade do aluno'
+avaliacao,tipo,text,,'teste_fisico' (physical_test_sessions); 'semanal' (weekly_evaluations),
+avaliacao,data,date,origem.physical_test_sessions.test_date | origem.weekly_evaluations.week_start_date,direto,
+avaliacao,avaliador_id,uuid,origem.physical_test_sessions.evaluator_id,direto; semanal: nulo,evaluator_id sem profissional no destino: nulo + 'avaliador não encontrado no destino' (0 na foto)
+avaliacao,avaliador_nome,text,origem.physical_test_sessions.evaluator_name,só quando evaluator_id é nulo (0 na foto),
+avaliacao,status,text,,'consolidada',
+avaliacao,consolidada_em,timestamptz,origem.physical_test_sessions.created_at | origem.weekly_evaluations.created_at,direto,
+avaliacao,corrige_avaliacao_id,uuid,,nulo,
+avaliacao,observacoes,text,origem.physical_test_sessions.observacoes | origem.weekly_evaluations.observations,direto,
+avaliacao,criado_por,uuid,origem.physical_test_sessions.created_by | origem.weekly_evaluations.created_by,direto; sem perfil → nulo,
+avaliacao,pendencia,text,,,ver unidade_id
+avaliacao,criado_em,timestamptz,origem.physical_test_sessions.created_at | origem.weekly_evaluations.created_at,direto,
+avaliacao,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+avaliacao_medida,id,uuid,,gen_random_uuid(),"chave de reexecução: (avaliacao_id, metrica_id, lado, tentativa)"
+avaliacao_medida,avaliacao_id,uuid,origem.physical_test_sessions.id | origem.weekly_evaluations.id,direto,
+avaliacao_medida,metrica_id,uuid,origem.physical_test_sessions.data | altura | peso | origem.weekly_evaluations.rating_environment | rating_evolution | rating_quality | rating_satisfaction | rating_service,"listas simples (banco_wells, sprint_10, sprint_20, illinois, slalom_wallball, estabilidade_aquabag, blazepod_foco) → métrica de mesmo nome; single_hop/cross_hop → métrica do bloco; saltos_vert e blazepod_vel_reacao (objeto) → bloco || '_' || subchave; teste_vo2 → 'teste_vo2_' || campo; blazepod_vel_reacao em lista simples (4 sessões antigas) → 'blazepod_vel_reacao_legado'; altura → antropometria_altura; peso → antropometria_peso; rating_environment/evolution/quality/satisfaction/service → semanal_ambiente/evolucao/qualidade/satisfacao/atendimento",chave do data sem métrica no catálogo: carga_rejeitado 'chave do teste físico sem métrica no catálogo: <chave>' (0 na foto)
+avaliacao_medida,lado,text,chaves direita/esquerda de single_hop e cross_hop,direita → dir; esquerda → esq; demais → nulo,
+avaliacao_medida,tentativa,smallint,posição na lista,"with ordinality (1, 2, 3); campos nominais, altura, peso, notas → 1",
+avaliacao_medida,valor_num,numeric,origem.physical_test_sessions.data | altura | peso | origem.weekly_evaluations.rating_environment | rating_evolution | rating_quality | rating_satisfaction | rating_service,novo.texto_para_numero(v); teste_vo2_tempo_total e _tempo_vel_max: novo.mmss_para_segundos(v); altura e peso já são numeric; vazio ('') não gera linha; altura/peso nulos (21/18 na foto) não geram linha; notas semanais: direto,
+avaliacao_medida,valor_texto,text,idem,texto original quando a conversão dá nulo (ex.: aquabag antigo com 3 números no mesmo campo); legado do blazepod sempre aqui,
+avaliacao_medida,pendencia,text,,,"não converteu: 'formato antigo / não numérico'; legado do blazepod: 'formato antigo: não dá para saber se é hits ou ms'; altura (sempre): 'unidade ambígua (metros e centímetros misturados)' (3 abaixo de 3, 35 de 100 para cima, 21 nulas na foto); limiar PROVISÓRIO (decisão de 15/10, até a pendência 2): single_hop, cross_hop e teste_vo2_distancia_total com valor < 10 → 'unidade não confirmada (abaixo de 10: limiar provisório)' (5 e 10 sessões na foto); fora de valor_min/valor_max (quando definidos): 'unidade não confirmada'. Nunca converte"
+avaliacao_medida,criado_em,timestamptz,origem.physical_test_sessions.created_at | origem.weekly_evaluations.created_at,direto,
+avaliacao_medida,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+—,—,—,origem.physical_test_comparisons.id,não migra,"comparativo entre duas sessões: só o PDF migra (arquivo, documentos.csv); os ids das sessões ficam na pendência do arquivo"
+—,—,—,origem.physical_test_comparisons.notes,não migra,"comparativo entre duas sessões: só o PDF migra (arquivo, documentos.csv); os ids das sessões ficam na pendência do arquivo"
+—,—,—,origem.physical_test_comparisons.session_a_id,não migra,"comparativo entre duas sessões: só o PDF migra (arquivo, documentos.csv); os ids das sessões ficam na pendência do arquivo"
+—,—,—,origem.physical_test_comparisons.session_b_id,não migra,"comparativo entre duas sessões: só o PDF migra (arquivo, documentos.csv); os ids das sessões ficam na pendência do arquivo"
+—,—,—,origem.physical_test_comparisons.title,não migra,"comparativo entre duas sessões: só o PDF migra (arquivo, documentos.csv); os ids das sessões ficam na pendência do arquivo"
+—,—,—,origem.physical_test_comparisons.updated_at,não migra,"comparativo entre duas sessões: só o PDF migra (arquivo, documentos.csv); os ids das sessões ficam na pendência do arquivo"
+—,—,—,origem.physical_test_sessions.updated_at,não migra,atualizado_em = momento da carga
+—,—,—,origem.student_tests.athlete_id,não migra,"resultado nulo em 67/67: não há medida a migrar (o file_path, sempre vazio, seguiria a regra de arquivo)"
+—,—,—,origem.student_tests.created_at,não migra,"resultado nulo em 67/67: não há medida a migrar (o file_path, sempre vazio, seguiria a regra de arquivo)"
+—,—,—,origem.student_tests.created_by,não migra,"resultado nulo em 67/67: não há medida a migrar (o file_path, sempre vazio, seguiria a regra de arquivo)"
+—,—,—,origem.student_tests.file_path,não migra,"resultado nulo em 67/67: não há medida a migrar (o file_path, sempre vazio, seguiria a regra de arquivo)"
+—,—,—,origem.student_tests.id,não migra,"resultado nulo em 67/67: não há medida a migrar (o file_path, sempre vazio, seguiria a regra de arquivo)"
+—,—,—,origem.student_tests.notes,não migra,"resultado nulo em 67/67: não há medida a migrar (o file_path, sempre vazio, seguiria a regra de arquivo)"
+—,—,—,origem.student_tests.professor_id,não migra,"resultado nulo em 67/67: não há medida a migrar (o file_path, sempre vazio, seguiria a regra de arquivo)"
+—,—,—,origem.student_tests.result,não migra,"resultado nulo em 67/67: não há medida a migrar (o file_path, sempre vazio, seguiria a regra de arquivo)"
+—,—,—,origem.student_tests.test_date,não migra,"resultado nulo em 67/67: não há medida a migrar (o file_path, sempre vazio, seguiria a regra de arquivo)"
+—,—,—,origem.student_tests.test_type,não migra,"resultado nulo em 67/67: não há medida a migrar (o file_path, sempre vazio, seguiria a regra de arquivo)"
+—,—,—,origem.student_tests.unit,não migra,"resultado nulo em 67/67: não há medida a migrar (o file_path, sempre vazio, seguiria a regra de arquivo)"
+—,—,—,origem.student_tests.updated_at,não migra,"resultado nulo em 67/67: não há medida a migrar (o file_path, sempre vazio, seguiria a regra de arquivo)"

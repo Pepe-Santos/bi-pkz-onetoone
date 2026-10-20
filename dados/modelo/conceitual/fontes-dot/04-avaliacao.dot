@@ -1,0 +1,72 @@
+graph "avaliacao" {
+  graph [rankdir=TB, splines=spline, nodesep=0.6, ranksep=0.85,
+         bgcolor="#FAFAF8", fontname="Helvetica", fontsize=24, pad=0.5,
+         label=<<B>4 &#183; Avaliação e Testes Físicos</B><BR/><BR/><FONT POINT-SIZE="14" COLOR="#6A6A6A">Medida e Métrica são a lacuna crítica: sem elas não há gráfico de evolução. O catálogo já existe no código do app.<BR/>v2 (16/10/2026): em verde, o que mudou na construção do banco. Os códigos M remetem ao registro de mudanças.</FONT><BR/> >,
+         labelloc=t, fontcolor="#2B2B2B"];
+  node [fontname="Helvetica", fontsize=11];
+  edge [fontname="Helvetica", fontsize=9, color="#5A5A5A", penwidth=1.1,
+        fontcolor="#444444", labeldistance=1.5, labelfloat=false];
+  ATLETA [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="ATLETA", margin="0.18,0.10"];
+  PROF [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="PROFISSIONAL", margin="0.18,0.10"];
+  AVAL [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="AVALIAÇÃO", margin="0.18,0.10"];
+  AVF [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="AVALIAÇÃO
+FÍSICA", margin="0.18,0.10"];
+  AVS [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="AVALIAÇÃO
+SEMANAL", margin="0.18,0.10"];
+  MEDIDA [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#2F7D62", penwidth=2.2, label=<MEDIDA<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M18</B></FONT>>, margin="0.18,0.10", peripheries=2];
+  METRICA [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#2F7D62", penwidth=2.2, label=<MÉTRICA<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M18</B></FONT>>, margin="0.18,0.10"];
+  R_realiza [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="realiza", fontsize=10, margin="0.02,0.02"];
+  R_aplica [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#2F7D62", penwidth=2.2, label=<aplica<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M15</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  R_registra [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="registra", fontsize=10, margin="0.02,0.02", peripheries=2];
+  R_refere [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="refere-se a", fontsize=10, margin="0.02,0.02"];
+  SPEC [shape=triangle, style=filled, fillcolor="#FFFFFF", color="#B9963F", penwidth=1.3, label="d", fontsize=9, width=0.52, height=0.44, margin=0];
+  av_id [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label=<<U>id_avaliação</U>>, height=0.30, margin="0.04,0.02", style="filled,solid"];
+  av_data [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="data", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  av_st [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="status", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  me_val [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#2F7D62", fontcolor="#2F7D62", penwidth=1.0, fontsize=9, label="valor_num / valor_texto", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  me_tent [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label=<<U>tentativa</U>>, height=0.30, margin="0.04,0.02", style="filled,solid"];
+  me_lado [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="lado", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  mt_id [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label=<<U>id_métrica</U>>, height=0.30, margin="0.04,0.02", style="filled,solid"];
+  mt_nome [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="nome", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  mt_un [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="unidade", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  mt_fx [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#2F7D62", fontcolor="#2F7D62", penwidth=1.0, fontsize=9, label="valor_mín / valor_máx", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  mt_sent [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#2F7D62", fontcolor="#2F7D62", penwidth=1.0, fontsize=9, label="direção_desejada", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  ATLETA -- R_realiza [taillabel="(1,N)", labeldistance=2.6, labelangle=12];
+  R_realiza -- AVAL [taillabel="(1,1)", labeldistance=2.6, labelangle=12];
+  PROF -- R_aplica [taillabel="(0,N)", labeldistance=2.6, labelangle=12, style=dashed, color="#B9963F"];
+  R_aplica -- AVAL [taillabel="(0,1)", labeldistance=2.6, labelangle=12, style=dashed, color="#2F7D62", penwidth=1.6, labelfontcolor="#2F7D62"];
+  AVAL -- R_registra [taillabel="(1,N)", labeldistance=2.6, labelangle=12, penwidth=1.9];
+  R_registra -- MEDIDA [taillabel="(1,1)", labeldistance=2.6, labelangle=12, penwidth=1.9];
+  MEDIDA -- R_refere [taillabel="(N,1)", labeldistance=2.6, labelangle=12];
+  R_refere -- METRICA [taillabel="(1,1)", labeldistance=2.6, labelangle=12];
+  AVAL -- SPEC [taillabel="total", labeldistance=2.6, labelangle=12];
+  SPEC -- AVF [style=dashed, color="#B9963F"];
+  SPEC -- AVS [style=dashed, color="#B9963F"];
+  AVAL -- av_id [color="#A8A8A8", penwidth=0.85];
+  AVAL -- av_data [color="#A8A8A8", penwidth=0.85];
+  AVAL -- av_st [color="#A8A8A8", penwidth=0.85];
+  MEDIDA -- me_val [color="#2F7D62", penwidth=0.9];
+  MEDIDA -- me_tent [color="#A8A8A8", penwidth=0.85];
+  MEDIDA -- me_lado [color="#A8A8A8", penwidth=0.85];
+  METRICA -- mt_id [color="#A8A8A8", penwidth=0.85];
+  METRICA -- mt_nome [color="#A8A8A8", penwidth=0.85];
+  METRICA -- mt_un [color="#A8A8A8", penwidth=0.85];
+  METRICA -- mt_fx [color="#2F7D62", penwidth=0.9];
+  METRICA -- mt_sent [color="#2F7D62", penwidth=0.9];
+  { rank=same; AVF; AVS; AVFISIO; }
+  AVFISIO [shape=box, style="filled,rounded", fillcolor="#DCEFE7", color="#2F7D62", penwidth=2.2, label=<AVALIAÇÃO DE<BR/>FISIOTERAPIA<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M14</B></FONT>>, margin="0.18,0.10"];
+  SPEC -- AVFISIO [style=dashed, color="#2F7D62", penwidth=1.6];
+  R_corrige [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<corrige<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M16</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  AVAL:e -- R_corrige [taillabel="(0,1)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  R_corrige -- AVAL:ne [taillabel="(0,1)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  UNIDADE [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="UNIDADE", margin="0.18,0.10"];
+  R_realizadaEm [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<realizada em<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M17</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  UNIDADE -- R_realizadaEm [taillabel="(0,N)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  R_realizadaEm -- AVAL [taillabel="(1,1)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  mt_dom [shape=ellipse, fillcolor="#FFFFFF", color="#2F7D62", fontcolor="#2F7D62", penwidth=1.2, fontsize=9, label="domínio", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  mt_lado [shape=ellipse, fillcolor="#FFFFFF", color="#2F7D62", fontcolor="#2F7D62", penwidth=1.2, fontsize=9, label="usa_lado", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  mt_tipo [shape=ellipse, fillcolor="#FFFFFF", color="#2F7D62", fontcolor="#2F7D62", penwidth=1.2, fontsize=9, label="tipo_dado", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  METRICA -- mt_dom [color="#2F7D62", penwidth=0.9];
+  METRICA -- mt_lado [color="#2F7D62", penwidth=0.9];
+  METRICA -- mt_tipo [color="#2F7D62", penwidth=0.9];
+}

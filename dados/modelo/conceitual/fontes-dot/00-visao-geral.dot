@@ -1,0 +1,270 @@
+graph "visaogeral" {
+  graph [rankdir=TB, splines=spline, nodesep=0.4, ranksep=0.8,
+         bgcolor="#FAFAF8", fontname="Helvetica", fontsize=40, pad=0.5,
+         label=<<B>0 &#183; Visão Geral do Modelo Conceitual</B><BR/><BR/><FONT POINT-SIZE="23" COLOR="#6A6A6A">v2 (16/10/2026): 39 entidades (35 + 4 novas) e 21 relacionamentos novos, em 6 domínios. Em verde, o que mudou na construção do banco.<BR/>Sem elipses de atributo — elas estão nos diagramas 1 a 6.</FONT><BR/> >,
+         labelloc=t, fontcolor="#2B2B2B"];
+  node [fontname="Helvetica", fontsize=11];
+  edge [fontname="Helvetica", fontsize=9, color="#5A5A5A", penwidth=1.1,
+        fontcolor="#444444", labeldistance=1.5, labelfloat=false];
+  subgraph cluster_1 {
+    label="CADASTRO"; fontsize=12; fontcolor="#7A7260";
+    style="rounded,dashed"; color="#C9C2B0"; margin=16;
+    UNIDADE [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="UNIDADE", margin="0.18,0.10"];
+    PESSOA [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="PESSOA", margin="0.18,0.10"];
+    USUARIO [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="USUÁRIO", margin="0.18,0.10"];
+    PAPEL [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="PAPEL", margin="0.18,0.10"];
+    ATLETA [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="ATLETA", margin="0.18,0.10"];
+    R1 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="acessa", fontsize=10, margin="0.02,0.02"];
+    R2 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="responde por", fontsize=10, margin="0.02,0.02"];
+    R3 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="é", fontsize=10, margin="0.02,0.02"];
+    R4 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="exerce", fontsize=10, margin="0.02,0.02"];
+    R5 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="atua em", fontsize=10, margin="0.02,0.02"];
+  CONFIG [shape=box, style="filled,rounded", fillcolor="#DCEFE7", color="#2F7D62", penwidth=2.2, label=<CONFIGURAÇÃO<BR/>DA UNIDADE<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M1</B></FONT>>, margin="0.18,0.10"];
+  V1 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<configura<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M1</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  V2 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<pode agendar<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M2</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  V3 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<é<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M3</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  }
+  subgraph cluster_2 {
+    label="COMERCIAL E CRÉDITOS"; fontsize=12; fontcolor="#7A7260";
+    style="rounded,dashed"; color="#C9C2B0"; margin=16;
+    PLANO [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="PLANO", margin="0.18,0.10"];
+    SERVICO [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="SERVIÇO", margin="0.18,0.10"];
+    RENOVACAO [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="RENOVAÇÃO", margin="0.18,0.10"];
+    LANC [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="LANÇAMENTO
+  DE CRÉDITO", margin="0.18,0.10"];
+    R6 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="matrícula", fontsize=10, margin="0.02,0.02"];
+    R7 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="concede", fontsize=10, margin="0.02,0.02"];
+    R8 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="gera", fontsize=10, margin="0.02,0.02"];
+    R9 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="possui", fontsize=10, margin="0.02,0.02"];
+    R10 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="refere-se a", fontsize=10, margin="0.02,0.02"];
+  V4 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<pertence a<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M4</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  V5 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<renova<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M5</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  V6 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<refere-se a<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M5</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  V7 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<debita<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M7</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  }
+  subgraph cluster_3 {
+    label="AGENDA E TREINO"; fontsize=12; fontcolor="#7A7260";
+    style="rounded,dashed"; color="#C9C2B0"; margin=16;
+    GRADE [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="HORÁRIO
+  DE GRADE", margin="0.18,0.10"];
+    BLOQUEIO [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="BLOQUEIO", margin="0.18,0.10"];
+    AGEND [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="AGENDAMENTO", margin="0.18,0.10"];
+    SESSAO [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="SESSÃO
+  DE TREINO", margin="0.18,0.10"];
+    RELAT [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="RELATÓRIO", margin="0.18,0.10"];
+    FEEDB [shape=box, style="filled,rounded", fillcolor="#F3F3F1", color="#AFAFAF", penwidth=1.7, label="FEEDBACK
+  (legado)", margin="0.18,0.10", fontcolor="#7A7A7A"];
+    CATALOGO [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="ITEM DE
+  CATÁLOGO", margin="0.18,0.10"];
+    R11 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="oferece", fontsize=10, margin="0.02,0.02"];
+    R12 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="suspende", fontsize=10, margin="0.02,0.02"];
+    R13 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="origina", fontsize=10, margin="0.02,0.02"];
+    R14 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="reserva", fontsize=10, margin="0.02,0.02"];
+    R15 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="é do tipo", fontsize=10, margin="0.02,0.02"];
+    R16 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="produz", fontsize=10, margin="0.02,0.02"];
+    R17 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="documenta", fontsize=10, margin="0.02,0.02"];
+    R18 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="avalia", fontsize=10, margin="0.02,0.02"];
+    R36 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="classificado por", fontsize=10, margin="0.02,0.02"];
+  LISTA [shape=box, style="filled,rounded", fillcolor="#DCEFE7", color="#2F7D62", penwidth=2.2, label=<LISTA DE<BR/>ESPERA<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M10</B></FONT>>, margin="0.18,0.10"];
+  V8 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<aguarda<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M10</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  V9 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<para<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M10</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  V10 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<vale para<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M11</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  V11 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<vale para<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M11</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  V12 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<sobre<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M12</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  V13 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<escreve<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M12</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  }
+  subgraph cluster_4 {
+    label="AVALIAÇÃO"; fontsize=12; fontcolor="#7A7260";
+    style="rounded,dashed"; color="#C9C2B0"; margin=16;
+    AVAL [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="AVALIAÇÃO", margin="0.18,0.10"];
+    AVF [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="AVALIAÇÃO
+  FÍSICA", margin="0.18,0.10"];
+    AVS [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="AVALIAÇÃO
+  SEMANAL", margin="0.18,0.10"];
+    MEDIDA [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="MEDIDA", margin="0.18,0.10", peripheries=2];
+    METRICA [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="MÉTRICA", margin="0.18,0.10"];
+    R19 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="realiza", fontsize=10, margin="0.02,0.02"];
+    R20 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="registra", fontsize=10, margin="0.02,0.02", peripheries=2];
+    R21 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="refere-se a", fontsize=10, margin="0.02,0.02"];
+    R22 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="aplica", fontsize=10, margin="0.02,0.02"];
+    SP1 [shape=triangle, style=filled, fillcolor="#FFFFFF", color="#B9963F", penwidth=1.3, label="d", fontsize=9, width=0.52, height=0.44, margin=0];
+  AVFISIO [shape=box, style="filled,rounded", fillcolor="#DCEFE7", color="#2F7D62", penwidth=2.2, label=<AVALIAÇÃO DE<BR/>FISIOTERAPIA<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M14</B></FONT>>, margin="0.18,0.10"];
+  V14 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<corrige<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M16</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  V15 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<realizada em<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M17</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  }
+  subgraph cluster_5 {
+    label="ATENDIMENTO ESPECIALIZADO"; fontsize=12; fontcolor="#7A7260";
+    style="rounded,dashed"; color="#C9C2B0"; margin=16;
+    PROF [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="PROFISSIONAL", margin="0.18,0.10"];
+    ATEND [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="ATENDIMENTO", margin="0.18,0.10"];
+    FISIO [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="FISIOTERAPIA", margin="0.18,0.10"];
+    NUTRI [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="NUTRIÇÃO", margin="0.18,0.10"];
+    PSICO [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="PSICOLOGIA", margin="0.18,0.10"];
+    ANAM [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#2F7D62", penwidth=2.2, label=<ANAMNESE<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M19</B></FONT>>, margin="0.18,0.10"];
+    EVOL [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="EVOLUÇÃO", margin="0.18,0.10", peripheries=2];
+    R23 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="recebe", fontsize=10, margin="0.02,0.02"];
+    R24 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="realiza", fontsize=10, margin="0.02,0.02"];
+    R25 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="habilitado em", fontsize=10, margin="0.02,0.02"];
+    R26 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="possui", fontsize=10, margin="0.02,0.02"];
+    R27 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="evolui", fontsize=10, margin="0.02,0.02", peripheries=2];
+    SP2 [shape=triangle, style=filled, fillcolor="#FFFFFF", color="#B9963F", penwidth=1.3, label="d", fontsize=9, width=0.52, height=0.44, margin=0];
+  V16 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<atendido em<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M13</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  V17 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<registrada em<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M19</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  }
+  subgraph cluster_6 {
+    label="DOCUMENTOS, CONFORMIDADE E COMUNICAÇÃO"; fontsize=12; fontcolor="#7A7260";
+    style="rounded,dashed"; color="#C9C2B0"; margin=16;
+    ARQUIVO [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="ARQUIVO", margin="0.18,0.10"];
+    CONSENT [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="CONSENTIMENTO", margin="0.18,0.10"];
+    EMISSAO [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="EMISSÃO DE
+  RELATÓRIO", margin="0.18,0.10"];
+    ENVIO [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="ENVIO", margin="0.18,0.10", peripheries=2];
+    NOTIF [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="NOTIFICAÇÃO", margin="0.18,0.10"];
+    HIST [shape=box, style="filled,rounded,dashed", fillcolor="#EFEBE0", color="#2F7D62", penwidth=2.2, label=<HISTÓRICO<BR/>(derivado)<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M21</B></FONT>>, margin="0.18,0.10"];
+    AUDIT [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="AUDITORIA", margin="0.18,0.10"];
+    R28 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="anexado a", fontsize=10, margin="0.02,0.02"];
+    R29 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="concede", fontsize=10, margin="0.02,0.02"];
+    R30 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="emitido para", fontsize=10, margin="0.02,0.02"];
+    R31 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="expedido", fontsize=10, margin="0.02,0.02", peripheries=2];
+    R32 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="destinatário", fontsize=10, margin="0.02,0.02"];
+    R33 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="notifica", fontsize=10, margin="0.02,0.02"];
+    R34 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="registra", fontsize=10, margin="0.02,0.02"];
+    R35 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="executa", fontsize=10, margin="0.02,0.02"];
+    R37 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="anexado a", fontsize=10, margin="0.02,0.02"];
+    R38 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="anexado a", fontsize=10, margin="0.02,0.02"];
+    R39 [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="anexado a", fontsize=10, margin="0.02,0.02"];
+  ACESSO [shape=box, style="filled,rounded", fillcolor="#DCEFE7", color="#2F7D62", penwidth=2.2, label=<ACESSO A DADO<BR/>SENSÍVEL<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M23</B></FONT>>, margin="0.18,0.10"];
+  V18 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<consulta<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M23</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  V19 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<sobre<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M23</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  V20 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<enviado por<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M20</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  V21 [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<gera<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M24</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  }
+  PESSOA -- R1 [style=dashed, color="#B9963F"];
+  R1 -- USUARIO [style=dashed, color="#B9963F"];
+  PESSOA -- R2 [style=dashed, color="#B9963F"];
+  R2 -- ATLETA [style=dashed, color="#B9963F"];
+  PESSOA -- R3 [style=dashed, color="#B9963F"];
+  R3 -- ATLETA [style=dashed, color="#B9963F"];
+  USUARIO -- R4 [];
+  R4 -- PAPEL [];
+  PAPEL -- R5 [style=dashed, color="#B9963F"];
+  R5 -- UNIDADE [style=dashed, color="#B9963F"];
+  ATLETA -- R6 [style=dashed, color="#B9963F"];
+  R6 -- PLANO [style=dashed, color="#B9963F"];
+  PLANO -- R7 [];
+  R7 -- SERVICO [];
+  RENOVACAO -- R8 [];
+  R8 -- LANC [];
+  ATLETA -- R9 [];
+  R9 -- LANC [];
+  LANC -- R10 [];
+  R10 -- SERVICO [];
+  UNIDADE -- R11 [];
+  R11 -- GRADE [];
+  BLOQUEIO -- R12 [];
+  R12 -- GRADE [];
+  GRADE -- R13 [style=dashed, color="#B9963F"];
+  R13 -- AGEND [style=dashed, color="#B9963F"];
+  ATLETA -- R14 [];
+  R14 -- AGEND [];
+  SERVICO -- R15 [];
+  R15 -- AGEND [];
+  AGEND -- R16 [style=dashed, color="#B9963F"];
+  R16 -- SESSAO [style=dashed, color="#B9963F"];
+  AGEND -- R17 [];
+  R17 -- RELAT [];
+  AGEND -- R18 [style=dashed, color="#B9963F"];
+  R18 -- FEEDB [style=dashed, color="#B9963F"];
+  ATLETA -- R19 [];
+  R19 -- AVAL [];
+  AVAL -- R20 [];
+  R20 -- MEDIDA [];
+  MEDIDA -- R21 [];
+  R21 -- METRICA [];
+  PROF -- R22 [style=dashed, color="#B9963F"];
+  R22 -- AVAL [style=dashed, color="#B9963F"];
+  ATLETA -- R23 [];
+  R23 -- ATEND [];
+  PROF -- R24 [style=dashed, color="#B9963F"];
+  R24 -- ATEND [style=dashed, color="#B9963F"];
+  PROF -- R25 [style=dashed, color="#B9963F"];
+  R25 -- SERVICO [style=dashed, color="#B9963F"];
+  ATLETA -- R26 [style=dashed, color="#B9963F"];
+  R26 -- ANAM [style=dashed, color="#B9963F"];
+  ATEND -- R27 [];
+  R27 -- EVOL [];
+  ARQUIVO -- R28 [style=dashed, color="#B9963F"];
+  R28 -- ATLETA [style=dashed, color="#B9963F"];
+  PESSOA -- R29 [style=dashed, color="#B9963F"];
+  R29 -- CONSENT [style=dashed, color="#B9963F"];
+  ATLETA -- R30 [];
+  R30 -- EMISSAO [];
+  EMISSAO -- R31 [];
+  R31 -- ENVIO [];
+  ENVIO -- R32 [];
+  R32 -- PESSOA [];
+  USUARIO -- R33 [style=dashed, color="#B9963F"];
+  R33 -- NOTIF [style=dashed, color="#B9963F"];
+  ATLETA -- R34 [];
+  R34 -- HIST [penwidth=1.1, color="#2F7D62", penwidth=1.6, labelfontcolor="#2F7D62"];
+  USUARIO -- R35 [style=dashed, color="#B9963F"];
+  R35 -- AUDIT [style=dashed, color="#B9963F"];
+  RELAT -- R36 [];
+  R36 -- CATALOGO [];
+  ARQUIVO -- R37 [style=dashed, color="#B9963F"];
+  R37 -- RELAT [style=dashed, color="#B9963F"];
+  ARQUIVO -- R38 [style=dashed, color="#B9963F"];
+  R38 -- AVAL [style=dashed, color="#B9963F"];
+  ARQUIVO -- R39 [style=dashed, color="#B9963F"];
+  R39 -- ATEND [style=dashed, color="#B9963F"];
+  AVAL -- SP1 [];
+  SP1 -- AVF [style=dashed, color="#B9963F"];
+  SP1 -- AVS [style=dashed, color="#B9963F"];
+  ATEND -- SP2 [];
+  SP2 -- FISIO [style=dashed, color="#B9963F"];
+  SP2 -- NUTRI [style=dashed, color="#B9963F"];
+  SP2 -- PSICO [style=dashed, color="#B9963F"];
+  UNIDADE -- V1 [color="#2F7D62", penwidth=1.6];
+  V1 -- CONFIG [color="#2F7D62", penwidth=1.6];
+  ATLETA -- V2 [color="#2F7D62", penwidth=1.6];
+  V2 -- SERVICO [color="#2F7D62", penwidth=1.6];
+  USUARIO -- V3 [color="#2F7D62", penwidth=1.6];
+  V3 -- PROF [color="#2F7D62", penwidth=1.6];
+  UNIDADE -- V4 [color="#2F7D62", penwidth=1.6];
+  V4 -- PLANO [color="#2F7D62", penwidth=1.6];
+  ATLETA -- V5 [color="#2F7D62", penwidth=1.6];
+  V5 -- RENOVACAO [color="#2F7D62", penwidth=1.6];
+  SERVICO -- V6 [color="#2F7D62", penwidth=1.6];
+  V6 -- RENOVACAO [color="#2F7D62", penwidth=1.6];
+  AGEND -- V7 [color="#2F7D62", penwidth=1.6, style=dashed];
+  V7 -- LANC [color="#2F7D62", penwidth=1.6, style=dashed];
+  ATLETA -- V8 [color="#2F7D62", penwidth=1.6];
+  V8 -- LISTA [color="#2F7D62", penwidth=1.6];
+  SERVICO -- V9 [color="#2F7D62", penwidth=1.6];
+  V9 -- LISTA [color="#2F7D62", penwidth=1.6];
+  UNIDADE -- V10 [color="#2F7D62", penwidth=1.6];
+  V10 -- BLOQUEIO [color="#2F7D62", penwidth=1.6];
+  SERVICO -- V11 [color="#2F7D62", penwidth=1.6];
+  V11 -- BLOQUEIO [color="#2F7D62", penwidth=1.6];
+  ATLETA -- V12 [color="#2F7D62", penwidth=1.6];
+  V12 -- RELAT [color="#2F7D62", penwidth=1.6];
+  PROF -- V13 [color="#2F7D62", penwidth=1.6, style=dashed];
+  V13 -- RELAT [color="#2F7D62", penwidth=1.6, style=dashed];
+  AVAL -- V14 [color="#2F7D62", penwidth=1.6];
+  V14 -- AVAL [color="#2F7D62", penwidth=1.6];
+  UNIDADE -- V15 [color="#2F7D62", penwidth=1.6];
+  V15 -- AVAL [color="#2F7D62", penwidth=1.6];
+  AGEND -- V16 [color="#2F7D62", penwidth=1.6, style=dashed];
+  V16 -- ATEND [color="#2F7D62", penwidth=1.6, style=dashed];
+  AVAL -- V17 [color="#2F7D62", penwidth=1.6];
+  V17 -- ANAM [color="#2F7D62", penwidth=1.6];
+  USUARIO -- V18 [color="#2F7D62", penwidth=1.6, style=dashed];
+  V18 -- ACESSO [color="#2F7D62", penwidth=1.6, style=dashed];
+  ATLETA -- V19 [color="#2F7D62", penwidth=1.6, style=dashed];
+  V19 -- ACESSO [color="#2F7D62", penwidth=1.6, style=dashed];
+  USUARIO -- V20 [color="#2F7D62", penwidth=1.6];
+  V20 -- ARQUIVO [color="#2F7D62", penwidth=1.6];
+  EMISSAO -- V21 [color="#2F7D62", penwidth=1.6];
+  V21 -- ARQUIVO [color="#2F7D62", penwidth=1.6];
+  SP1 -- AVFISIO [style=dashed, color="#2F7D62", penwidth=1.6];
+}

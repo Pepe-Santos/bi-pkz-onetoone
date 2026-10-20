@@ -1,0 +1,4 @@
+# O .gitignore da raiz bloqueia *.pdf. Este PDF é só o modelo conceitual (sem dado de aluno), então entra.
+!Modelo_Conceitual_Chen_PKZ_OnetoOne_v2.pdf
+# Saída do gerador (refeita por gerar_v2.py)
+fontes-dot-v2/pdf/

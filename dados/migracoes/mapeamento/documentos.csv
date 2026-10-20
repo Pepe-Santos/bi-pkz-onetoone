@@ -1,0 +1,97 @@
+tabela_destino,coluna,tipo,origem,transformacao,regra_pendencia_ou_rejeicao
+arquivo,id,uuid,,gen_random_uuid(),chave de reexecução: storage_path
+arquivo,storage_path,text,"origem.student_files.storage_path | origem.nutritionist_files.storage_path | origem.physio_evolutions.storage_path | origem.specialist_evolutions.file_path | origem.training_reports.file_path | origem.training_reports.pdf_storage_path | origem.physical_test_comparisons.file_path | origem.physio_assessments.file_path | origem.physio_assessments.pkz_data (img_*, carimbo_path, laudo_path) | origem.student_tests.file_path",um arquivo por caminho distinto não vazio (523 na foto); training_reports.file_path e pdf_storage_path são o mesmo caminho em 205/205,
+arquivo,nome,text,origem.student_files.file_name | origem.nutritionist_files.file_name | origem.physio_evolutions.file_name | origem.specialist_evolutions.file_name,file_name quando existe; senão o último trecho do caminho,
+arquivo,mime,text,origem.student_files.mime_type | origem.nutritionist_files.mime_type,"direto; sem mime: pela extensão (.pdf → application/pdf, .png → image/png, .jpg/.jpeg → image/jpeg)",
+arquivo,bytes,bigint,origem.student_files.size_bytes | origem.nutritionist_files.size_bytes,direto; demais: nulo,
+arquivo,tipo,text,origem.student_files.folder + origem de cada caminho,"student_files: 02_Relatorios_de_Treino → relatorio_treino, 03_Evolucao_e_Comparativos → evolucao_comparativo, 04_Extrato_Geral_de_Relatorios → extrato, 05_Fisioterapia → fisioterapia; nutritionist_files → nutricao; physio/specialist_evolutions → evolucao; training_reports → relatorio_treino; physical_test_comparisons → comparativo_teste_fisico; physio_assessments.file_path → avaliacao_fisioterapia; img_anterior/img_lateral_*/img_posterior → imagem_postural; img_mob_* → imagem_mobilidade; carimbo_path → carimbo_profissional; laudo_path → laudo",
+arquivo,confidencialidade,text,origem de cada caminho,"clinico: nutritionist_files, physio_evolutions, specialist_evolutions, physio_assessments (file_path e pkz_data), student_files da pasta 05_Fisioterapia; normal: o resto. Caminho com origem clínica e normal → clinico",
+arquivo,aluno_id,uuid,origem.student_files.athlete_id | origem.nutritionist_files.athlete_id | origem.physio_evolutions.athlete_id | origem.specialist_evolutions.athlete_id | origem.training_reports.athlete_id | origem.physical_test_comparisons.athlete_id | origem.physio_assessments.athlete_id | origem.student_tests.athlete_id,athlete_id de cada origem,"caminho ligado a alunos diferentes, ou aluno inexistente no destino: carga_rejeitado (0 na foto; id_origem = md5 do caminho, o caminho não é copiado)"
+arquivo,unidade_id,uuid,,novo.unidade_atual_do_aluno(aluno_id),
+arquivo,relatorio_id,uuid,origem.training_reports.id,caminhos vindos de training_reports,"relatório, avaliação ou atendimento que não entrou no destino: vínculo removido + 'dono do arquivo não encontrado no destino: vínculo removido' (vale também para avaliacao_id e atendimento_id; 0 na foto)"
+arquivo,avaliacao_id,uuid,origem.physio_assessments.id,"caminhos vindos de physio_assessments (file_path, img_*, carimbo_path, laudo_path)",
+arquivo,atendimento_id,uuid,origem.physio_evolutions.id | origem.specialist_evolutions.id,caminhos vindos das evoluções,
+arquivo,enviado_por,uuid,origem.student_files.uploaded_by | origem.nutritionist_files.uploaded_by | origem.physio_evolutions.physio_id | origem.specialist_evolutions.professional_id | origem.training_reports.created_by | origem.physical_test_comparisons.created_by | origem.physio_assessments.created_by,direto; sem perfil → nulo,
+arquivo,pendencia,text,origem.physical_test_comparisons.session_a_id | session_b_id,,"caminho com dois 'donos' (relatório, avaliação, atendimento) diferentes: carga_rejeitado (0 na foto); comparativo: 'comparativo entre as avaliações <session_a_id> e <session_b_id>'; carimbo: 'carimbo do profissional, não do aluno'"
+arquivo,criado_em,timestamptz,origem.student_files.created_at | origem.nutritionist_files.created_at | origem.physio_evolutions.created_at | origem.specialist_evolutions.created_at | origem.training_reports.created_at | origem.physical_test_comparisons.created_at | origem.physio_assessments.created_at,o menor created_at entre as origens do caminho,
+arquivo,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+evento_auditoria,id,uuid,,gen_random_uuid(),"chave de reexecução: (tabela_origem, id_origem)"
+evento_auditoria,ator_id,uuid,origem.activity_logs.actor_id | origem.booking_audit_logs.actor_id | origem.booking_audit_logs.created_by,"activity_logs: actor_id; booking_audit_logs: coalesce(actor_id, created_by); sem perfil no destino (ex.: usuário apagado) → nulo",ator sem perfil: 'ator não encontrado no destino'
+evento_auditoria,acao,text,origem.activity_logs.action | origem.booking_audit_logs.action,"direto; 'Link de ativação enviado via WhatsApp' → 'send_activation_link'; professor_assigned, assign_professor e assign_booking_professor → 'assign_professor'",
+evento_auditoria,acao_original,text,idem,"o texto original, só quando a ação foi padronizada",
+evento_auditoria,entidade,text,origem.activity_logs.entity,athlete → aluno; booking → agendamento; user → usuario; system → sistema; nulo → nulo; booking_audit_logs → agendamento,
+evento_auditoria,entidade_id,uuid,origem.activity_logs.entity_id | origem.booking_audit_logs.booking_id,direto (sem FK: pode apontar para registro apagado),
+evento_auditoria,valor_anterior,jsonb,origem.booking_audit_logs.previous_professor_id | old_value,"activity_logs: nulo; booking_audit_logs: jsonb_strip_nulls(jsonb_build_object('professor_id', previous_professor_id, 'valor', old_value))",
+evento_auditoria,valor_novo,jsonb,origem.activity_logs.payload | origem.booking_audit_logs.new_professor_id | new_value | reason,"activity_logs: payload SEM as chaves athlete_name, phone, full_name e username; booking_audit_logs: jsonb_strip_nulls(jsonb_build_object('professor_id', new_professor_id, 'valor', new_value, 'motivo', reason))","payload com dado pessoal removido: 'dados pessoais removidos do payload' (nome, telefone e login; decisão final da Frente 3, pendência 11); send_activation_link (5 eventos) fica sem entidade: 'evento sem referência ao aluno (nome removido)'"
+evento_auditoria,unidade_id,uuid,,entidade aluno: unidade atual do aluno (entity_id); entidade agendamento: novo.agendamento.unidade_id (pelo entity_id / booking_id); demais: nulo,
+evento_auditoria,ip,inet,,nulo (a origem não guarda),
+evento_auditoria,tabela_origem,text,,'activity_logs' ou 'booking_audit_logs',
+evento_auditoria,id_origem,uuid,origem.activity_logs.id | origem.booking_audit_logs.id,direto,
+evento_auditoria,pendencia,text,,,"ver ator_id, valor_novo, criado_em"
+evento_auditoria,criado_em,timestamptz,origem.activity_logs.created_at | origem.booking_audit_logs.created_at,direto; booking_audit_logs com created_at nulo → bookings.created_at,created_at nulo: 'data do evento desconhecida (usada a do agendamento)'
+evento_auditoria,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+consentimento,id,uuid,,sem origem: só estrutura,
+consentimento,pessoa_id,uuid,,sem origem: só estrutura,
+consentimento,aluno_id,uuid,,sem origem: só estrutura,
+consentimento,finalidade,text,,sem origem: só estrutura,
+consentimento,canal,text,,sem origem: só estrutura,
+consentimento,versao_termo,text,,sem origem: só estrutura,
+consentimento,concedido_em,timestamptz,,sem origem: só estrutura,
+consentimento,revogado_em,timestamptz,,sem origem: só estrutura,
+consentimento,criado_em,timestamptz,,sem origem: só estrutura,
+consentimento,atualizado_em,timestamptz,,sem origem: só estrutura,
+relatorio_emissao,id,uuid,,sem origem: só estrutura,
+relatorio_emissao,aluno_id,uuid,,sem origem: só estrutura,
+relatorio_emissao,tipo,text,,sem origem: só estrutura,
+relatorio_emissao,competencia,date,,sem origem: só estrutura,
+relatorio_emissao,gerado_em,timestamptz,,sem origem: só estrutura,
+relatorio_emissao,gerado_por,uuid,,sem origem: só estrutura,
+relatorio_emissao,arquivo_id,uuid,,sem origem: só estrutura,
+relatorio_emissao,criado_em,timestamptz,,sem origem: só estrutura,
+relatorio_emissao,atualizado_em,timestamptz,,sem origem: só estrutura,
+relatorio_envio,emissao_id,uuid,,sem origem: só estrutura,
+relatorio_envio,canal,text,,sem origem: só estrutura,
+relatorio_envio,destinatario_id,uuid,,sem origem: só estrutura,
+relatorio_envio,estado,text,,sem origem: só estrutura,
+relatorio_envio,erro,text,,sem origem: só estrutura,
+relatorio_envio,enviado_em,timestamptz,,sem origem: só estrutura,
+relatorio_envio,criado_em,timestamptz,,sem origem: só estrutura,
+relatorio_envio,atualizado_em,timestamptz,,sem origem: só estrutura,
+notificacao,id,uuid,,sem origem: só estrutura,
+notificacao,usuario_id,uuid,,sem origem: só estrutura,
+notificacao,tipo,text,,sem origem: só estrutura,
+notificacao,mensagem,text,,sem origem: só estrutura,
+notificacao,lida,boolean,,sem origem: só estrutura,
+notificacao,criado_em,timestamptz,,sem origem: só estrutura,
+notificacao,atualizado_em,timestamptz,,sem origem: só estrutura,
+acesso_dado_sensivel,id,uuid,,sem origem: só estrutura,
+acesso_dado_sensivel,usuario_id,uuid,,sem origem: só estrutura,
+acesso_dado_sensivel,aluno_id,uuid,,sem origem: só estrutura,
+acesso_dado_sensivel,entidade,text,,sem origem: só estrutura,
+acesso_dado_sensivel,entidade_id,uuid,,sem origem: só estrutura,
+acesso_dado_sensivel,finalidade,text,,sem origem: só estrutura,
+acesso_dado_sensivel,acessado_em,timestamptz,,sem origem: só estrutura,
+acesso_dado_sensivel,criado_em,timestamptz,,sem origem: só estrutura,
+acesso_dado_sensivel,atualizado_em,timestamptz,,sem origem: só estrutura,
+—,—,—,origem.notifications.created_at,não migra,operacional; pendência 6 (proposta: não migrar). novo.notificacao fica só com a estrutura
+—,—,—,origem.notifications.id,não migra,operacional; pendência 6 (proposta: não migrar). novo.notificacao fica só com a estrutura
+—,—,—,origem.notifications.message,não migra,operacional; pendência 6 (proposta: não migrar). novo.notificacao fica só com a estrutura
+—,—,—,origem.notifications.read,não migra,operacional; pendência 6 (proposta: não migrar). novo.notificacao fica só com a estrutura
+—,—,—,origem.notifications.type,não migra,operacional; pendência 6 (proposta: não migrar). novo.notificacao fica só com a estrutura
+—,—,—,origem.notifications.user_id,não migra,operacional; pendência 6 (proposta: não migrar). novo.notificacao fica só com a estrutura
+—,—,—,origem.nutritionist_files.category,não migra,0 linhas na foto; sem destino até haver dado
+—,—,—,origem.nutritionist_files.id,não migra,a chave do arquivo é o caminho (0 linhas na foto)
+—,—,—,origem.physical_test_comparisons.athlete_id,não migra,(aqui) ver arquivo.aluno_id
+—,—,—,origem.physical_test_comparisons.created_at,não migra,(aqui) ver arquivo.criado_em
+—,—,—,origem.physical_test_comparisons.created_by,não migra,(aqui) ver arquivo.enviado_por
+—,—,—,origem.physical_test_comparisons.file_path,não migra,(aqui) ver arquivo.storage_path
+—,—,—,origem.student_files.id,não migra,a chave do arquivo é o caminho
+—,—,—,origem.student_timeline.actor_id,não migra,vira a view vw_historico_aluno (derivada dos fatos e da auditoria)
+—,—,—,origem.student_timeline.athlete_id,não migra,vira a view vw_historico_aluno (derivada dos fatos e da auditoria)
+—,—,—,origem.student_timeline.created_at,não migra,vira a view vw_historico_aluno (derivada dos fatos e da auditoria)
+—,—,—,origem.student_timeline.description,não migra,vira a view vw_historico_aluno (derivada dos fatos e da auditoria)
+—,—,—,origem.student_timeline.event_type,não migra,vira a view vw_historico_aluno (derivada dos fatos e da auditoria)
+—,—,—,origem.student_timeline.id,não migra,vira a view vw_historico_aluno (derivada dos fatos e da auditoria)
+—,—,—,origem.student_timeline.ref_id,não migra,vira a view vw_historico_aluno (derivada dos fatos e da auditoria)
+—,—,—,origem.student_timeline.ref_type,não migra,vira a view vw_historico_aluno (derivada dos fatos e da auditoria)
+—,—,—,origem.student_timeline.title,não migra,vira a view vw_historico_aluno (derivada dos fatos e da auditoria)

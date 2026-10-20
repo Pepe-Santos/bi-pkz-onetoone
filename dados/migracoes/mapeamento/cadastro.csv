@@ -1,0 +1,99 @@
+tabela_destino,coluna,tipo,origem,transformacao,regra_pendencia_ou_rejeicao
+pessoa,id,uuid,origem.athletes.id | origem.profiles.id,aluno: = athletes.id; usuário: = profiles.id (sem colisão na foto: 0 ids repetidos),"chave de reexecução: (origem_tabela, origem_id)"
+pessoa,nome,text,origem.athletes.name | origem.profiles.full_name,btrim; perfil com full_name vazio: username,full_name vazio: 'nome vazio na origem: usado o username'
+pessoa,nome,text,origem.athletes.responsavel_secundario_nome,(secundário só em texto) btrim,0 casos na foto
+pessoa,data_nascimento,date,origem.athletes.birth_date,direto (usuários: nulo),
+pessoa,cpf,text,,nulo,não carregado (pendência 4)
+pessoa,telefone,text,origem.athletes.phone | origem.profiles.phone,btrim; vazio → nulo,
+pessoa,telefone,text,origem.athletes.responsavel_secundario_telefone,(secundário só em texto) btrim,0 casos na foto
+pessoa,foto_url,text,origem.athletes.photo_url | origem.profiles.avatar_url,direto,
+pessoa,origem_tabela,text,,'athletes' ou 'profiles',
+pessoa,origem_id,uuid,origem.athletes.id | origem.profiles.id,direto,
+pessoa,pendencia,text,,,"aluno One to One cujo responsável tem o mesmo nome normalizado (lower, sem acento, sem espaços extras): 'possível pessoa duplicada (aluno adulto = responsável)'. Não junta automaticamente"
+pessoa,criado_em,timestamptz,origem.athletes.created_at | origem.profiles.created_at,direto,
+pessoa,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+perfil_usuario,usuario_id,uuid,origem.profiles.id,direto (= id do login),chave de reexecução
+perfil_usuario,pessoa_id,uuid,origem.profiles.id,= pessoa.id do próprio perfil,
+perfil_usuario,username,text,origem.profiles.username,direto (único na origem: 0 repetidos),
+perfil_usuario,email,text,,"nulo: o e-mail do login está em auth.users, fora da foto",
+perfil_usuario,status,text,origem.profiles.status,direto,
+perfil_usuario,ativo,boolean,origem.profiles.active,direto,
+perfil_usuario,trocar_senha,boolean,origem.profiles.must_change_password,direto,
+perfil_usuario,pode_agendar,boolean,origem.profiles.can_schedule,direto,
+perfil_usuario,pode_treinar,boolean,origem.profiles.can_train,"coalesce(can_train, false)",
+perfil_usuario,pendencia,text,,,nenhuma regra por enquanto
+perfil_usuario,criado_em,timestamptz,origem.profiles.created_at,direto,
+perfil_usuario,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+papel_usuario,id,uuid,,gen_random_uuid(),"chave de reexecução: (usuario_id, papel_id, unidade_id)"
+papel_usuario,usuario_id,uuid,origem.user_roles.user_id,direto (0 fora de profiles),user_id sem perfil: carga_rejeitado
+papel_usuario,papel_id,uuid,origem.user_roles.role,role → codigo de novo.papel (ver referencia.csv),
+papel_usuario,unidade_id,uuid,origem.user_roles.role,professor_pkz → pkz; professor_one_to_one → one_to_one; demais → nulo (todas),
+papel_usuario,desde,date,origem.user_roles.created_at,"created_at::date (o menor, se agrupar)",
+papel_usuario,papel_origem,text,origem.user_roles.role,"agrupa por (usuario, papel, unidade): string_agg dos roles originais, ex.: 'nutricionista,psicologo'",
+papel_usuario,pendencia,text,,,recepcao: 'papel recepção sem destino definido na proposta'
+papel_usuario,criado_em,timestamptz,origem.user_roles.created_at,min(created_at) do grupo,
+papel_usuario,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+aluno,id,uuid,origem.athletes.id,direto,chave de reexecução
+aluno,pessoa_id,uuid,origem.athletes.id,= pessoa.id do aluno,
+aluno,status,text,origem.athletes.status,enum athlete_status → texto (só 'ativo' na foto),
+aluno,data_entrada,date,origem.athletes.created_at,(created_at at time zone 'America/Sao_Paulo')::date,sempre: 'data de entrada aproximada (= criação do cadastro)'
+aluno,data_saida,date,,nulo (a origem não guarda saída),
+aluno,categoria,text,origem.athletes.category,c = lower(btrim(espaços múltiplos → 1)); 'sub 10' / 'sub10' → 'sub_10'; só número ('13') → 'sub_13'; esportes sem acento ('natação' → 'natacao'); vazio → nulo,só número: 'categoria só com número: confirmar se é sub-N'
+aluno,categoria_original,text,origem.athletes.category,direto (sem normalizar),
+aluno,observacao,text,origem.athletes.notes,direto,
+aluno,pendencia,text,,,data_entrada (sempre) e categoria (ver acima)
+aluno,criado_em,timestamptz,origem.athletes.created_at,direto,
+aluno,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+aluno_servico,aluno_id,uuid,origem.athletes.id,direto,"chave de reexecução: (aluno_id, servico_id)"
+aluno_servico,servico_id,uuid,origem.athletes.allowed_services,"unnest(allowed_services) → valor: treino→treino, fisioterapeuta→fisioterapia, nutricionista→nutricao, psicologo→psicologia; busca novo.servico.id pelo codigo",
+aluno_servico,criado_em,timestamptz,origem.athletes.created_at,direto,
+aluno_servico,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+responsavel_aluno,aluno_id,uuid,origem.athletes.id,direto,"chave de reexecução: (aluno_id, pessoa_id)"
+responsavel_aluno,pessoa_id,uuid,origem.athletes.responsavel_id | origem.athletes.responsavel_secundario_id,"principal: pessoa do perfil responsavel_id; secundário: pessoa do perfil responsavel_secundario_id; secundário só em texto: pessoa nova (origem_tabela 'athletes.responsavel_secundario', origem_id = athletes.id)",na foto: 0 secundários (nem ligação nem texto). Ligação e texto discordando: vale a ligação + pendência
+responsavel_aluno,tipo_vinculo,text,,'responsavel'; 'proprio' quando pessoa.pendencia indica aluno = responsável,
+responsavel_aluno,principal,boolean,,true para responsavel_id; false para o secundário,
+responsavel_aluno,pode_agendar,boolean,,true (a origem não tem a regra por vínculo; can_schedule é do usuário),
+responsavel_aluno,pendencia,text,,,'possível pessoa duplicada (aluno adulto = responsável)'; secundário divergente: 'responsável secundário: ligação e texto discordam'
+responsavel_aluno,criado_em,timestamptz,origem.athletes.created_at,direto,
+responsavel_aluno,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+profissional,id,uuid,origem.profiles.id,"usuários com papel professor*, nutricionista, psicologo ou fisioterapeuta + quem aparece como bookings.professor_id, training_reports.professor_id, physical_test_sessions.evaluator_id, physio_assessments.physio_id, physio_evolutions.physio_id ou specialist_evolutions.professional_id",sem papel de profissional (na foto: só admins): 'admin atuando como profissional (sem papel de profissional)'. Pendência 1 fechada: id = profiles.id
+profissional,registro_conselho,text,,nulo (a origem não tem),
+profissional,especialidade,text,origem.user_roles.role,"string_agg dos serviços habilitados (treino, fisioterapia, nutricao, psicologia)",
+profissional,ativo,boolean,origem.profiles.active,direto,
+profissional,pendencia,text,,,ver id
+profissional,criado_em,timestamptz,origem.profiles.created_at,direto,
+profissional,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+profissional_servico,profissional_id,uuid,origem.user_roles.user_id,direto,"chave de reexecução: (profissional_id, servico_id)"
+profissional_servico,servico_id,uuid,origem.user_roles.role | origem.bookings.service,"professor/professor_pkz/professor_one_to_one → treino; fisioterapeuta → fisioterapia; nutricionista → nutricao; psicologo → psicologia; admin atuando: bookings.service dos agendamentos em que aparece, treino se aparece em training_reports ou physical_test_sessions, fisioterapia se aparece em physio_assessments ou physio_evolutions, specialist_evolutions.service",
+profissional_servico,criado_em,timestamptz,origem.user_roles.created_at,min(created_at),
+profissional_servico,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+—,—,—,origem.athlete_access_links.athlete_id,não migra,"token de ativação de conta: operacional, expira; não migra"
+—,—,—,origem.athlete_access_links.created_at,não migra,"token de ativação de conta: operacional, expira; não migra"
+—,—,—,origem.athlete_access_links.created_by,não migra,"token de ativação de conta: operacional, expira; não migra"
+—,—,—,origem.athlete_access_links.expires_at,não migra,"token de ativação de conta: operacional, expira; não migra"
+—,—,—,origem.athlete_access_links.id,não migra,"token de ativação de conta: operacional, expira; não migra"
+—,—,—,origem.athlete_access_links.kind,não migra,"token de ativação de conta: operacional, expira; não migra"
+—,—,—,origem.athlete_access_links.status,não migra,"token de ativação de conta: operacional, expira; não migra"
+—,—,—,origem.athlete_access_links.token,não migra,"token de ativação de conta: operacional, expira; não migra"
+—,—,—,origem.athlete_access_links.updated_at,não migra,"token de ativação de conta: operacional, expira; não migra"
+—,—,—,origem.athlete_access_links.used_at,não migra,"token de ativação de conta: operacional, expira; não migra"
+—,—,—,origem.athlete_access_links.user_id,não migra,"token de ativação de conta: operacional, expira; não migra"
+—,—,—,origem.athletes.credits,não migra,"saldo é derivado do extrato (vw_saldo_credito: lançamentos desde a última renovação, migration 011); usado só para conferir no script 30"
+—,—,—,origem.athletes.credits_fisio,não migra,idem
+—,—,—,origem.athletes.credits_nutri,não migra,idem
+—,—,—,origem.athletes.updated_at,não migra,atualizado_em = momento da carga
+—,—,—,origem.profiles.updated_at,não migra,atualizado_em = momento da carga
+—,—,—,origem.registration_invites.athlete_id,não migra,convite de cadastro: operacional (0 linhas na foto); não migra
+—,—,—,origem.registration_invites.athlete_name,não migra,convite de cadastro: operacional (0 linhas na foto); não migra
+—,—,—,origem.registration_invites.created_at,não migra,convite de cadastro: operacional (0 linhas na foto); não migra
+—,—,—,origem.registration_invites.created_by,não migra,convite de cadastro: operacional (0 linhas na foto); não migra
+—,—,—,origem.registration_invites.expires_at,não migra,convite de cadastro: operacional (0 linhas na foto); não migra
+—,—,—,origem.registration_invites.id,não migra,convite de cadastro: operacional (0 linhas na foto); não migra
+—,—,—,origem.registration_invites.monthly_plan,não migra,convite de cadastro: operacional (0 linhas na foto); não migra
+—,—,—,origem.registration_invites.plan,não migra,convite de cadastro: operacional (0 linhas na foto); não migra
+—,—,—,origem.registration_invites.program,não migra,convite de cadastro: operacional (0 linhas na foto); não migra
+—,—,—,origem.registration_invites.status,não migra,convite de cadastro: operacional (0 linhas na foto); não migra
+—,—,—,origem.registration_invites.token,não migra,convite de cadastro: operacional (0 linhas na foto); não migra
+—,—,—,origem.registration_invites.updated_at,não migra,convite de cadastro: operacional (0 linhas na foto); não migra
+—,—,—,origem.registration_invites.used_at,não migra,convite de cadastro: operacional (0 linhas na foto); não migra
+—,—,—,origem.user_roles.id,não migra,"a chave nova é (usuario, papel, unidade); papéis que viram o mesmo papel novo se juntam"

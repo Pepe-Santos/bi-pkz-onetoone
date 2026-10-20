@@ -1,0 +1,41 @@
+tabela_destino,coluna,tipo,origem,transformacao,regra_pendencia_ou_rejeicao
+matricula,id,uuid,,gen_random_uuid(),"chave de reexecução: (aluno_id, plano_id, vigencia_inicio)"
+matricula,aluno_id,uuid,origem.athletes.id,direto (uma matrícula por aluno: só a vigente existe na origem),
+matricula,plano_id,uuid,origem.athletes.plan | origem.athletes.program,one_to_one: plan → novo.plano.codigo; one_to_one com plan nulo → 'one_to_one_sem_plano'; pkz → 'pkz_padrao',plan nulo: 'aluno One to One sem plano na origem' (2 na foto)
+matricula,unidade_id,uuid,origem.athletes.program,"program: pkz→pkz, one_to_one→one_to_one; busca novo.unidade.id pelo codigo",
+matricula,vigencia_inicio,date,origem.athletes.created_at,(created_at at time zone 'America/Sao_Paulo')::date,sempre: 'início aproximado (= criação do cadastro)'
+matricula,vigencia_fim,date,,nulo (vigente),
+matricula,duracao_treino_min,integer,origem.athletes.training_duration_min,direto,"o app usa 30 min para o plano express e 60 min no One to One a partir das 17h, independentemente deste valor (ver agenda.csv, hora_fim)"
+matricula,experimental,boolean,origem.athletes.is_trial,direto,
+matricula,renovacao_ativa,boolean,origem.athletes.auto_renew_enabled,direto,
+matricula,renovacao_dia,integer,origem.athletes.auto_renew_day,direto,
+matricula,renovacao_quantidade,integer,origem.athletes.auto_renew_amount,direto,
+matricula,ultima_renovacao_em,timestamptz,origem.athletes.last_renewed_at,direto,
+matricula,proxima_renovacao,date,origem.athletes.next_renewal_date,direto,
+matricula,proxima_renovacao_semanal,date,origem.athletes.next_weekly_renewal,direto,
+matricula,plano_mensal_origem,integer,origem.athletes.monthly_plan,direto (valor bruto),monthly_plan <> 0: 'significado de monthly_plan a confirmar'
+matricula,pendencia,text,origem.athletes.credits | credits_fisio | credits_nutri,"compara o saldo guardado no aluno com novo.vw_saldo_credito por serviço (treino, fisioterapia, nutricao). Créditos NÃO são cumulativos: a renovação redefine o saldo (delta = cota), então o saldo é a soma dos lançamentos desde a última renovação, inclusive (migration 011). Antes de marcar, tira as marcas de execuções anteriores (update)",saldo diferente: 'ajuste de saldo pendente: <servico> cadastro=<x> calculado=<y>'. Não cria lançamento de ajuste nem escolhe qual vale
+matricula,criado_em,timestamptz,origem.athletes.created_at,direto,
+matricula,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+renovacao,id,uuid,,gen_random_uuid(),"chave de reexecução: (aluno_id, servico_id, periodicidade, competencia) (009)"
+renovacao,aluno_id,uuid,origem.credit_transactions.athlete_id,lançamentos com reason começando por 'Renovação',
+renovacao,servico_id,uuid,origem.credit_transactions.reason,bucket do crédito: colchete no fim do texto [treino]/[fisio]/[nutri] → treino/fisioterapia/nutricao; sem colchete: 'Renovação semanal treino' → treino; 'Renovação mensal ... fisio' → fisioterapia; '... nutri' → nutricao; 'Renovação mensal PKZ' e 'Renovação mensal (N/N)' → treino; outro texto com fisio/nutri → esse serviço; resto → treino,
+renovacao,matricula_id,uuid,,matrícula vigente do aluno (novo.matricula),
+renovacao,competencia,date,origem.credit_transactions.created_at,"semanal: date_trunc('week', created_at at time zone 'America/Sao_Paulo')::date; mensal: date_trunc('month', ...)::date. O '(N/N)' de 'Renovação mensal (N/N)' é a competência MM/AAAA e bate com created_at em 173 de 173 lançamentos",
+renovacao,periodicidade,text,origem.credit_transactions.reason,'semanal' no texto → 'semana'; 'mensal' → 'mes' (obrigatória desde o 009),
+renovacao,executada_em,timestamptz,origem.credit_transactions.created_at,min(created_at) do grupo,
+renovacao,pendencia,text,,,mais de um lançamento de renovação na mesma competência e periodicidade: 'mais de um lançamento de renovação na mesma competência'
+renovacao,criado_em,timestamptz,origem.credit_transactions.created_at,min(created_at) do grupo,
+renovacao,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+credito_lancamento,id,uuid,origem.credit_transactions.id,direto,chave de reexecução
+credito_lancamento,aluno_id,uuid,origem.credit_transactions.athlete_id,direto,aluno inexistente no destino: carga_rejeitado
+credito_lancamento,servico_id,uuid,origem.credit_transactions.reason,bucket do crédito: colchete no fim do texto [treino]/[fisio]/[nutri] → treino/fisioterapia/nutricao; sem colchete: 'Renovação semanal treino' → treino; 'Renovação mensal ... fisio' → fisioterapia; '... nutri' → nutricao; 'Renovação mensal PKZ' e 'Renovação mensal (N/N)' → treino; outro texto com fisio/nutri → esse serviço; resto → treino,"'Renovação mensal PKZ', 'Renovação mensal (N/N)' e sem colchete fora da renovação: 'serviço deduzido do texto'; não encaixou: 'serviço não identificado (assumido treino)'; colchete diferente do serviço citado no texto (ex.: 'Solicitação: fisioterapeuta [treino]'): 'crédito debitado de saldo diferente do serviço agendado'"
+credito_lancamento,delta,integer,origem.credit_transactions.delta,direto (0 lançamentos com delta 0),
+credito_lancamento,motivo,text,origem.credit_transactions.reason,direto (texto original),
+credito_lancamento,origem_tipo,text,origem.credit_transactions.reason,começo do texto: Renovação → renovacao; Agendamento / Solicitação → agendamento; Cancelamento → estorno; Adição / Remoção / Ajuste manual → ajuste_manual; resto → outro,outro: 'origem do lançamento não identificada'
+credito_lancamento,renovacao_id,uuid,,"renovação do mesmo (aluno, serviço, competência), só para origem_tipo = renovacao",
+credito_lancamento,ator_id,uuid,origem.credit_transactions.actor_id,direto; sem perfil no destino → nulo,ator sem perfil: 'ator do lançamento não encontrado'
+credito_lancamento,pendencia,text,,,"ver servico_id, origem_tipo, ator_id"
+credito_lancamento,criado_em,timestamptz,origem.credit_transactions.created_at,direto,
+credito_lancamento,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+credito_lancamento,agendamento_id,uuid,,nulo: a origem não liga o lançamento ao agendamento,

@@ -1,0 +1,77 @@
+graph "comercial" {
+  graph [rankdir=TB, splines=spline, nodesep=0.6, ranksep=0.85,
+         bgcolor="#FAFAF8", fontname="Helvetica", fontsize=24, pad=0.5,
+         label=<<B>2 &#183; Comercial e Créditos</B><BR/><BR/><FONT POINT-SIZE="14" COLOR="#6A6A6A">Matrícula é ternária e datada: é ela que dá histórico de plano e permite o atleta migrar de unidade. Saldo é derivado.<BR/>Créditos são SESSÕES, não dinheiro, e não se acumulam: a renovação redefine o saldo (M6). O banco não guarda pagamento.<BR/>v2 (16/10/2026): em verde, o que mudou na construção do banco. Os códigos M remetem ao registro de mudanças.</FONT><BR/> >,
+         labelloc=t, fontcolor="#2B2B2B"];
+  node [fontname="Helvetica", fontsize=11];
+  edge [fontname="Helvetica", fontsize=9, color="#5A5A5A", penwidth=1.1,
+        fontcolor="#444444", labeldistance=1.5, labelfloat=false];
+  ATLETA [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="ATLETA", margin="0.18,0.10"];
+  UNIDADE [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="UNIDADE", margin="0.18,0.10"];
+  PLANO [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="PLANO", margin="0.18,0.10"];
+  SERVICO [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="SERVIÇO", margin="0.18,0.10"];
+  RENOVACAO [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="RENOVAÇÃO", margin="0.18,0.10"];
+  LANC [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="LANÇAMENTO
+DE CRÉDITO", margin="0.18,0.10"];
+  R_matricula [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="matrícula", fontsize=10, margin="0.02,0.02"];
+  R_concede [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="concede", fontsize=10, margin="0.02,0.02"];
+  R_gera [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="gera", fontsize=10, margin="0.02,0.02"];
+  R_possui [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="possui", fontsize=10, margin="0.02,0.02"];
+  R_consome [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="refere-se a", fontsize=10, margin="0.02,0.02"];
+  m_ini [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="vigência_início", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  m_fim [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="vigência_fim", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  pl_id [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label=<<U>id_plano</U>>, height=0.30, margin="0.04,0.02", style="filled,solid"];
+  pl_nome [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="nome", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  sv_id [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label=<<U>id_serviço</U>>, height=0.30, margin="0.04,0.02", style="filled,solid"];
+  sv_nome [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="nome", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  c_qtd [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="quantidade", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  c_per [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="periodicidade", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  l_id [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label=<<U>id_lançamento</U>>, height=0.30, margin="0.04,0.02", style="filled,solid"];
+  l_data [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="data", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  l_qtd [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#2F7D62", fontcolor="#2F7D62", penwidth=1.0, fontsize=9, label="quantidade (na renovação = cota) · M6", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  l_mot [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="motivo", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  r_id [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label=<<U>id_renovação</U>>, height=0.30, margin="0.04,0.02", style="filled,solid"];
+  r_comp [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="competência", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  a_saldo [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#2F7D62", fontcolor="#2F7D62", penwidth=1.0, fontsize=9, label="saldo: desde a última renovação · M6", height=0.30, margin="0.04,0.02", style="filled,dashed"];
+  ATLETA:sw -- R_matricula [taillabel="(1,N)", labeldistance=2.6, labelangle=12];
+  R_matricula -- PLANO [taillabel="(0,N)", labeldistance=2.6, labelangle=12, style=dashed, color="#B9963F"];
+  R_matricula -- UNIDADE [taillabel="(1,N)", labeldistance=2.6, labelangle=12, style=dashed, color="#B9963F"];
+  PLANO -- R_concede [taillabel="(1,N)", labeldistance=2.6, labelangle=12];
+  R_concede -- SERVICO [taillabel="(1,N)", labeldistance=2.6, labelangle=12];
+  RENOVACAO -- R_gera [taillabel="(1,N)", labeldistance=2.6, labelangle=12];
+  R_gera -- LANC [taillabel="(0,1)", labeldistance=2.6, labelangle=12];
+  ATLETA:s -- R_possui [taillabel="(1,N)", labeldistance=2.6, labelangle=12];
+  R_possui -- LANC [taillabel="(1,1)", labeldistance=2.6, labelangle=12];
+  LANC -- R_consome [taillabel="(N,1)", labeldistance=2.6, labelangle=12];
+  R_consome -- SERVICO [taillabel="(1,1)", labeldistance=2.6, labelangle=12];
+  R_matricula -- m_ini [color="#A8A8A8", penwidth=0.85];
+  R_matricula -- m_fim [color="#A8A8A8", penwidth=0.85];
+  PLANO -- pl_id [color="#A8A8A8", penwidth=0.85];
+  PLANO -- pl_nome [color="#A8A8A8", penwidth=0.85];
+  SERVICO -- sv_id [color="#A8A8A8", penwidth=0.85];
+  SERVICO -- sv_nome [color="#A8A8A8", penwidth=0.85];
+  R_concede -- c_qtd [color="#A8A8A8", penwidth=0.85];
+  R_concede -- c_per [color="#A8A8A8", penwidth=0.85];
+  LANC -- l_id [color="#A8A8A8", penwidth=0.85];
+  LANC -- l_data [color="#A8A8A8", penwidth=0.85];
+  LANC -- l_qtd [color="#2F7D62", penwidth=0.9];
+  LANC -- l_mot [color="#A8A8A8", penwidth=0.85];
+  RENOVACAO -- r_id [color="#A8A8A8", penwidth=0.85];
+  RENOVACAO -- r_comp [color="#A8A8A8", penwidth=0.85];
+  ATLETA -- a_saldo [color="#2F7D62", penwidth=0.9];
+  R_pertence [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<pertence a<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M4</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  UNIDADE -- R_pertence [taillabel="(0,N)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  R_pertence -- PLANO [taillabel="(1,1)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  R_renova [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<renova<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M5</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  R_renserv [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<refere-se a<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M5</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  r_per [shape=ellipse, fillcolor="#FFFFFF", color="#2F7D62", fontcolor="#2F7D62", penwidth=1.2, fontsize=9, label="periodicidade", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  ATLETA:se -- R_renova [taillabel="(0,N)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  R_renova -- RENOVACAO [taillabel="(1,1)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  SERVICO:e -- R_renserv [taillabel="(0,N)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  R_renserv -- RENOVACAO [taillabel="(1,1)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  RENOVACAO -- r_per [color="#2F7D62", penwidth=0.9];
+  AGEND [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="AGENDAMENTO", margin="0.18,0.10"];
+  R_debita [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<debita<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M7</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  AGEND -- R_debita [taillabel="(0,N)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6, style=dashed];
+  R_debita -- LANC [taillabel="(0,1)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6, style=dashed];
+}
