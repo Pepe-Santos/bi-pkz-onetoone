@@ -25,8 +25,9 @@ ON CONFLICT (chave) DO NOTHING;
 -- são HIPÓTESES, marcadas como não confirmadas até a PKZ validar.
 -- O código de cada teste precisa bater com novo.metrica.codigo, a tabela de métricas do
 -- grupo de Dados. Em 20/10 ainda não bate (lá: sprint_10, sprint_20, cross_hop...;
--- aqui: sprint_10m, sprint_20m...). Alinhamento pendente com o grupo de Dados.
--- A novo.metrica já traz unidade e direção, mas não traz faixa plausível nem regra de conversão.
+-- aqui: sprint_10m, sprint_20m...). Decidido em 20/10: os códigos da novo.metrica são o
+-- padrão, e este catálogo vai guardar só o que falta lá (faixa plausível e conversão).
+-- Recodificação pendente.
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS trat.catalogo_teste (
   codigo          text PRIMARY KEY,              -- código usado nas views da api (ex.: sprint_20m)

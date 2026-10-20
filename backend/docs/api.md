@@ -136,6 +136,6 @@ As regras por teste (unidade padrão, direção, faixa plausível, conversão, c
 ## O que ainda falta
 
 - Confirmar com a PKZ a unidade, a direção e a faixa plausível de cada teste, e se algum teste usa média em vez da melhor tentativa.
-- Origem dos dados: as views leem o banco novo do grupo de Dados, no mesmo projeto Supabase (combinado em 15/10). O grupo de Dados publica views de leitura por domínio (tarefa 3.4 deles) a partir dos requisitos do Grupo de Desenvolvimento; a separação por unidade (PKZ e One to One) vem dessas views.
-- Códigos dos testes: os do banco novo (`novo.metrica.codigo`, ex.: `sprint_20`) ainda não batem com os deste contrato (ex.: `sprint_20m`). Se o contrato mudar para os códigos do banco novo, a mudança é avisada no grupo antes, e os arquivos de `exemplos/api/` mudam junto.
+- Origem dos dados: as views leem direto as tabelas do banco novo do grupo de Dados (`novo.aluno`, `novo.avaliacao`, `novo.avaliacao_medida`, `novo.metrica`, `novo.relatorio_treino`, `novo.agendamento` e as de cadastro), no mesmo projeto Supabase, passando pelo `trat`. A unidade (PKZ ou One to One) vem de `novo.matricula` e `novo.unidade`. O grupo de Dados avisa no grupo se mudar a estrutura de alguma dessas tabelas.
+- Códigos dos testes: decidido em 20/10 que o contrato passa a usar os códigos do banco novo (`novo.metrica.codigo`, ex.: `sprint_20` em vez de `sprint_20m`). A troca nos arquivos de `exemplos/api/` é avisada no grupo antes, porque o gerador de relatórios usa esses arquivos.
 - Views de treino (`ultimo_treino`, `treino_mes`) para o relatório One to One: tarefa separada.
