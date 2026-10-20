@@ -1,6 +1,7 @@
--- Cria os schemas do projeto. Pode rodar quantas vezes quiser (IF NOT EXISTS).
-CREATE SCHEMA IF NOT EXISTS origem;  -- tabelas "virtuais" vindas do banco do grupo de Dados (FDW)
-CREATE SCHEMA IF NOT EXISTS trat;    -- views de dados tratados
+-- Cria os schemas do Grupo de Desenvolvimento. Pode rodar quantas vezes quiser (IF NOT EXISTS).
+-- Roda no mesmo projeto Supabase do banco novo do grupo de Dados. Não cria nem altera
+-- os schemas novo, origem e public, que pertencem ao grupo de Dados e ao app.
+CREATE SCHEMA IF NOT EXISTS trat;    -- regras de tratamento e dados tratados
 CREATE SCHEMA IF NOT EXISTS api;     -- views finais que a API expõe
 
 -- Permite que a API automática (PostgREST) leia o schema api

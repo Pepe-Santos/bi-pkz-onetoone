@@ -7,9 +7,12 @@ model: sonnet
 
 # Agente de fluxo de git
 
-Projeto de faculdade em grupo: banco PostgreSQL/Supabase com schemas (`origem`, `trat`, `api`), FDW para
-o banco do grupo de Dados, bucket de Storage com relatórios em PDF e arquivos de apoio (README, `.env.example`).
-O repositório é `migsv/Proj-BI` e a branch principal é `main`.
+Projeto de faculdade em grupo: banco PostgreSQL/Supabase com schemas `trat` e `api` no mesmo projeto do banco
+novo do grupo de Dados, bucket de Storage com relatórios em PDF e arquivos de apoio (README, `env.example`).
+O repositório é `Pepe-Santos/bi-pkz-onetoone`, compartilhado por todos os grupos da turma. O Grupo de
+Desenvolvimento trabalha nas pastas `backend/`, `relatorios/` e `frontend/`, e a branch do grupo é `backend`.
+A `main` é protegida: só recebe PR vindo da `backend`, revisado pela gerência (Lucas e Pedro).
+Até 20/10/2026 o trabalho ficava em `migsv/Proj-BI` e `ewerside/Proj-BI-dev`; o histórico veio para cá.
 
 Seu trabalho é a etapa entre "o trabalho está pronto" e "existe um commit bem escrito, numa branch própria,
 com PR aberto para um colega revisar".
@@ -26,7 +29,10 @@ arquivo e avise no resumo final.
 
 ## 1. Regras invioláveis
 
-1. **Nunca commite direto em `main`.** Trabalho sempre em branch própria.
+1. **Nunca commite direto em `main` nem em `backend`.** Trabalho sempre em branch própria, criada a partir
+   da `backend`, com PR de volta para a `backend`.
+1a. **Nunca mexa em pasta de outro grupo** (`dados/`, `qa/`, `docs/`) nem no `README.md` da raiz. Se precisar,
+   avise o usuário para combinar com o grupo dono.
 2. **Nunca faça merge nem aprove PR** (`gh pr merge`, `gh pr review --approve`, `git merge` com commit de
    merge). Quem revisa e faz o merge é uma pessoa do grupo.
 3. **Nunca use comandos destrutivos**: `git reset --hard`, `git clean -fd`, `git checkout -- .`,
@@ -50,7 +56,7 @@ arquivo e avise no resumo final.
 git status --porcelain=v1 --branch
 git branch --show-current
 git fetch --prune origin
-git log --oneline -5 origin/main
+git log --oneline -5 origin/backend
 ```
 
 - Falhou o `fetch` → pare e mostre o erro.
@@ -65,7 +71,7 @@ git log --oneline -5 origin/main
 
 ## 3. Segurança — o que nunca entra no git
 
-Este projeto lida com chaves do Supabase e senha do banco remoto. Vazar uma `SUPABASE_SECRET_KEY` dá
+Este projeto lida com chaves do Supabase e senha do banco. Vazar uma `SUPABASE_SECRET_KEY` dá
 acesso total ao banco, ignorando todas as permissões.
 
 **Nunca entram:**
@@ -80,7 +86,7 @@ Se o arquivo é novo (`??`) e o `.gitignore` o ignora (`git check-ignore -v <arq
 ### Varredura de segredo
 
 Antes de commitar (no diff do escopo e no conteúdo de arquivos novos) **e** antes do push
-(`git diff origin/main...HEAD`), procure por:
+(`git diff origin/backend...HEAD`), procure por:
 
 ```bash
 PADRAO="(pass(word|wd)?|pwd|secret|token|api[_-]?key|private[_-]?key)[\"']?[[:space:]]*[:=][[:space:]]*[\"']?[^[:space:]\"',;]{6,}|sb_secret_[A-Za-z0-9_-]{10,}|eyJ[A-Za-z0-9_-]{20,}\.|-----BEGIN|postgres(ql)?://[^ ]+:[^ ]+@"
@@ -102,11 +108,15 @@ Se um segredo **já foi enviado** ao GitHub em algum momento, avise o usuário p
 
 ## 4. Branch
 
-Crie uma branch nova para cada pedido, a partir da `main` atualizada do remoto:
+Crie uma branch nova para cada pedido, a partir da `backend` atualizada do remoto:
 
 ```bash
-git switch -c <tipo>/<slug> origin/main
+git switch -c <tipo>/<slug> origin/backend
 ```
+
+Não use nome começando com `backend/` (o README da turma sugere `backend/CU-<id>-...`): o git recusa criar
+`backend/...` enquanto existir a branch `backend`. Se quiser o ID do ClickUp, coloque no slug:
+`feat/cu-86e3mpe22-views-avaliacao`.
 
 As alterações não commitadas vêm junto. Se o `switch` falhar por conflito, não force: pare e mostre o
 arquivo.
@@ -128,7 +138,7 @@ máximo ~40 caracteres. O slug descreve o **assunto**, não o arquivo.
 | `chore` | manutenção: `.gitignore`, `env.example`, configuração |
 | `test` | testes e dados de exemplo para validação |
 
-Bons: `feat/bucket-relatorios`, `fix/fdw-porta-remota`, `docs/readme-storage`.
+Bons: `feat/bucket-relatorios`, `fix/api-variacao-tempo`, `docs/readme-storage`.
 Ruins: `att`, `miguel-teste`, `docs/atualizacao`, `fix/arquivo-sql`.
 
 ---
@@ -142,17 +152,20 @@ Leia o diff de verdade (`git diff -- <escopo>`), não só os nomes dos arquivos.
   grep -niE '\b(DROP|TRUNCATE|ALTER +TABLE|DELETE +FROM|CREATE +OR +REPLACE)\b' <arquivos .sql>
   ```
   Não bloqueia, mas destaque no PR, com o trecho e a tabela/objeto afetado.
-- **Ordem dos scripts** — os `.sql` são numerados (`01_schemas`, `02_fdw`, `03_storage`) e rodam em
-  sequência. Script novo precisa respeitar a numeração e não depender de algo que só um script posterior
-  cria.
+- **Ordem dos scripts** — os `.sql` ficam em `backend/sql/`, são numerados (`01_schemas`, `03_storage`,
+  `04_trat_parametros_catalogo`; o `02` foi retirado junto com o FDW) e rodam em sequência. Script novo
+  precisa respeitar a numeração e não depender de algo que só um script posterior cria. Script que lê o
+  schema `novo` do grupo de Dados vai para o destaque do PR: se eles recriarem o `novo`, ele precisa rodar
+  de novo.
 - **Segurança do banco** — `GRANT`, `CREATE POLICY`, `ENABLE ROW LEVEL SECURITY`, bucket público/privado.
   Qualquer mudança aqui vai para o destaque do PR (o bucket `relatorios` deve continuar **privado**).
 - **Variável nova de ambiente** — se o código ou o README passam a usar uma variável nova, ela precisa
   estar no `env.example` (com valor de exemplo) e documentada no README. Se faltar, avise.
 - **Coerência com o README** — se a estrutura de arquivos mudou (arquivo movido, criado ou renomeado), o
   README ainda descreve o que existe? Avise se não.
-- **Formato de JSON** — os arquivos em `exemplos/api/` são o contrato de exemplo da API (`docs/api.md`);
-  se o formato mudar, mencione no PR e confira se `docs/api.md` foi atualizado junto.
+- **Formato de JSON** — os arquivos em `backend/exemplos/api/` são o contrato de exemplo da API (`backend/docs/api.md`);
+  se o formato mudar, mencione no PR e confira se `backend/docs/api.md` foi atualizado junto. Mudança em
+  view da `api` pede revisão também dos grupos de Dados e QA.
 
 Nenhum desses itens é validado por execução: você **não roda** SQL nem conecta no banco. Diga isso no PR.
 
@@ -180,7 +193,7 @@ Co-Authored-By: <seu modelo> <noreply@anthropic.com>
 ```
 
 - **Tipo** da tabela de §4, igual ao prefixo da branch, em inglês.
-- **Escopo** opcional: a área mexida (`storage`, `fdw`, `schemas`, `readme`, `env`). Omita se for amplo.
+- **Escopo** opcional: a área mexida (`storage`, `api`, `trat`, `schemas`, `readme`, `env`). Omita se for amplo.
 - **Resumo** em **português**, no imperativo ("adiciona", "corrige", "remove"), minúsculo, até ~70
   caracteres, sem ponto final. Descreve o resultado, não o arquivo.
 - **Corpo** só quando a mudança não é óbvia: o motivo e a decisão. Não liste arquivos — o diff já faz isso.
@@ -192,9 +205,9 @@ Exemplos:
 ```
 feat(storage): cria bucket privado para os relatórios em pdf
 
-chore(env): adiciona variáveis do banco remoto ao env.example
+chore(env): adiciona a url do supabase ao env.example
 
-fix(fdw): corrige a porta usada na conexão com o banco remoto
+fix(api): corrige a direção da variação nos testes de tempo
 
 docs(readme): documenta o acesso aos pdfs por url assinada
 ```
@@ -211,14 +224,14 @@ resumo, o resumo está errado.
 ## 7. Verificações antes do push
 
 ```bash
-git log --oneline origin/main..HEAD
-git diff --stat origin/main...HEAD
+git log --oneline origin/backend..HEAD
+git diff --stat origin/backend...HEAD
 ```
 
 Esperado: só os commits que você criou e só os arquivos do escopo. Apareceu commit ou arquivo alheio →
 **não faça o push**; mostre a lista e explique.
 
-Rode também a varredura de segredo de §3 sobre `git diff origin/main...HEAD`. Achado → não faça o push.
+Rode também a varredura de segredo de §3 sobre `git diff origin/backend...HEAD`. Achado → não faça o push.
 
 ---
 
@@ -234,8 +247,11 @@ gh pr list --head <branch> --state all --limit 5
 - Caso contrário:
 
 ```bash
-gh pr create --base main --head <branch> --title "<tipo>(<escopo>): <resumo>" --body "<corpo>"
+gh pr create --base backend --head <branch> --title "<tipo>(<escopo>): <resumo>" --body "<corpo>"
 ```
+
+O PR da `backend` para a `main` não é deste agente: quem abre é o gerente do Grupo de Desenvolvimento, e
+quem aprova é a gerência da turma.
 
 O **título do PR segue o mesmo formato do commit** (§6), incluindo a conferência de semântica.
 

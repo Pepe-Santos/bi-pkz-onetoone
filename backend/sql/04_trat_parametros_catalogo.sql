@@ -23,8 +23,10 @@ ON CONFLICT (chave) DO NOTHING;
 -- Catálogo de regras por teste.
 -- O banco do app não grava unidade nem direção do teste, então estas regras
 -- são HIPÓTESES, marcadas como não confirmadas até a PKZ validar.
--- O código de cada teste precisa bater com a métrica do banco novo
--- (tabela de métricas do grupo de Banco de Dados). Ajustar quando o DDL chegar.
+-- O código de cada teste precisa bater com novo.metrica.codigo, a tabela de métricas do
+-- grupo de Dados. Em 20/10 ainda não bate (lá: sprint_10, sprint_20, cross_hop...;
+-- aqui: sprint_10m, sprint_20m...). Alinhamento pendente com o grupo de Dados.
+-- A novo.metrica já traz unidade e direção, mas não traz faixa plausível nem regra de conversão.
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS trat.catalogo_teste (
   codigo          text PRIMARY KEY,              -- código usado nas views da api (ex.: sprint_20m)
