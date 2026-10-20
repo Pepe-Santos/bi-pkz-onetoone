@@ -1,4 +1,4 @@
-﻿# Conferências da origem
+# Conferências da origem
 
 Consultas da tarefa 2.1 para calcular valores esperados exclusivamente no schema `origem`.
 
@@ -17,31 +17,26 @@ Consultas da tarefa 2.1 para calcular valores esperados exclusivamente no schema
 | `sql/02_testes_fisicos_json.sql` | Valores preenchidos em `origem.physical_test_sessions.data` |
 | `sql/03_fisioterapia_medidas.sql` | Valores não nulos nas 14 medidas numéricas de fisioterapia |
 | `sql/04_arquivos_origem.sql` | Nove colunas de caminho e referências de arquivo |
-| `sql/05_creditos_origem.sql` | Saldos materializados, extrato e saldo reconstruível por renovação |
+| `sql/05_creditos_origem.sql` | Saldos materializados, extrato e saldo reconstruído por renovação |
 
-## Estado real do projeto
+## Créditos
 
-O banco possui tabelas de controle em `novo` e `novo_pre_ensaio_geral`, incluindo `carga_execucao`, `carga_gabarito`, `carga_rejeitado` e `v_resumo_carga`. Elas foram consultadas apenas para entender o histórico da carga; não são usadas pelas consultas desta pasta para calcular os valores esperados.
+A regra confirmada é não cumulativa: uma renovação reinicia o saldo do serviço para o `delta` registrado naquele lançamento. Não há regra geral de reinício em 10 créditos. O saldo reconstruído usa a renovação identificável mais recente de cada atleta e serviço, inclui seu `delta` exatamente uma vez e soma os lançamentos posteriores do mesmo serviço. `created_at` ordena os eventos; `id` desempata timestamps iguais.
 
-O comentário de `novo.arquivo` confirma as nove referências: `student_files.storage_path`, `nutritionist_files.storage_path`, `physio_evolutions.storage_path`, `specialist_evolutions.file_path`, `training_reports.file_path`, `training_reports.pdf_storage_path`, `physical_test_comparisons.file_path`, `physio_assessments.file_path` e `student_tests.file_path`. A consulta 04 calcula preenchimento e caminhos distintos exclusivamente na origem.
+A classificação é conservadora. Renovação mensal genérica, como `Renovação mensal (08/2026)` e `Renovação mensal (10/2026)`, não é atribuída a treino, fisioterapia ou nutrição sem evidência. Lançamentos operacionais que citam fisioterapia ou nutrição não são classificados como treino apenas porque também contêm `[treino]`. Casos sem renovação identificável ou sem serviço seguro permanecem inconclusivos.
 
-### Créditos
+## Resultados validados em 20/10/2026
 
-A regra confirmada para os três serviços é não acumular créditos: cada renovação reinicia o saldo do serviço correspondente em 10 créditos. O saldo esperado é 10 mais a soma dos lançamentos posteriores à última renovação identificada; a própria renovação não é somada novamente. A view `novo.vw_saldo_credito` expressa uma regra de soma desde a renovação, mas a consulta desta pasta calcula o gabarito exclusivamente em `origem`.
+- A origem contém 106 atletas e 1.155 lançamentos em `origem.credit_transactions`.
+- Foram comparados 104 saldos de treino, 21 de fisioterapia e 71 de nutrição: 196 comparações no total.
+- Todas as 196 comparações coincidiram com os saldos materializados: 104/104, 21/21 e 71/71; divergências: 0; diferença absoluta total: 0.
+- As 196 comparações exigiram renovação e serviço identificáveis; fora delas, existem 4 combinações atleta/serviço observadas sem renovação identificável (3 de fisioterapia e 1 de nutrição), apresentadas pela consulta como inconclusivas.
+- A consulta também lista as renovações sem serviço, os motivos do extrato, a cobertura de renovação e as contagens para evidenciar cobertura. Cada lançamento posterior entra no `SUM` uma vez, e o lançamento de renovação aparece apenas como `delta_renovacao`.
 
-Os motivos genericos de renovacao, como `Renovacao mensal (08/2026)` e `Renovacao mensal (10/2026)`, permanecem sem classificacao porque a origem nao identifica se pertencem a treino, fisioterapia ou nutricao. A consulta mantem separados o saldo materializado, a soma historica de `delta`, o saldo reconstruido e a diferenca entre eles. Motivos especificos sao classificados somente quando o texto fornece evidencia suficiente.
+## Limitações e pendências
 
-## Resultados validados
-
-- `origem.physical_test_sessions`: 59 sessões; 59 JSONs com conteúdo; nenhum `NULL`, objeto vazio ou array vazio.
-- `origem.physio_assessments`: 4 avaliações; 12 das 14 medidas possuem valor não nulo; `quadril_dir` e `quadril_esq` estão totalmente nulos.
-- `origem.credit_transactions`: 1.155 lançamentos; as renovações genéricas somam 3 lançamentos em agosto e 105 em outubro, sem serviço identificável.
-- Com a classificação textual atual e reinício em 10, foram reconstruídos 104 saldos de treino, 21 de fisioterapia e 71 de nutrição; a comparação produziu divergências em 195 de 196 saldos classificados. Isso indica que a classificação textual não deve ser tratada como prova de equivalência dos campos materializados.
-
-## Pendências
-
-- Confirmar com o grupo se objetos e arrays JSON vazios devem ser considerados preenchidos; a consulta os separa explicitamente e não os confunde com `NULL`.
-- A regra de não acumulação para treino, fisioterapia e nutrição foi confirmada no contexto da tarefa.
-- Confirmar o parser oficial de serviço para motivos ambíguos ou inconsistentes, especialmente renovações mensais genéricas e lançamentos com marcador divergente.
-- A conexão remota não permitiu confirmar `origin/main` nesta sessão (`git ls-remote` falhou por conexão ao GitHub); o branch local ainda aponta para o commit `244ac9f` registrado como `origin/main` no clone.
+- As 108 renovações mensais genéricas (3 em agosto e 105 em outubro) permanecem sem serviço identificável; seus `delta` não são inventados nem aplicados a um saldo. Além disso, 110 transações não receberam classificação segura pelo parser textual, incluindo 2 solicitações de psicologia marcadas indevidamente com `[treino]`; essas transações não entram nas comparações.
+- Há 2 saldos positivos de treino sem renovação identificável; eles permanecem fora das comparações e exigem evidência adicional para reconstrução segura.
+- Classificações textuais continuam limitadas quando o motivo mistura marcadores, embora os motivos operacionais de fisioterapia e nutrição sejam excluídos da regra de treino.
+- A consulta não altera dados materializados e não declara homologação completa enquanto houver casos genéricos ou saldos sem renovação identificável.
 - Os resultados de validação não são armazenados neste repositório para evitar dados de produção.
