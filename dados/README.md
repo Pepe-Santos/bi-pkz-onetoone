@@ -2,7 +2,7 @@
 
 **Branch:** `dados` · **Membros:** Micael, Rafael, Iago
 
-Consome os dados tratados pelo back-end e estrutura o banco próprio do projeto: diagnóstico da base atual, modelo de dados e reestruturação.
+Estrutura o banco novo do projeto (schema `novo`) e carrega nele os dados do app, a partir de uma foto congelada da origem: diagnóstico da base atual, modelo de dados, reestruturação e conferência origem × destino. O grupo de Desenvolvimento lê direto do `novo`; mudanças de estrutura nas tabelas que ele usa são avisadas antes.
 
 ## Escopo
 
