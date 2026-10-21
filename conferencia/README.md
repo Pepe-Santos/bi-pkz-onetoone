@@ -40,3 +40,42 @@ A classificação é conservadora. Renovação mensal genérica, como `Renovaç�
 - Classificações textuais continuam limitadas quando o motivo mistura marcadores, embora os motivos operacionais de fisioterapia e nutrição sejam excluídos da regra de treino.
 - A consulta não altera dados materializados e não declara homologação completa enquanto houver casos genéricos ou saldos sem renovação identificável.
 - Os resultados de validação não são armazenados neste repositório para evitar dados de produção.
+
+## Task 2.3 — Destino
+
+### Preflight operacional
+
+O arquivo `sql/00_preflight_destino.sql` prepara a execução controlada da Task 2.3 em dez etapas numeradas: (1) identidade da sessão e confirmação independente do projeto Supabase; (2) schemas e privilégios básicos; (3) objetos essenciais; (4) colunas e tipos; (5) view de saldo; (6) snapshot do gabarito; (7) schema real e constraints de `carga_execucao`; (8) histórico dos oito scripts; (9) permissões e RLS; e (10) validação condicional do JSONB.
+
+As etapas são exclusivamente de leitura e devem ser executadas manualmente, na ordem, sem executar a etapa seguinte quando a anterior apresentar ausência, incompatibilidade, permissão insuficiente ou resultado inconclusivo. A confirmação do ambiente exige um canal operacional independente, pois `current_database()` não identifica sozinho o projeto Supabase. As verificações de `SELECT` e RLS não comprovam visibilidade integral dos dados.
+
+A etapa 10 só pode ser executada após confirmar o ambiente, a tabela `origem.physio_assessments`, a permissão de leitura e o tipo `jsonb` de `pkz_data`. O arquivo `sql/06_destino_carga.sql` não deve ser executado antes da revisão dos resultados do preflight e de autorização explícita. A Task 2.3 permanece não homologada; histórico sem chave de execução semanticamente validada, empate de rótulos do gabarito, snapshot ausente e demais estados inconclusivos bloqueiam a continuidade.
+
+`sql/06_destino_carga.sql` reúne consultas exclusivamente de leitura para o schema `novo`. O preflight identifica o rótulo de congelamento mais recente em `novo.carga_gabarito`, mas bloqueia empates e exige confirmação operacional de que o rótulo corresponde ao ensaio. A consulta distingue `GABARITO_INEXISTENTE`, `SEM_TABELA_NO_GABARITO`, `DIVERGENCIA` e estados `INCONCLUSIVO` sem misturar snapshots.
+
+### Conferências implementadas
+
+- matriz dos mapeamentos reproduzíveis do ensaio geral, incluindo materiais, tecnologias, avaliações, anamneses e os dois domínios de atendimento;
+- caminhos de arquivos distintos das fontes documentadas, incluindo `img_*`, `carimbo_path` e `laudo_path` extraídos de `physio_assessments.pkz_data`;
+- rejeições por script, tabela e motivo, com ocorrências totais, `id_origem` nulo, IDs distintos e ocorrências `motivo LIKE 'chave %'` excluídas da reconciliação de linhas; quando uma origem alimenta vários destinos, a comparação fica `INCONCLUSIVO` e não reutiliza a mesma rejeição;
+- pendências por tabela, histórico de execuções, incluindo `referencia`, quantidade de rodadas, datas da última e penúltima e comparação explícita das duas últimas, inclusive `INCONCLUSIVO` quando faltar penúltima;
+- duplicações nas chaves de origem, matrículas, medidas, a constraint final de `renovacao(aluno_id, servico_id, periodicidade, competencia)` e a regra adicional mais restritiva sem `periodicidade`;
+- FKs do DDL cobertas nas áreas de cadastro, comercial, agenda, atendimento, arquivos e auditoria, separando nulos permitidos, nulos obrigatórios e órfãos;
+- saldos com renovação mais recente identificada por `criado_em` e `id`, usando o `delta` da renovação uma vez e somando os lançamentos posteriores.
+
+### Resultados e interpretação
+
+Os resultados históricos registrados anteriormente continuam sendo apenas evidência observada: duas execuções por script, zero rejeições registradas, 106 alunos, 152 perfis, 258 pessoas e as comparações parciais documentadas. As novas consultas ainda precisam ser executadas no destino para confirmar a cobertura completa.
+
+A regra de rejeição `motivo LIKE 'chave %'` é deliberada: esses registros são reportados, mas não reduzem a contagem de linhas da reconciliação porque representam conferências de chave sem métrica, conforme a conferência geral da Frente 1. A ausência de rejeições não prova ausência de perdas ou duplicações; as consultas de chaves devem ser analisadas em conjunto.
+
+Renovações sem lançamento e lançamentos de renovação sem `renovacao_id` são retornados em detalhe para investigação e exigem interpretação de negócio. Não são classificados automaticamente como defeitos. Na reconstrução, a renovação entra pelo próprio `delta` uma vez; movimentações posteriores são somadas uma vez. Todos os lançamentos com o mesmo timestamp da renovação selecionada são identificados, inclusive empates anteriores por `id`; divergências com empate são marcadas como potencialmente explicadas pelo empate e não como defeito automático. A consulta retorna `OK`, `DIVERGENCIA`, `SOMENTE_NA_RECONSTRUCAO` e `SOMENTE_NA_VIEW`.
+
+### Limitações
+
+- Os scripts de carga não foram executados nesta tarefa; o histórico de duas rodadas não é um novo ensaio controlado.
+- A matriz cobre somente mapeamentos que podem ser reproduzidos com segurança a partir dos objetos e mapeamentos disponíveis. Mapeamentos sem destino contável seguro continuam pendentes e não são declarados como cobertura completa.
+- A lista de FKs consultadas cobre cadastro, comercial, agenda, atendimento, arquivos e auditoria nas relações explicitadas no SQL. Permanecem pendentes as FKs não listadas do DDL, especialmente `bloqueio_grade`, `horario_grade`, `sessao_treino`, `lista_espera`, `avaliacao_medida`, `evolucao`, `consentimento`, `relatorio_emissao`, `relatorio_envio`, `notificacao` e `acesso_dado_sensivel`; elas não são consideradas homologadas pela consulta.
+- A reconstrução expõe a renovação selecionada, `criado_em`, `delta`, quantidade de lançamentos considerados e todos os lançamentos com o mesmo timestamp, inclusive empates anteriores por `id`. A view `novo.vw_saldo_credito` usa o maior `criado_em` e não desempata por `id`, enquanto a reconstrução usa `criado_em` e `id`; divergências com empate são marcadas como potencialmente explicadas pelo empate e não como defeito automático.
+- Pendências de negócio, renovações genéricas e classificações ambíguas de `dados/migracoes/PENDENCIAS.md` continuam exigindo decisão ou validação adicional.
+- A Task 2.3 não está homologada: a execução das consultas e a análise dos resultados reais permanecem pendentes.
