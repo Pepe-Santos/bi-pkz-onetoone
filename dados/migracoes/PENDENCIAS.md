@@ -16,8 +16,9 @@ Dúvidas de regra de negócio não são decididas pelo grupo: o registro entra c
 | 10 | Admins que aparecem como professor/avaliador (46 agendamentos, 62 relatórios, 2 testes, 2 avaliações de fisio): são profissionais de fato ou o registro foi feito em nome de alguém? | Coordenação | 20, 40, 50, 60, 70 | aberta (14/10); entram como `profissional` com pendência |
 | 11 | Auditoria: tirar nome, telefone e login (`username`) do `payload` (proposta do mapeamento) ou guardar com acesso restrito | Frente 3 (Iago, 3.2) | 80 | aberta (14/10) |
 | 12 | Agendamentos de especialista: 69/69 sem profissional na origem (15 recuperáveis pela evolução) e 11 com presença sem registro de atendimento — é assim mesmo? | Coordenação (via Rafael, 2.5) | 40, 70 | aberta (15/10); os 11 entram marcados 'realizado sem registro de atendimento' (16/10) |
-| 13 | Saldo de créditos: 3 alunos com saldo guardado diferente do calculado pelo extrato (2 em fisio, 1 em nutri). A carga não corrige: marca 'ajuste de saldo pendente' na matrícula. Qual vale? | Comercial / coordenação | 30 | aberta (15/10) |
+| 13 | Saldo de créditos: 3 alunos com saldo guardado diferente do calculado pelo extrato (2 em fisio, 1 em nutri). A carga não corrige: marca 'ajuste de saldo pendente' na matrícula. Qual vale? (são 3 dos 318 pares aluno × serviço, todos sem renovação identificável pelo texto; comparação com a conferência da 2.1 em `mapeamento/README.md`) | Comercial / coordenação | 30 | aberta (15/10) |
 | 14 | 2 agendamentos acima da capacidade do horário (pico no intervalo) e 19 relatórios de treino duplicados para o mesmo agendamento: manter os dois, ou um deles deve ser descartado? | Coordenação (via Rafael, 2.5) | 40, 50 | aberta (15/10); entram com pendência |
+| 15 | Papel `professor` sem sufixo (1 usuário na foto): vale para as duas unidades (como está na carga) ou deveria ser de uma só? Os demais papéis globais estão explicados em `mapeamento/README.md` ("Papéis e unidade") | Coordenação (via Rafael, 2.5) | 20 | aberta (21/10); entra com `unidade_id` nula (todas) |
 
 ## Decididas
 

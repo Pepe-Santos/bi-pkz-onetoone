@@ -34,7 +34,7 @@ Estrutura nova do banco (DDL) e scripts que carregam os dados do app para ela, t
 | [`migrations/`](migracoes/migrations/) | DDL 001–011: 43 tabelas e 5 views no schema `novo`, um arquivo por domínio |
 | [`mapeamento/`](migracoes/mapeamento/) | De/para coluna a coluna, origem → destino (só estrutura e regras, sem dados) e o **catálogo das 109 métricas** (`avaliacao_metricas.csv`: unidade, direção, conversão e faixa) |
 | [`carga/`](migracoes/carga/) | Scripts de carga 10–80 por domínio e o mestre `99_carga_mestre.sql`; todos podem rodar mais de uma vez sem duplicar |
-| [`conferencia/`](migracoes/conferencia/) | Conferência da estrutura e conferência geral origem × destino (só leitura) |
+| [`conferencia/`](migracoes/conferencia/) | Conferências só de leitura: estrutura do DDL, cobertura do mapeamento (`01`, reproduzível), papéis × unidade (`02`), saldo de créditos (`03`) e conferência geral origem × destino (`99`) |
 | [`ensaio/`](migracoes/ensaio/) | Foto da origem, estrutura da origem para teste local e dados inventados |
 
 Regras do grupo: [`CONVENCOES.md`](migracoes/CONVENCOES.md) · decisões em aberto: [`PENDENCIAS.md`](migracoes/PENDENCIAS.md).

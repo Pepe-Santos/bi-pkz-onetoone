@@ -69,7 +69,7 @@ O destino definitivo é um **projeto Supabase separado**. Lá o arranjo vai ser 
   - comercial: 106 matrículas, 968 renovações, 1155 lançamentos de crédito (= origem);
   - agenda: grade 37, bloqueios 36 (34 ligados à grade), 536 agendamentos (= origem; 0 fora da grade, 2 acima da capacidade), 224 sessões de treino, 0 na lista de espera, 169 feedbacks (= origem);
   - relatório: 72 itens de catálogo (5 não classificados), 228 relatórios (= origem; 19 duplicados para o mesmo agendamento), 912 itens de relatório.
-- `migrations/011_saldo_nao_cumulativo.sql` (aplicada): **créditos não são cumulativos**. A renovação redefine o saldo em vez de somar, então `vw_saldo_credito` passou a somar só os lançamentos desde a última renovação. Com a regra antiga, 104 dos 106 alunos davam saldo diferente; com a nova, 3 (pendência 13).
+- `migrations/011_saldo_nao_cumulativo.sql` (aplicada): **créditos não são cumulativos**. A renovação redefine o saldo em vez de somar, então `vw_saldo_credito` passou a somar só os lançamentos desde a última renovação. Com a regra antiga, 104 dos 106 alunos davam saldo diferente; com a nova, 3 dos 318 pares (aluno, serviço), em 3 alunos (pendência 13). Essa conferência tem universo e critério diferentes da conferência 5 da tarefa 2.1: ver "Saldo de créditos: as duas conferências" em [mapeamento/README.md](mapeamento/README.md) e `conferencia/03_saldo_credito.sql`.
 
 ### 16/10 — Carga de avaliação, atendimento e documentos (tarefa 1.6)
 
@@ -89,6 +89,16 @@ O destino definitivo é um **projeto Supabase separado**. Lá o arranjo vai ser 
   3. gabarito `congelamento-2026-10-12` registrado de novo: igual ao antigo nas 28 tabelas;
   4. cargas 10–80 rodadas **duas vezes**: as 19 linhas da conferência origem × destino com `ok`, 0 rejeitados, e a "foto" das 41 tabelas (linhas e pendências) idêntica nas duas rodadas.
 - Falta: o grupo confirmar e alguém apagar `novo_pre_ensaio_geral` pelo SQL Editor (ver "Ensaio geral" abaixo).
+
+### 21/10 — Respostas à revisão do PR #5 (Rafael)
+
+Três conferências novas, só de leitura, e a documentação que a revisão pediu:
+
+- `conferencia/01_cobertura_mapeamento.py`: refaz, de forma reproduzível, a conferência de cobertura do mapeamento contra o `information_schema` e classifica cada coluna (direta, transformada, gerada, não migrada). Resultado: 365/365 colunas da origem e 451/451 do destino, 0 erros. Ver "Como refazer a conferência" em [mapeamento/README.md](mapeamento/README.md).
+- `conferencia/02_papel_unidade.sql`: quais papéis são globais (`unidade_id` nula = todas as unidades) e quais são por unidade; 135 globais e 18 por unidade, 0 violações. Ver "Papéis e unidade". O `professor` sem sufixo virou a pendência 15.
+- `conferencia/03_saldo_credito.sql`: a ponte entre a conferência de saldo da carga 30 e a conferência 5 da tarefa 2.1. Ver "Saldo de créditos: as duas conferências".
+
+Nada muda no DDL nem nos scripts de carga.
 
 ### Rodar pelo Claude (conector do Supabase)
 

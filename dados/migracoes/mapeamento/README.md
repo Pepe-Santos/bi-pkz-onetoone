@@ -40,6 +40,35 @@ Um CSV por script de carga. Os 8 cobrem os 6 domínios do modelo conceitual:
 - As 365 colunas das 28 tabelas de `origem` aparecem como origem de alguma coluna ou numa decisão de não migrar, com motivo.
 - Toda coluna citada existe.
 
+### Como refazer a conferência (reproduzível)
+
+`conferencia/01_cobertura_mapeamento.py` lê as colunas reais do banco no `information_schema` e compara com estes CSVs. Só lê; sai com código 1 se achar erro. Precisa de Python 3 (só biblioteca padrão) e do `psql`, ou de um CSV exportado do `information_schema` (instruções no cabeçalho do script).
+
+```powershell
+cd dados/migracoes
+python conferencia/01_cobertura_mapeamento.py --detalhe cobertura.csv
+```
+
+Classes usadas (a regra exata está no cabeçalho do script):
+
+| Lado | Classe | Quando |
+|---|---|---|
+| origem | `direta` | citada só em linhas cuja transformação começa com "direto" |
+| origem | `transformada` | citada em pelo menos uma linha com outra transformação |
+| origem | `nao_migrada` | citada só em decisões de não migrar (`tabela_destino` = `—`) |
+| destino | `direta` | todas as linhas dela começam com "direto" |
+| destino | `transformada` | alguma linha tem origem e outra transformação |
+| destino | `gerada` | nenhuma linha tem origem: calculada na carga (id novo, `now()`, pendência...) |
+
+Resultado na estrutura do ensaio (21/10; a estrutura local de teste é idêntica, conferido por hash das listas de colunas):
+
+| Lado | Colunas | direta | transformada | não migrada | gerada | erros |
+|---|---|---|---|---|---|---|
+| origem (28 tabelas) | 365 | 153 | 128 | 84 | — | 0 |
+| destino (40 tabelas, sem `carga_*`) | 451 | 172 | 96 | — | 183 | 0 |
+
+`--detalhe` grava a classe de cada coluna num CSV, para conferir uma a uma.
+
 ## O que a origem mostrou (e muda a carga)
 
 1. **Admins atuando como profissional.** 46 agendamentos, 62 relatórios, 2 testes físicos e 2 avaliações de fisio têm como professor ou avaliador um usuário só com papel `admin`. Para a FK não quebrar, eles entram em `profissional`, com pendência (nova pendência 10).
@@ -53,6 +82,51 @@ Um CSV por script de carga. Os 8 cobrem os 6 domínios do modelo conceitual:
 9. **Coisas que simplificam:** nenhum responsável secundário na foto; catálogo de materiais e tecnologias 100% casado (só 5 textos livres em `materials_other`); nenhum caminho de arquivo ligado a dois alunos (523 caminhos distintos); `file_path` e `pdf_storage_path` dos relatórios são o mesmo caminho em 205 de 205.
 10. **Dois alunos One to One sem plano.** Eles entram no plano `one_to_one_sem_plano`, com pendência. Sem esse plano ficariam sem matrícula e, portanto, sem unidade.
 11. **Créditos não são cumulativos** (achado na carga de 15/10). A renovação redefine o saldo: o lançamento de renovação traz `delta = cota`, não a diferença. O saldo é a soma desde a última renovação do serviço (migration 011); somar o extrato inteiro inflava o saldo.
+
+## Papéis e unidade (`papel_usuario.unidade_id`)
+
+`unidade_id` nula quer dizer **o papel vale para todas as unidades**. Ela só é preenchida quando o próprio papel da origem diz a unidade: no app, só `professor_pkz` e `professor_one_to_one` carregam unidade. Nenhum outro papel da origem tem informação de unidade, então a carga não inventa uma.
+
+| Papel novo | Papel na origem | Unidade | Por quê | No ensaio |
+|---|---|---|---|---|
+| `professor` | `professor_pkz` | PKZ | o papel diz a unidade | 8 |
+| `professor` | `professor_one_to_one` | One to One | o papel diz a unidade | 10 |
+| `professor` | `professor` (sem sufixo) | todas | a origem não diz a unidade (pendência 15) | 1 |
+| `especialista` | `fisioterapeuta`, `nutricionista`, `psicologo` | todas | a agenda de fisio, nutri e psico é compartilhada entre as unidades (migration 009) | 7 |
+| `admin` | `admin` | todas | administra o app inteiro | 8 |
+| `responsavel` | `responsavel` | todas | a unidade vem da matrícula do aluno, não do papel | 116 |
+| `recepcao` | `recepcao` | todas | papel sem destino definido (pendência na carga) | 3 |
+| | | | **total** | **153** (135 globais, 18 por unidade) |
+
+No conceitual, isso é o relacionamento "atua em": ele é opcional para o papel. No lógico, escolhemos guardar "todas as unidades" como nulo, em vez de repetir a linha uma vez por unidade. A chave única é `(usuario_id, papel_id, unidade_id)` com `nulls not distinct`, então não existe papel global duplicado. Quem precisar de uma linha por unidade faz `join novo.unidade u on u.id = pu.unidade_id or pu.unidade_id is null`.
+
+Conferência: `conferencia/02_papel_unidade.sql` (distribuição e violações da regra; a consulta 3 tem que voltar vazia).
+
+## Saldo de créditos: as duas conferências
+
+Há duas conferências de saldo no projeto, e elas **não medem a mesma coisa**. Os números de uma não confirmam nem contradizem os da outra sem a ponte abaixo.
+
+| | A — carga 30 + migration 011 (Frente 1) | B — conferência 5 da tarefa 2.1 (Frente 2) |
+|---|---|---|
+| Universo | todo par (aluno, serviço): 106 alunos × 3 saldos = **318 pares** | só pares (atleta, serviço) com uma renovação cujo texto identifica o serviço: **196 pares** |
+| Serviço de cada lançamento | o colchete `[treino]`/`[fisio]`/`[nutri]` diz de qual saldo saiu; sem colchete, pelo texto; renovação genérica ("Renovação mensal (10/2026)") = treino | pelo texto, fisio > nutri > treino/PKZ, sem olhar o colchete; renovação genérica fica de fora |
+| Ponto de partida | a última renovação do serviço, **somando o delta dela**, que é a cota do plano | **10** fixo, mais os lançamentos depois da última renovação |
+| Sem renovação | soma do extrato inteiro | o par não entra |
+| Resultado na foto de 12/10 | 3 pares divergentes (3 alunos: 2 em fisio, 1 em nutri) | 195 de 196 divergentes |
+
+**A ponte** (`conferencia/03_saldo_credito.sql` calcula tudo sobre a mesma foto):
+
+| Recorte | Pares | Divergentes pelo critério A | Partindo de 10 | Partindo da cota da renovação |
+|---|---|---|---|---|
+| Universo B | 196 | 0 | 195 | 0 |
+| Universo A fora de B | 122 | 3 | — | — |
+| Universo A inteiro | 318 | 3 | — | — |
+
+Como ler:
+
+- **Dentro do universo B, os dois critérios concordam** quando o ponto de partida é a cota da renovação: 0 divergências. As 195 divergências vêm só do "reinicia em 10": a cota varia por plano (1 a 20 créditos) e só 5 das renovações da foto têm cota 10. O app grava a cota no `delta` da renovação, e é essa cota que vale.
+- **As 3 divergências do critério A estão todas fora do universo B**: são pares sem renovação identificável pelo texto, em que o saldo é a soma do extrato. É a pendência 13.
+- Os resultados da A são contados por par (aluno, serviço). "3 alunos" e "3 pares" coincidem só porque cada aluno divergente diverge em um serviço.
 
 ## Migration 009
 
