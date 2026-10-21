@@ -7,7 +7,7 @@ Camada de dados e indicadores para as duas unidades do cliente, construída **so
 | **Playmakerz Lab (PKZ)** — Loja G | Treino funcional infantil (ex.: Sub 12, Sub 14/15; futebol e futsal) | Evolução nos testes físicos, para **pais e responsáveis** |
 | **One to One Studio (OTO)** — Loja I | Personal para jovens adultos e adultos | Histórico de treinos, carga e progressão, para o **aluno** |
 
-> **Repositório público.** Tudo o que for enviado aqui fica visível para qualquer pessoa. Dados do cliente, credenciais e a documentação confidencial ficam fora — veja [Regras do repositório](#regras-do-repositório) antes do primeiro commit.
+> **Repositório privado**, de uso exclusivo da equipe do projeto. Mesmo assim, credenciais, dados pessoais do cliente e a documentação confidencial ficam fora — veja [Regras do repositório](#regras-do-repositório) antes do primeiro commit.
 
 ---
 
@@ -32,30 +32,37 @@ Camada de dados e indicadores para as duas unidades do cliente, construída **so
 
 ```
 Banco do app (Lovable / Supabase) ── somente leitura
-        │  postgres_fdw
-        ▼
-origem_pkz        tabelas do app enxergadas via FDW (6 de 28 tabelas + 1 opcional)
-        │  carga horária em SQL (Supabase Cron), transação única
-        ▼
-core              modelo canônico: atleta, profissional, avaliacao, medida,
-        │         sessao_treino, agendamento, metrica (catálogo)
-        ▼
-api               10 views expostas pela API REST do Supabase
+        │  foto congelada da origem                         ┐
+        ▼                                                   │
+origem            cópia congelada das tabelas do app        │ grupo de Dados
+        │  carga + conferência origem × destino             │ (dados/migracoes/)
+        ▼                                                   │
+novo              banco reestruturado: 43 tabelas e 5 views ┘
+        │  lido direto (o Desenvolvimento só lê)            ┐
+        ▼                                                   │
+trat              regras de tratamento: parâmetros,         │ grupo de Desenvolvimento
+        │         catálogo de testes, medidas padronizadas  │ (backend/sql/)
+        ▼                                                   │
+api               views expostas pela API REST do Supabase  ┘
         │
         ▼
-Consumidores      front-end · dashboards · relatórios (PDF) · IA
+Consumidores      relatórios em PDF e envio por e-mail · telas e dashboards
 ```
 
-- **Carga:** lê a origem, abre o JSON das avaliações, converte unidades pelo catálogo, separa valores implausíveis numa lista de revisão e confere contagens — qualquer divergência desfaz tudo e os dados anteriores continuam servindo.
-- **Plano B** se o FDW não subir: extração em Python agendada.
-- **Views da API:** `atleta`, `evolucao`, `comparacao`, `reavaliacao`, `ultimo_treino`, `agenda_dia`, `treino_mes`, `relatorio_pendente`, `indicador_mes`, `revisao_dados`.
+- **Um projeto Supabase só.** Hoje é o projeto de ensaio do Lucas; o projeto definitivo vem depois (tarefa 3.6 do grupo de Dados) e os scripts dos dois grupos recriam tudo nele.
+- **Quem escreve onde:** o grupo de Dados controla `origem` e `novo` pelo histórico de migrações do Supabase. O Desenvolvimento só cria objetos em `trat`, em `api` e no bucket privado `relatorios`, e nunca escreve em `origem`, `novo` ou `public`.
+- **Carga:** script mestre com cargas por domínio; o que não passa nas regras vai para uma tabela de rejeitados, e a conferência compara origem e destino tabela a tabela. Detalhes em [`dados/migracoes/`](dados/migracoes/).
+- **Leitura direta (combinado em 20/10):** as views do `trat` leem as tabelas do `novo` sem uma camada de views intermediária. Em troca, o grupo de Dados avisa antes de mudar a estrutura de uma tabela usada pelo Desenvolvimento.
+- **Catálogo de testes:** os códigos da `novo.metrica` são o padrão. O `trat` guarda só o que falta lá (faixa plausível e conversão).
+- **Views da API:** contrato em [`backend/docs/api.md`](backend/docs/api.md). Primeiro as de avaliação (`atleta`, `evolucao`, `comparacao`, `reavaliacao`); as de treino do One to One (`ultimo_treino`, `treino_mes`) vêm em seguida.
 
 ### Stack
 
 | Camada | Tecnologia |
 |---|---|
-| Banco e transformação | PostgreSQL (Supabase), `postgres_fdw`, SQL, Supabase Cron |
+| Banco e transformação | PostgreSQL (Supabase) e SQL: migrações do Supabase no grupo de Dados, scripts idempotentes no Desenvolvimento |
 | API | API REST automática do Supabase sobre o schema `api` |
+| Arquivos | Supabase Storage, bucket privado `relatorios` para os PDFs |
 | Relatórios | Template HTML/CSS · Chart.js ou SVG · Puppeteer ou Playwright → PDF · endpoint de geração |
 | Front-end | Sistema administrativo (31 telas, mobile-first) e painel comparativo |
 | Dashboard | **A definir** — Power BI, aplicação própria ou extensão do app |
@@ -72,19 +79,21 @@ Consumidores      front-end · dashboards · relatórios (PDF) · IA
 
 ## Equipes e estrutura do repositório
 
-Cada grupo trabalha na sua branch e nas suas pastas. Hoje as pastas estão vazias; o código entra conforme as tasks do ClickUp forem executadas.
+Cada grupo trabalha na sua branch e nas suas pastas, e o código chega à `main` por Pull Request conforme as tasks do ClickUp são executadas.
 
 | Grupo | Branch | Pastas | Membros | Escopo |
 |---|---|---|---|---|
-| **Desenvolvimento** | `backend` | [`backend/`](backend/) · [`relatorios/`](relatorios/) · [`frontend/`](frontend/) | Ewerton Arrais, Miguel Veiga, Gian¹, Henrique, Christian, Rafael¹ | Desenvolver a aplicação, a área de tratamento de dados e a API que será consumida; automatizar a geração e o envio dos relatórios por e-mail |
-| **Dados** | `dados` | [`dados/`](dados/) | Micael, Rafael¹, Iago | Consumir os dados tratados pelo back-end e estruturar o banco próprio |
+| **Desenvolvimento** | `backend` | [`backend/`](backend/) · [`relatorios/`](relatorios/) · [`frontend/`](frontend/) | Ewerton Arrais, Miguel Veiga, Gian¹, Henrique, Christian, Rafael¹ | Ler o banco novo e montar o tratamento (`trat`) e a API (`api`); desenvolver a aplicação; automatizar a geração e o envio dos relatórios por e-mail |
+| **Dados** | `dados` | [`dados/`](dados/) | Micael, Rafael¹, Iago | Congelar a origem, estruturar o banco novo (`novo`), carregar os dados e conferir origem × destino |
 | **QA** | `qa` | [`qa/`](qa/) | Roger, Gian¹, Mariana | Testar a qualidade do projeto e a usabilidade |
 | **Documentação** | `documentacao` | [`docs/`](docs/) | Gabriel Melo, Gabriel Lima | Comunicar com as áreas e manter a documentação profissional e visualmente agradável até a entrega final, com algumas entregas semanais |
 | **Gerência** | — | — | Lucas e Pedro | Coordenação, interlocução com o cliente e revisão de PRs |
 
 ¹ Rafael e Gian participam de dois grupos.
 
-**Contrato entre grupos:** as views do schema `api` são o contrato entre Desenvolvimento, Dados e QA. Mudança em view = PR revisado pelos três grupos.
+**Contratos entre grupos:**
+- **Tabelas do `novo` usadas pelo Desenvolvimento** — mudança de estrutura é avisada antes pelo grupo de Dados.
+- **Views do schema `api`** — contrato com relatórios, telas e QA. Mudança em view = PR revisado também por QA.
 
 ---
 
@@ -121,34 +130,36 @@ As tasks estão no **ClickUp**. A meta é produzir **~33% do projeto por semana*
 
 1. Plataforma do dashboard (Power BI, aplicação própria ou extensão do app) — muda o modelo dimensional.
 2. Quem opera o envio automático por e-mail (disparo e provedor).
-3. Relação entre o pipeline de extração (Python) e a camada analítica no mesmo banco (FDW + SQL).
-4. Verificação de segurança da produção com o back-end do cliente.
+3. Verificação de segurança da produção com o back-end do cliente.
 
-Decisões já tomadas: **AQ-002** evoluir o app em fases (sem migração de uma vez) · **AQ-001** unidade vira entidade própria no banco.
+Decisões já tomadas:
+- **AQ-002** evoluir o app em fases (sem migração de uma vez) · **AQ-001** unidade vira entidade própria no banco.
+- **Pipeline (15/10 e 20/10):** o grupo de Dados carrega o banco novo e o Desenvolvimento lê direto dele, no mesmo projeto Supabase. A conexão remota por `postgres_fdw` e a extração em Python saíram do plano.
 
 ---
 
 ## Como contribuir
 
 ```
-main            ← protegida: só entra por Pull Request aprovado
-├── backend     ← branch do grupo
-│   └── backend/CU-86abc-views-api   ← branch da task (opcional)
+main                          ← só entra por Pull Request aprovado
+├── backend                   ← branch do grupo
+│   └── docs/leitura-direta-novo   ← branch da task (opcional)
 ├── dados
 ├── qa
 └── documentacao
 ```
 
-1. Trabalhe na branch do seu grupo (`backend`, `dados`, `qa` ou `documentacao`). Para tasks maiores, crie uma branch a partir dela com o ID do ClickUp: `grupo/CU-<id>-descricao-curta`.
+1. Trabalhe na branch do seu grupo (`backend`, `dados`, `qa` ou `documentacao`). Para tasks maiores, crie uma branch a partir dela no formato `<tipo>/<assunto>` — ex.: `feat/conferencias-origem`, `docs/leitura-direta-novo` — e cite o ID da task do ClickUp no PR. (O formato `backend/...` não funciona: o git não cria uma branch com esse prefixo enquanto existir a branch `backend`.)
 2. Commits pequenos e descritivos, em português.
-3. Para levar à `main`, abra um **Pull Request** da branch do grupo para a `main`. Ele precisa de **1 aprovação** de outra pessoa. Se mexer em views da `api`, peça revisão também de Dados e QA.
+3. Para levar à `main`, abra um **Pull Request** para a `main`. Ele precisa de **1 aprovação** de outra pessoa. Se mexer em views da `api`, peça revisão também de QA.
 4. Antes de abrir o PR, traga a `main` para a sua branch (`git pull origin main`) e resolva os conflitos.
-5. Ninguém faz push direto na `main`.
+5. Ninguém faz push direto na `main`. **Atenção:** no plano atual do GitHub, repositório privado não tem proteção de branch, então o GitHub não bloqueia o push — a regra vale pelo combinado da equipe.
 
 ## Regras do repositório
 
 - **Nunca** versionar credenciais (`.env`, chaves do Supabase, service role). Use `.env.example` com valores vazios.
-- **Nunca** versionar dados da produção ou da cópia: CPF, nomes, fotos, dados de saúde, dumps, CSVs. Para testes, use dados sintéticos.
+- **Nunca** versionar dados da produção ou da cópia: CPF, nomes, contatos, fotos, dados de saúde, dumps ou CSVs com registros. Para testes, use dados sintéticos.
+- Pode entrar: estrutura (DDL, mapeamentos de coluna em CSV), contagens e IDs técnicos (UUID) usados em conferências.
 - Os layouts com atleta real (Anexo A da documentação) **não** entram aqui — só versões com dados fictícios.
 - A documentação geral (`DOC-PKZ-OTO-001`) é confidencial e fica na pasta compartilhada da equipe; em `docs/` vão apenas resumos, decisões e diagramas sem dados do cliente.
 - Achados de segurança do banco do cliente são tratados só nos canais internos — nunca em issues, PRs ou commits.
