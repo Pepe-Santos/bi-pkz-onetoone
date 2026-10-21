@@ -1,0 +1,70 @@
+graph "atendimento" {
+  graph [rankdir=TB, splines=spline, nodesep=0.6, ranksep=0.85,
+         bgcolor="#FAFAF8", fontname="Helvetica", fontsize=24, pad=0.5,
+         label=<<B>5 &#183; Atendimento Especializado</B><BR/><BR/><FONT POINT-SIZE="14" COLOR="#6A6A6A">Anamnese sai de physio_assessments: é histórico clínico do atleta, não de um atendimento. Confidencialidade é decisão pendente.<BR/>Nutrição, Psicologia e Fisioterapia ficam como o serviço do atendimento (não têm atributos próprios).<BR/>v2 (16/10/2026): em verde, o que mudou na construção do banco. Os códigos M remetem ao registro de mudanças.</FONT><BR/> >,
+         labelloc=t, fontcolor="#2B2B2B"];
+  node [fontname="Helvetica", fontsize=11];
+  edge [fontname="Helvetica", fontsize=9, color="#5A5A5A", penwidth=1.1,
+        fontcolor="#444444", labeldistance=1.5, labelfloat=false];
+  ATLETA [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="ATLETA", margin="0.18,0.10"];
+  PROF [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="PROFISSIONAL", margin="0.18,0.10"];
+  SERVICO [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="SERVIÇO", margin="0.18,0.10"];
+  ATEND [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="ATENDIMENTO", margin="0.18,0.10"];
+  FISIO [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="FISIOTERAPIA", margin="0.18,0.10"];
+  NUTRI [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="NUTRIÇÃO", margin="0.18,0.10"];
+  PSICO [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="PSICOLOGIA", margin="0.18,0.10"];
+  ANAM [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#2F7D62", penwidth=2.2, label=<ANAMNESE<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M19</B></FONT>>, margin="0.18,0.10"];
+  EVOL [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="EVOLUÇÃO", margin="0.18,0.10", peripheries=2];
+  R_recebe [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="recebe", fontsize=10, margin="0.02,0.02"];
+  R_realiza [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="realiza", fontsize=10, margin="0.02,0.02"];
+  R_habilita [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="habilitado em", fontsize=10, margin="0.02,0.02"];
+  R_possuiA [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#2F7D62", penwidth=2.2, label=<possui<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M19</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  R_evolui [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="evolui", fontsize=10, margin="0.02,0.02", peripheries=2];
+  SPEC [shape=triangle, style=filled, fillcolor="#FFFFFF", color="#B9963F", penwidth=1.3, label="d", fontsize=9, width=0.52, height=0.44, margin=0];
+  at_id [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label=<<U>id_atendimento</U>>, height=0.30, margin="0.04,0.02", style="filled,solid"];
+  at_data [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="data", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  an_id [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label=<<U>id_anamnese</U>>, height=0.30, margin="0.04,0.02", style="filled,solid"];
+  an_data [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="data", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  an_queixa [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="queixa_principal", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  ev_data [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label=<<U>data</U>>, height=0.30, margin="0.04,0.02", style="filled,solid"];
+  ev_nota [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="observação", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  pr_id [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label=<<U>id_profissional</U>>, height=0.30, margin="0.04,0.02", style="filled,solid"];
+  pr_reg [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="registro_conselho", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  ATLETA -- R_recebe [taillabel="(0,N)", labeldistance=2.6, labelangle=12];
+  R_recebe -- ATEND [taillabel="(1,1)", labeldistance=2.6, labelangle=12];
+  PROF -- R_realiza [taillabel="(0,N)", labeldistance=2.6, labelangle=12, style=dashed, color="#B9963F"];
+  R_realiza -- ATEND [taillabel="(1,1)", labeldistance=2.6, labelangle=12, style=dashed, color="#B9963F"];
+  PROF -- R_habilita [taillabel="(1,N)", labeldistance=2.6, labelangle=12, style=dashed, color="#B9963F"];
+  R_habilita -- SERVICO [taillabel="(1,N)", labeldistance=2.6, labelangle=12, style=dashed, color="#B9963F"];
+  ATLETA -- R_possuiA [taillabel="(0,N)", labeldistance=2.6, labelangle=12, style=dashed, color="#2F7D62", penwidth=1.6, labelfontcolor="#2F7D62"];
+  R_possuiA -- ANAM [taillabel="(1,1)", labeldistance=2.6, labelangle=12, style=dashed, color="#B9963F"];
+  ATEND -- R_evolui [taillabel="(0,N)", labeldistance=2.6, labelangle=12, penwidth=1.9];
+  R_evolui -- EVOL [taillabel="(1,1)", labeldistance=2.6, labelangle=12, penwidth=1.9];
+  ATEND -- SPEC [taillabel="parcial", labeldistance=2.6, labelangle=12];
+  SPEC -- FISIO [style=dashed, color="#B9963F"];
+  SPEC -- NUTRI [style=dashed, color="#B9963F"];
+  SPEC -- PSICO [style=dashed, color="#B9963F"];
+  ATEND -- at_id [color="#A8A8A8", penwidth=0.85];
+  ATEND -- at_data [color="#A8A8A8", penwidth=0.85];
+  ANAM -- an_id [color="#A8A8A8", penwidth=0.85];
+  ANAM -- an_data [color="#A8A8A8", penwidth=0.85];
+  ANAM -- an_queixa [color="#A8A8A8", penwidth=0.85];
+  EVOL -- ev_data [color="#A8A8A8", penwidth=0.85];
+  EVOL -- ev_nota [color="#A8A8A8", penwidth=0.85];
+  PROF -- pr_id [color="#A8A8A8", penwidth=0.85];
+  PROF -- pr_reg [color="#A8A8A8", penwidth=0.85];
+  { rank=same; FISIO; NUTRI; PSICO; }
+  AVAL [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="AVALIAÇÃO DE
+FISIOTERAPIA", margin="0.18,0.10"];
+  R_registradaEm [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<registrada em<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M19</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  AVAL -- R_registradaEm [taillabel="(0,1)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  R_registradaEm -- ANAM [taillabel="(1,1)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  AGEND [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="AGENDAMENTO", margin="0.18,0.10"];
+  R_atendidoEm [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<atendido em<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M13</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  AGEND -- R_atendidoEm [taillabel="(0,N)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6, style=dashed];
+  R_atendidoEm -- ATEND [taillabel="(0,1)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6, style=dashed];
+  USUARIO [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="USUÁRIO", margin="0.18,0.10"];
+  R_ehprof [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<é<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M3</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  USUARIO -- R_ehprof [taillabel="(0,1)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  R_ehprof -- PROF [taillabel="(1,1)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+}

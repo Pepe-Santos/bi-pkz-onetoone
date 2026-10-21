@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Registro de mudanças — Modelo Conceitual v2</title>
+<style>
+  @page { size: 420mm 260mm; margin: 0; }
+  :root { --fundo:#FAFAF8; --texto:#2B2B2B; --suave:#6A6A6A; --linha:#C9C2B0; --v2:#2F7D62; --v2fundo:#DCEFE7; --ouro:#7A7260; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; background:#fff; font-family: "DejaVu Sans", Helvetica, Arial, sans-serif; color:var(--texto); }
+  .pagina { width:420mm; height:260mm; padding:14mm 16mm; background:var(--fundo); page-break-after:always; overflow:hidden; }
+  .pagina:last-child { page-break-after:auto; }
+  h1 { font-size:22pt; text-align:center; margin:0 0 2mm; }
+  .sub { text-align:center; color:var(--suave); font-size:10.5pt; margin:0 0 7mm; }
+  table { width:100%; border-collapse:collapse; font-size:8.6pt; line-height:1.32; }
+  th { text-align:left; color:var(--ouro); font-weight:600; font-size:8pt; text-transform:uppercase; letter-spacing:.04em;
+       border-bottom:1.2px solid var(--linha); padding:2.2mm 2mm; }
+  td { vertical-align:top; padding:2mm 2mm; border-bottom:1px dashed #E2DDCF; }
+  td.cod { width:13mm; }
+  .tag { display:inline-block; background:var(--v2fundo); color:var(--v2); border:1.4px solid var(--v2); border-radius:3mm;
+         font-weight:700; font-size:8pt; padding:.4mm 1.8mm; }
+  td.dia { width:16mm; color:var(--suave); }
+  td.oque { width:118mm; }
+  td.pq { width:110mm; color:#444; }
+  td.onde { color:var(--suave); font-family:"DejaVu Sans Mono", monospace; font-size:7.6pt; }
+  b.ent { font-weight:600; letter-spacing:.01em; }
+  .colunas { display:grid; grid-template-columns: 1fr 1fr; gap:10mm; }
+  .caixa { border:1.2px dashed var(--linha); border-radius:4mm; padding:5mm 6mm; background:#fff0; }
+  .caixa h2 { font-size:10pt; color:var(--ouro); text-transform:uppercase; letter-spacing:.05em; margin:0 0 3mm; font-weight:600; }
+  .caixa ul { margin:0; padding-left:5mm; font-size:9.2pt; line-height:1.45; }
+  .caixa li { margin-bottom:2mm; }
+  .numeros { display:flex; gap:8mm; justify-content:center; margin:0 0 7mm; }
+  .num { border:1.2px solid var(--linha); border-radius:3mm; padding:2.5mm 6mm; text-align:center; background:#fff; }
+  .num b { display:block; font-size:16pt; }
+  .num span { font-size:8pt; color:var(--suave); }
+  .num.v2 { border-color:var(--v2); }
+  .num.v2 b { color:var(--v2); }
+  .rodape { margin-top:6mm; font-size:8pt; color:var(--suave); text-align:center; }
+</style>
+</head>
+<body>
+
+<section class="pagina">
+  <h1>Registro de mudanças — Modelo Conceitual v2</h1>
+  <p class="sub">O que mudou do modelo conceitual (13/10) para o banco construído e ensaiado (16/10/2026). Cada código M aparece em verde nos diagramas 0 a 6.</p>
+  <div class="numeros">
+    <div class="num"><b>35 → 39</b><span>entidades</span></div>
+    <div class="num v2"><b>+21</b><span>relacionamentos novos</span></div>
+    <div class="num"><b>4</b><span>cardinalidades alteradas</span></div>
+    <div class="num"><b>1</b><span>entidade passou a derivada</span></div>
+    <div class="num"><b>0</b><span>entidades removidas</span></div>
+  </div>
+  <table>
+    <thead><tr><th>Código</th><th>Diagrama</th><th>O que mudou</th><th>Por quê</th><th>No banco (migration)</th></tr></thead>
+    <tbody>
+      <tr><td class="cod"><span class="tag">M1</span></td><td class="dia">1</td><td class="oque">Nova entidade <b class="ent">CONFIGURAÇÃO DA UNIDADE</b>, 1:1 com UNIDADE (prazo de cancelamento, capacidade padrão, créditos padrão, renovação, contatos).</td><td class="pq">As regras do app (app_settings) precisavam de lugar. Hoje é uma configuração única, copiada para as duas unidades.</td><td class="onde">configuracao_unidade · 002, 009</td></tr>
+      <tr><td class="cod"><span class="tag">M2</span></td><td class="dia">1</td><td class="oque">Novo relacionamento ATLETA <i>pode agendar</i> SERVIÇO (N:M).</td><td class="pq">O app limita quais serviços cada aluno pode agendar.</td><td class="onde">aluno_servico · 002</td></tr>
+      <tr><td class="cod"><span class="tag">M3</span></td><td class="dia">1, 5</td><td class="oque">Novo relacionamento USUÁRIO <i>é</i> PROFISSIONAL (1:1): todo profissional é um usuário.</td><td class="pq">Decisão de 13/10 (pendência 1): o id do profissional é o id do login.</td><td class="onde">profissional.id → perfil_usuario · 002</td></tr>
+      <tr><td class="cod"><span class="tag">M4</span></td><td class="dia">2</td><td class="oque">Novo relacionamento PLANO <i>pertence a</i> UNIDADE. A matrícula só aceita plano da mesma unidade.</td><td class="pq">Os planos do One to One não valem no PKZ e vice-versa.</td><td class="onde">plano.unidade_id + gatilho · 003, 009</td></tr>
+      <tr><td class="cod"><span class="tag">M5</span></td><td class="dia">2</td><td class="oque">RENOVAÇÃO passa a se ligar a ATLETA (<i>renova</i>) e a SERVIÇO; ganha <i>periodicidade</i> (semanal ou mensal), que entra na chave.</td><td class="pq">Uma renovação é sempre de um aluno e de um serviço; a semanal e a mensal de treino podem cair na mesma data.</td><td class="onde">renovacao · 003, 009</td></tr>
+      <tr><td class="cod"><span class="tag">M6</span></td><td class="dia">2</td><td class="oque"><i>Saldo</i> (derivado) = soma dos lançamentos desde a última renovação do serviço. O lançamento de renovação traz a cota.</td><td class="pq">Créditos são sessões e não se acumulam: a renovação redefine o saldo (achado de 15/10).</td><td class="onde">vw_saldo_credito · 011</td></tr>
+      <tr><td class="cod"><span class="tag">M7</span></td><td class="dia">2</td><td class="oque">Novo relacionamento AGENDAMENTO <i>debita</i> LANÇAMENTO DE CRÉDITO (a validar).</td><td class="pq">Liga o crédito gasto ou devolvido ao agendamento. A origem não guarda essa ligação: hoje fica vazia.</td><td class="onde">credito_lancamento.agendamento_id · 004</td></tr>
+      <tr><td class="cod"><span class="tag">M8</span></td><td class="dia">3</td><td class="oque"><i>oferece</i>: o horário de grade pode não ter unidade, (1,1) → (0,1) (grade compartilhada). A grade ganha <i>capacidade</i> e <i>intervalo</i>.</td><td class="pq">No app, fisio, nutri e psico têm uma vaga só para as duas unidades.</td><td class="onde">horario_grade · 009</td></tr>
+      <tr><td class="cod"><span class="tag">M9</span></td><td class="dia">3</td><td class="oque">AGENDAMENTO: <i>data_hora</i> vira <i>data</i> + <i>hora_início</i> + <i>hora_fim</i>. A capacidade é conferida no intervalo inteiro.</td><td class="pq">Decisão de 15/10: a sala não pode passar da capacidade em nenhum momento do horário.</td><td class="onde">agendamento + tg_capacidade · 004, 009</td></tr>
+      <tr><td class="cod"><span class="tag">M10</span></td><td class="dia">3</td><td class="oque">Nova entidade <b class="ent">LISTA DE ESPERA</b>: ATLETA <i>aguarda</i>, <i>para</i> um SERVIÇO.</td><td class="pq">Veio da proposta. A origem está vazia: só estrutura.</td><td class="onde">lista_espera · 004</td></tr>
+      <tr><td class="cod"><span class="tag">M11</span></td><td class="dia">3</td><td class="oque">Novos relacionamentos BLOQUEIO <i>vale para</i> UNIDADE e SERVIÇO (opcionais: vazio = todos).</td><td class="pq">Os bloqueios da origem dizem a que unidade e serviço se aplicam.</td><td class="onde">bloqueio_agenda · 004</td></tr>
+      <tr><td class="cod"><span class="tag">M12</span></td><td class="dia">3</td><td class="oque">RELATÓRIO passa a ser <i>sobre</i> um ATLETA e <i>escrito</i> por um PROFISSIONAL.</td><td class="pq">Há relatórios sem agendamento; sem essas ligações eles ficariam soltos.</td><td class="onde">relatorio_treino · 005</td></tr>
+      <tr><td class="cod"><span class="tag">M13</span></td><td class="dia">3, 5</td><td class="oque">SESSÃO DE TREINO só existe para treino. Para especialista, a realização é o ATENDIMENTO, que ganha <i>atendido em</i> AGENDAMENTO (a validar).</td><td class="pq">Fisio, nutri e psico já registram o atendimento: evita duplicar. Os 11 agendamentos com presença e sem atendimento ficam marcados.</td><td class="onde">atendimento.agendamento_id · 007</td></tr>
+      <tr><td class="cod"><span class="tag">M14</span></td><td class="dia">4</td><td class="oque">Novo subtipo <b class="ent">AVALIAÇÃO DE FISIOTERAPIA</b>.</td><td class="pq">Goniometria, força e postura são medidas como as do teste físico.</td><td class="onde">avaliacao.tipo · 006</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="pagina">
+  <h1>Registro de mudanças — continuação</h1>
+  <p class="sub">Nenhuma entidade do modelo de 13/10 foi removida. Dúvidas de negócio continuam em PENDENCIAS.md.</p>
+  <table>
+    <thead><tr><th>Código</th><th>Diagrama</th><th>O que mudou</th><th>Por quê</th><th>No banco (migration)</th></tr></thead>
+    <tbody>
+      <tr><td class="cod"><span class="tag">M15</span></td><td class="dia">4</td><td class="oque"><i>aplica</i>: a avaliação pode não ter avaliador, (1,1) → (0,1).</td><td class="pq">A avaliação semanal não tem avaliador.</td><td class="onde">avaliacao.avaliador_id · 006</td></tr>
+      <tr><td class="cod"><span class="tag">M16</span></td><td class="dia">4</td><td class="oque">Novo autorrelacionamento AVALIAÇÃO <i>corrige</i> AVALIAÇÃO.</td><td class="pq">Avaliação consolidada é imutável. Corrigir = criar outra que aponta para a antiga.</td><td class="onde">corrige_avaliacao_id + gatilhos · 006, 009</td></tr>
+      <tr><td class="cod"><span class="tag">M17</span></td><td class="dia">4</td><td class="oque">Novo relacionamento AVALIAÇÃO <i>realizada em</i> UNIDADE. Relatório, atendimento, arquivo e auditoria também guardam a unidade.</td><td class="pq">Base para o BI por unidade e para as políticas de acesso da Frente 3.</td><td class="onde">unidade_id nos fatos · 005–008</td></tr>
+      <tr><td class="cod"><span class="tag">M18</span></td><td class="dia">4</td><td class="oque">MÉTRICA: <i>faixa_válida</i> → <i>valor_mín / valor_máx</i>; <i>sentido</i> → <i>direção_desejada</i>; entram <i>domínio</i>, <i>usa_lado</i> e <i>tipo_dado</i>. MEDIDA: <i>valor</i> → <i>valor_num / valor_texto</i>.</td><td class="pq">Há medidas que não são número (formato antigo, Appley, direção postural).</td><td class="onde">metrica, avaliacao_medida · 006</td></tr>
+      <tr><td class="cod"><span class="tag">M19</span></td><td class="dia">5</td><td class="oque">ANAMNESE: uma por avaliação de fisio. ATLETA <i>possui</i> (0,1) → (0,N); nova ligação <i>registrada em</i> AVALIAÇÃO DE FISIOTERAPIA. A vigente é a mais recente.</td><td class="pq">Na origem, um aluno tem duas avaliações de fisio.</td><td class="onde">anamnese + vw_anamnese_vigente · 007</td></tr>
+      <tr><td class="cod"><span class="tag">M20</span></td><td class="dia">6</td><td class="oque">ARQUIVO: o atleta deixa de ser ponta exclusiva e acompanha relatório, avaliação ou atendimento (esses três seguem exclusivos). Novo <i>enviado por</i> USUÁRIO.</td><td class="pq">Todo arquivo é de um aluno, mesmo quando também é de um relatório.</td><td class="onde">arquivo · 008</td></tr>
+      <tr><td class="cod"><span class="tag">M21</span></td><td class="dia">6</td><td class="oque"><b class="ent">HISTÓRICO</b> deixa de ser guardado e passa a ser derivado (view sobre agendamentos, relatórios, avaliações, atendimentos, créditos e auditoria).</td><td class="pq">Derivar dos fatos evita duas versões da verdade. student_timeline não migra.</td><td class="onde">vw_historico_aluno · 008</td></tr>
+      <tr><td class="cod"><span class="tag">M22</span></td><td class="dia">6</td><td class="oque"><i>executa</i>: evento de auditoria pode não ter autor, (1,1) → (0,1).</td><td class="pq">Eventos do sistema (renovação automática) não têm usuário.</td><td class="onde">evento_auditoria.ator_id · 008</td></tr>
+      <tr><td class="cod"><span class="tag">M23</span></td><td class="dia">6</td><td class="oque">Nova entidade <b class="ent">ACESSO A DADO SENSÍVEL</b>: USUÁRIO <i>consulta</i> dado <i>sobre</i> um ATLETA (a validar).</td><td class="pq">Proposta para a Frente 3 registrar leitura de dado clínico (LGPD). Só estrutura.</td><td class="onde">acesso_dado_sensivel · 008</td></tr>
+      <tr><td class="cod"><span class="tag">M24</span></td><td class="dia">6</td><td class="oque">Novo relacionamento EMISSÃO DE RELATÓRIO <i>gera</i> ARQUIVO.</td><td class="pq">O relatório emitido vira um PDF guardado como arquivo. Só estrutura.</td><td class="onde">relatorio_emissao.arquivo_id · 008</td></tr>
+    </tbody>
+  </table>
+
+  <div class="colunas" style="margin-top:7mm">
+    <div class="caixa">
+      <h2>Não muda o modelo, mas vale saber</h2>
+      <ul>
+        <li>As especializações viram uma coluna de tipo: avaliação física, semanal e de fisio em <i>avaliacao.tipo</i>; nutrição, psicologia e fisioterapia no serviço do atendimento.</li>
+        <li>Créditos são sessões, não dinheiro. Nenhuma tabela guarda preço, mensalidade, cartão ou pagamento.</li>
+        <li>Dado clínico em avaliação e atendimento não tem coluna de confidencialidade (exceção da CONVENCOES §7). A anamnese é sempre "restrito".</li>
+        <li>NOTIFICAÇÃO, CONSENTIMENTO, EMISSÃO e ENVIO existem só como estrutura: a origem não tem esses dados (pendência 6 para notificação).</li>
+        <li>PESSOA.cpf existe mas não é carregado (pendência 4).</li>
+      </ul>
+    </div>
+    <div class="caixa">
+      <h2>Fora do modelo conceitual (técnico)</h2>
+      <ul>
+        <li>Tabelas de controle da migração: <i>carga_execucao</i>, <i>carga_rejeitado</i>, <i>carga_gabarito</i> e a view <i>v_resumo_carga</i>. Se ficam no banco definitivo é decisão do grupo.</li>
+        <li>Colunas operacionais (pendência, criado_em, atualizado_em, ids de origem) estão no DDL e no mapeamento, não nos diagramas.</li>
+        <li>Os diagramas mostram só os atributos que mudam o significado. O DDL completo está em <i>pkz-banco/migrations</i>.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="rodape">Fontes: migrations 001–011, PENDENCIAS.md (Escolhas do DDL) e mapeamento/. Gerado em 16/10/2026.</p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+tabela_destino,coluna,tipo,origem,transformacao,regra_pendencia_ou_rejeicao
+catalogo_item,id,uuid,,gen_random_uuid(),"chave de reexecução: (dominio, codigo)"
+catalogo_item,dominio,text,origem.training_report_materials | origem.training_report_technologies | arrays de origem.training_reports,"materials → material; technologies → tecnologia; capacidades_fisicas/tecnicas/cognitivas → capacidade_*; objetivo_sessao, foco, conduta → o próprio nome",
+catalogo_item,codigo,text,origem.training_report_materials.name | origem.training_report_technologies.name | valores distintos dos arrays,"slug: lower, sem acento, espaços → '_' (ex.: 'Coordenação motora' → 'coordenacao_motora'); textos de materials_other/technologies_other: 'outro_' || slug. ATENÇÃO: material e tecnologia vêm SÓ das tabelas de catálogo (os arrays apontam para elas, 100% casados na foto); os arrays só criam itens nos 6 domínios sem tabela (capacidade_fisica, capacidade_tecnica, capacidade_cognitiva, objetivo_sessao, foco, conduta). Valor de materials/technologies sem item no catálogo: item novo com pendência (0 na foto). Gere uma linha por (dominio, codigo) antes do insert, senão o on conflict falha",
+catalogo_item,nome,text,idem,o texto original,
+catalogo_item,ativo,boolean,origem.training_report_materials.active | origem.training_report_technologies.active,direto; valores dos arrays: true,
+catalogo_item,ordem,integer,origem.training_report_materials.sort_order | origem.training_report_technologies.sort_order,direto; valores dos arrays: ordem alfabética,
+catalogo_item,id_origem,uuid,origem.training_report_materials.id | origem.training_report_technologies.id,direto; valores dos arrays: nulo,
+catalogo_item,pendencia,text,origem.training_reports.materials_other | origem.training_reports.technologies_other,,"item de texto livre: 'não classificado (texto livre de *_other)'. Na foto: todos os valores de materials e technologies existem no catálogo; as dimensões capacidade_fisica, capacidade_tecnica, capacidade_cognitiva, objetivo_sessao, foco, conduta têm 4 a 6 valores fixos; 5 textos em materials_other, 0 em technologies_other"
+catalogo_item,criado_em,timestamptz,origem.training_report_materials.created_at | origem.training_report_technologies.created_at,direto; valores dos arrays: now(),
+catalogo_item,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+relatorio_treino,id,uuid,origem.training_reports.id,direto,chave de reexecução
+relatorio_treino,aluno_id,uuid,origem.training_reports.athlete_id,direto,aluno inexistente no destino: carga_rejeitado
+relatorio_treino,agendamento_id,uuid,origem.training_reports.booking_id,direto (18 nulos na foto); agendamento de outro aluno → nulo,agendamento de outro aluno: 'agendamento de outro aluno: vínculo removido'
+relatorio_treino,profissional_id,uuid,origem.training_reports.professor_id,direto,
+relatorio_treino,unidade_id,uuid,,novo.unidade_atual_do_aluno(aluno_id),
+relatorio_treino,tipo,text,origem.training_reports.report_kind,"direto (pkz, one_to_one)",diferente da unidade do aluno: 'tipo do relatório diferente da unidade do aluno' (1 na foto)
+relatorio_treino,status,text,origem.training_reports.status,"direto (rascunho, final)",
+relatorio_treino,data,date,origem.training_reports.report_date,direto,
+relatorio_treino,hora_inicio,time,origem.training_reports.start_time,direto,
+relatorio_treino,hora_fim,time,origem.training_reports.end_time,direto; fim <= início → nulo,fim <= início: 'horário de fim inválido'
+relatorio_treino,titulo,text,origem.training_reports.title,direto,
+relatorio_treino,categoria,text,origem.training_reports.category,direto,
+relatorio_treino,grupo,text,origem.training_reports.athlete_group,direto,
+relatorio_treino,local,text,origem.training_reports.local,direto,
+relatorio_treino,tipo_treino,text,origem.training_reports.training_type,direto (vazio em toda a foto),
+relatorio_treino,numero_sessao,integer,origem.training_reports.session_number,direto,
+relatorio_treino,intensidade,text,origem.training_reports.intensidade,direto,
+relatorio_treino,blocos,smallint,origem.training_reports.blocos,direto,
+relatorio_treino,objetivos,text,origem.training_reports.objetivos,direto,
+relatorio_treino,analise_html,text,origem.training_reports.analise_html,direto,
+relatorio_treino,observacoes,text,origem.training_reports.observacoes,direto,
+relatorio_treino,evolucao,text,origem.training_reports.evolucao,direto,
+relatorio_treino,desempenho,text,origem.training_reports.desempenho,direto,
+relatorio_treino,notas,text,origem.training_reports.notes,direto,
+relatorio_treino,dor,text,origem.training_reports.dor,direto,
+relatorio_treino,dor_local,text,origem.training_reports.dor_local,direto,
+relatorio_treino,dor_intensidade,smallint,origem.training_reports.dor_intensidade,direto (3 a 8 na foto),
+relatorio_treino,dor_movimento,text,origem.training_reports.dor_movimento,direto,
+relatorio_treino,criado_por,uuid,origem.training_reports.created_by,direto; sem perfil → nulo,
+relatorio_treino,pendencia,text,,,"agendamento com mais de um relatório: 'relatório duplicado para o mesmo agendamento' (todos entram); ver agendamento_id, tipo, hora_fim"
+relatorio_treino,criado_em,timestamptz,origem.training_reports.created_at,direto,
+relatorio_treino,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+relatorio_item,relatorio_id,uuid,origem.training_reports.id,direto,"chave de reexecução: (relatorio_id, catalogo_item_id)"
+relatorio_item,catalogo_item_id,uuid,origem.training_reports.materials | technologies | capacidades_fisicas | capacidades_tecnicas | capacidades_cognitivas | objetivo_sessao | foco | conduta | materials_other | technologies_other,"unnest de cada array → item pelo (dominio, nome); materials_other/technologies_other → item 'outro_' do texto",
+relatorio_item,texto_original,text,idem,valor como estava,
+relatorio_item,criado_em,timestamptz,origem.training_reports.created_at,direto,
+relatorio_item,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+—,—,—,origem.training_report_materials.updated_at,não migra,atualizado_em = momento da carga
+—,—,—,origem.training_report_technologies.updated_at,não migra,atualizado_em = momento da carga
+—,—,—,origem.training_reports.exercicios,não migra,vazio ('[]') em toda a origem; exercicio/relatorio_exercicio não foram criados (005)
+—,—,—,origem.training_reports.file_path,não migra,(aqui) vai para arquivo no script 80 (documentos.csv)
+—,—,—,origem.training_reports.pdf_storage_path,não migra,(aqui) vai para arquivo no script 80 (documentos.csv)
+—,—,—,origem.training_reports.updated_at,não migra,atualizado_em = momento da carga

@@ -1,0 +1,83 @@
+tabela_destino,coluna,tipo,origem,transformacao,regra_pendencia_ou_rejeicao
+avaliacao,id,uuid,origem.physio_assessments.id,direto (tipo fisioterapia),chave de reexecução
+avaliacao,aluno_id,uuid,origem.physio_assessments.athlete_id,direto,aluno inexistente no destino: carga_rejeitado
+avaliacao,unidade_id,uuid,origem.physio_assessments.program,novo.unidade_atual_do_aluno(aluno_id) (program só confere),program diferente da unidade do aluno: 'programa da avaliação diferente da unidade do aluno'
+avaliacao,tipo,text,,'fisioterapia',
+avaliacao,data,date,origem.physio_assessments.assessment_date,direto,
+avaliacao,avaliador_id,uuid,origem.physio_assessments.physio_id,direto,physio_id sem profissional no destino: nulo + 'avaliador não encontrado no destino' (0 na foto)
+avaliacao,avaliador_nome,text,origem.physio_assessments.physio_name,só quando physio_id é nulo,
+avaliacao,status,text,origem.physio_assessments.status,final → consolidada; rascunho → rascunho,
+avaliacao,consolidada_em,timestamptz,origem.physio_assessments.updated_at,só para final: updated_at,
+avaliacao,corrige_avaliacao_id,uuid,,nulo,
+avaliacao,observacoes,text,,nulo (a observação da fisio vai para anamnese.observacao),
+avaliacao,criado_por,uuid,origem.physio_assessments.created_by,direto; sem perfil → nulo,
+avaliacao,pendencia,text,,,ver unidade_id
+avaliacao,criado_em,timestamptz,origem.physio_assessments.created_at,direto,
+avaliacao,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+avaliacao_medida,id,uuid,,gen_random_uuid(),"chave de reexecução: (avaliacao_id, metrica_id, lado, tentativa)"
+avaliacao_medida,avaliacao_id,uuid,origem.physio_assessments.id,direto,
+avaliacao_medida,metrica_id,uuid,origem.physio_assessments.cotovelo_ext_dir | origem.physio_assessments.cotovelo_ext_esq | origem.physio_assessments.cotovelo_flex_dir | origem.physio_assessments.cotovelo_flex_esq | origem.physio_assessments.joelho_ext_dir | origem.physio_assessments.joelho_ext_esq | origem.physio_assessments.joelho_flex_dir | origem.physio_assessments.joelho_flex_esq | origem.physio_assessments.ombro_abd_dir | origem.physio_assessments.ombro_abd_esq | origem.physio_assessments.ombro_rot_ext_dir | origem.physio_assessments.ombro_rot_ext_esq | origem.physio_assessments.quadril_dir | origem.physio_assessments.quadril_esq | origem.physio_assessments.appley_dir_inf | appley_dir_sup | appley_esq_inf | appley_esq_sup | pkz_data,"goniometria: cross join lateral (values ('cotovelo_ext','dir', a.cotovelo_ext_dir), …) → 'fisio_' || medida; Appley → fisio_appley_sup / fisio_appley_inf; pkz_data: forca_<x>_<lado> → fisio_pkz_forca_<x>; forca_abdominal → fisio_pkz_forca_abdominal; ratio_<x>_<lado> → fisio_pkz_ratio_<x>; mob_<x>_<lado> → fisio_pkz_mob_<x>; post_<vista>_<campo>_valor → fisio_pkz_post_<vista>_<campo-sem-lado>; post_<vista>_<campo>_dir → fisio_pkz_post_<vista>_<campo-sem-lado>_direcao (vistas: anterior, lateral_dir, posterior, lateral_esq; ATENÇÃO: o sufixo final _dir é 'direção do desvio', não 'direito')","chave de pkz_data que não é medida, anamnese nem arquivo: carga_rejeitado 'chave de pkz_data sem métrica: <chave>' (0 na foto)"
+avaliacao_medida,lado,text,nome da coluna / chave,"goniometria e Appley: _dir → dir, _esq → esq; pkz_data: forca_*/ratio_*/mob_* pelo sufixo _dir/_esq; post_*: lado só quando o campo termina em _dir/_esq ANTES do sufixo (eias_patela_dir, angulo_q_esq, tibia_dir, rotacao_pe_esq, pronacao_pe_dir …)",
+avaliacao_medida,tentativa,smallint,,1,
+avaliacao_medida,valor_num,numeric,colunas numeric | textos de pkz_data,goniometria: direto; pkz_data: novo.texto_para_numero(v); mob com símbolo de grau ('33º'): tira º/° antes de converter; nulos e vazios não geram linha; Appley 'Não avaliado' não gera linha,
+avaliacao_medida,valor_texto,text,appley_* | post_*_dir | pkz_data não numérico,"Appley e direção postural: texto (Positivo/Negativo, Anterior, Interna …); número que não converteu: texto original",
+avaliacao_medida,pendencia,text,,,goniometria: 'unidade a confirmar (graus)'; força: 'kg a confirmar'; mob com símbolo removido: 'símbolo de grau removido'; não converteu: 'formato antigo / não numérico'
+avaliacao_medida,criado_em,timestamptz,origem.physio_assessments.created_at,direto,
+avaliacao_medida,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+anamnese,id,uuid,origem.physio_assessments.id,direto,chave de reexecução
+anamnese,aluno_id,uuid,origem.physio_assessments.athlete_id,direto,
+anamnese,avaliacao_id,uuid,origem.physio_assessments.id,= avaliacao.id,
+anamnese,profissional_id,uuid,origem.physio_assessments.physio_id,direto,
+anamnese,data,date,origem.physio_assessments.assessment_date,direto,
+anamnese,queixa_principal,text,origem.physio_assessments.queixa_principal,direto; vazio → nulo,
+anamnese,hda,text,origem.physio_assessments.hda,direto; vazio → nulo,
+anamnese,hpp_doencas,text,origem.physio_assessments.hpp_doencas,direto; vazio → nulo,
+anamnese,hpp_cirurgias,text,origem.physio_assessments.hpp_cirurgias,direto; vazio → nulo,
+anamnese,hpp_fraturas,text,origem.physio_assessments.hpp_fraturas,direto; vazio → nulo,
+anamnese,hpp_entorses,text,origem.physio_assessments.hpp_entorses,direto; vazio → nulo,
+anamnese,hab_freq_treinos,text,origem.physio_assessments.hab_freq_treinos,direto; vazio → nulo,
+anamnese,hab_outras_atividades,text,origem.physio_assessments.hab_outras_atividades,direto; vazio → nulo,
+anamnese,hab_alcool,text,origem.physio_assessments.hab_alcool,direto; vazio → nulo,
+anamnese,hab_tabagista,text,origem.physio_assessments.hab_tabagista,direto; vazio → nulo,
+anamnese,hab_medicamentos,text,origem.physio_assessments.hab_medicamentos,direto; vazio → nulo,
+anamnese,fam_materna,text,origem.physio_assessments.fam_materna,direto; vazio → nulo,
+anamnese,fam_paterna,text,origem.physio_assessments.fam_paterna,direto; vazio → nulo,
+anamnese,diagnostico_clinico,text,origem.physio_assessments.diagnostico_clinico,direto; vazio → nulo,
+anamnese,diagnostico_funcional,text,origem.physio_assessments.diagnostico_funcional,direto; vazio → nulo,
+anamnese,exames_complementares,text,origem.physio_assessments.exames_complementares,direto; vazio → nulo,
+anamnese,observacao,text,origem.physio_assessments.observacao,direto; vazio → nulo,
+anamnese,dados_complementares,jsonb,origem.physio_assessments.pkz_data,"jsonb só com as chaves de texto clínico: rotina_acorda, rotina_escola, rotina_alimentacao, rotina_atividades, rotina_semana, rotina_dormir, rotina_fds, qualidade_sono, entorses_lado, cirurgias_sim, cirurgias_quais, fraturas_sim, fraturas_quais, laudo_apresentado, hpp_d_* e hpp_outros_desc; chaves vazias saem; pkz_data '{}' → nulo",dado de saúde de criança (PKZ): confidencialidade máxima
+anamnese,confidencialidade,text,,'restrito',
+anamnese,pendencia,text,,,nenhuma regra por enquanto (quem vê: pendência 5)
+anamnese,criado_em,timestamptz,origem.physio_assessments.created_at,direto,
+anamnese,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+atendimento,id,uuid,origem.physio_evolutions.id | origem.specialist_evolutions.id,direto,chave de reexecução
+atendimento,aluno_id,uuid,origem.physio_evolutions.athlete_id | origem.specialist_evolutions.athlete_id,direto,aluno inexistente no destino: carga_rejeitado
+atendimento,profissional_id,uuid,origem.physio_evolutions.physio_id | origem.specialist_evolutions.professional_id,direto,profissional inexistente no destino: carga_rejeitado
+atendimento,servico_id,uuid,origem.specialist_evolutions.service,"physio_evolutions: fisioterapia; specialist_evolutions: service: treino→treino, fisioterapeuta→fisioterapia, nutricionista→nutricao, psicologo→psicologia; busca novo.servico.id pelo codigo",service treino: carga_rejeitado (atendimento exige serviço especializado)
+atendimento,agendamento_id,uuid,origem.specialist_evolutions.booking_id,direto; physio_evolutions: nulo; agendamento de outro aluno → nulo,agendamento de outro aluno: 'agendamento de outro aluno: vínculo removido'
+atendimento,unidade_id,uuid,,novo.unidade_atual_do_aluno(aluno_id),
+atendimento,data,date,origem.bookings.slot_date | origem.physio_evolutions.created_at,specialist: slot_date do agendamento; physio_evolutions: (created_at at time zone 'America/Sao_Paulo')::date,physio_evolutions: 'data do atendimento = data do envio do arquivo'
+atendimento,observacao,text,,"nulo (o conteúdo está no arquivo, script 80)",
+atendimento,pendencia,text,,,ver agendamento_id e data
+atendimento,criado_em,timestamptz,origem.physio_evolutions.created_at | origem.specialist_evolutions.created_at,direto,
+atendimento,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+evolucao,id,uuid,,gen_random_uuid(),"chave de reexecução: (atendimento_id, data)"
+evolucao,atendimento_id,uuid,origem.physio_evolutions.id | origem.specialist_evolutions.id,uma evolução por atendimento,
+evolucao,data,date,,= atendimento.data,
+evolucao,observacao,text,,nulo (o file_name não é copiado para cá: pode conter nome do aluno),
+evolucao,pendencia,text,,,
+evolucao,criado_em,timestamptz,origem.physio_evolutions.created_at | origem.specialist_evolutions.created_at,direto,
+evolucao,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+—,—,—,origem.physio_assessments.cpf,não migra,pendência 4 (destino ou descarte: decisão da direção)
+—,—,—,origem.physio_assessments.email,não migra,pendência 4
+—,—,—,origem.physio_assessments.endereco,não migra,pendência 4
+—,—,—,origem.physio_assessments.file_path,não migra,(aqui) vai para arquivo no script 80 (documentos.csv)
+—,—,—,"origem.physio_assessments.pkz_data (img_*, carimbo_path, laudo_path)",não migra,(aqui) caminhos de arquivo: vão para arquivo no script 80 (documentos.csv)
+—,—,—,origem.physio_assessments.profissao,não migra,pendência 4
+—,—,—,origem.physio_assessments.sexo,não migra,pendência 4
+—,—,—,origem.physio_assessments.telefone,não migra,pendência 4
+—,—,—,origem.physio_evolutions.file_name,não migra,(aqui) vai para arquivo.nome no script 80
+—,—,—,origem.physio_evolutions.storage_path,não migra,(aqui) vai para arquivo no script 80
+—,—,—,origem.specialist_evolutions.file_name,não migra,(aqui) vai para arquivo.nome no script 80
+—,—,—,origem.specialist_evolutions.file_path,não migra,(aqui) vai para arquivo no script 80

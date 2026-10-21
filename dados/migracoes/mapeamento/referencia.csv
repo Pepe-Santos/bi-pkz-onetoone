@@ -1,0 +1,60 @@
+tabela_destino,coluna,tipo,origem,transformacao,regra_pendencia_ou_rejeicao
+unidade,id,uuid,,gen_random_uuid(),chave de reexecução: codigo
+unidade,codigo,text,enum student_program,"valores do enum: pkz, one_to_one (2 linhas)",
+unidade,nome,text,,"constante: 'PKZ Lab / Playmakerz' (pkz), 'Studio One to One' (one_to_one)",
+unidade,endereco,text,,nulo (o endereço de contato fica em configuracao_unidade),
+unidade,ativo,boolean,,true,
+unidade,criado_em,timestamptz,,now(),
+unidade,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+servico,id,uuid,,gen_random_uuid(),chave de reexecução: codigo
+servico,codigo,text,enum service_type,"treino→treino, fisioterapeuta→fisioterapia, nutricionista→nutricao, psicologo→psicologia (4 linhas)",
+servico,nome,text,,"constante: Treino, Fisioterapia, Nutrição, Psicologia",
+servico,especializado,boolean,,codigo <> 'treino',
+servico,ativo,boolean,,true,
+servico,ordem,integer,,"1 treino, 2 fisioterapia, 3 nutricao, 4 psicologia",
+servico,criado_em,timestamptz,,now(),
+servico,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+configuracao_unidade,unidade_id,uuid,origem.app_settings (1 linha),a única linha é copiada para as 2 unidades (cross join com novo.unidade),chave de reexecução: unidade_id
+configuracao_unidade,prazo_cancelamento_horas,integer,origem.app_settings.cancel_deadline_hours,direto,
+configuracao_unidade,capacidade_padrao,integer,origem.app_settings.default_capacity,direto,a capacidade real por horário vem de horario_grade (script 40)
+configuracao_unidade,limite_credito_baixo,integer,origem.app_settings.low_credit_threshold,direto,
+configuracao_unidade,creditos_mensais,integer,origem.app_settings.monthly_credits,direto,
+configuracao_unidade,renovacao_dia,integer,origem.app_settings.renewal_day,direto,
+configuracao_unidade,renovacao_dia_semana,integer,origem.app_settings.renewal_weekday,"renewal_weekday % 7: a origem usa ISO (1 = segunda … 7 = domingo); o destino usa dow (0 = domingo), igual à grade e ao bloqueio",
+configuracao_unidade,renovacao_ativa,boolean,origem.app_settings.renewal_enabled,direto,
+configuracao_unidade,ultima_renovacao_em,timestamptz,origem.app_settings.last_renewal_at,direto,
+configuracao_unidade,espera_aceite_horas,integer,origem.app_settings.waitlist_accept_hours,direto,
+configuracao_unidade,liberacao_automatica,boolean,origem.app_settings.auto_release_enabled,direto,
+configuracao_unidade,liberacao_intervalo_min,integer,origem.app_settings.auto_release_interval_minutes,direto,
+configuracao_unidade,contato_endereco,text,origem.app_settings.contact_address,direto,
+configuracao_unidade,contato_instagram,text,origem.app_settings.contact_instagram,direto,
+configuracao_unidade,contato_telefone,text,origem.app_settings.contact_phone,"direto (telefone comercial do centro, não é dado pessoal)",
+configuracao_unidade,contato_site,text,origem.app_settings.contact_website,direto,
+configuracao_unidade,pendencia,text,,,sempre: 'configuração única da origem copiada para as duas unidades'
+configuracao_unidade,criado_em,timestamptz,,now(),
+configuracao_unidade,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+configuracao_unidade,creditos_fisio_padrao,integer,origem.app_settings.credits_fisio_standard,direto (coluna criada no 009),
+configuracao_unidade,creditos_nutri_padrao,integer,origem.app_settings.credits_nutri_standard,direto (coluna criada no 009),
+plano,id,uuid,,gen_random_uuid(),chave de reexecução: codigo
+plano,unidade_id,uuid,,one_to_one para os planos do enum e para one_to_one_sem_plano; pkz para pkz_padrao,
+plano,codigo,text,enum one_to_one_plan,"os 5 valores do enum (express, one_move, one_power, one_power_legacy, be_the_one) + 'pkz_padrao' + 'one_to_one_sem_plano' (7 linhas)",
+plano,nome,text,,"constante: Express, One Move, One Power, One Power (legado), Be The One, PKZ padrão, One to One sem plano",
+plano,ativo,boolean,,true; false para one_power_legacy e one_to_one_sem_plano,
+plano,pendencia,text,,,pkz_padrao: 'plano criado na carga: o PKZ não tem plano na origem'; one_to_one_sem_plano: 'aluno One to One sem plano na origem'; one_power_legacy: 'plano legado: confirmar se ainda é vendido'
+plano,criado_em,timestamptz,,now(),
+plano,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+plano_beneficio,id,uuid,,gen_random_uuid(),"chave de reexecução: (plano_id, servico_id, periodicidade)"
+plano_beneficio,plano_id,uuid,,busca novo.plano pelo codigo,
+plano_beneficio,servico_id,uuid,"public.plan_weekly_treino / plan_monthly_fisio / plan_monthly_nutri (definição, pg_get_functiondef)",treino ← plan_weekly_treino; fisioterapia ← plan_monthly_fisio; nutricao ← plan_monthly_nutri; pkz_padrao: treino,
+plano_beneficio,quantidade,integer,idem; pkz_padrao: origem.app_settings.monthly_credits,valor do CASE da função para cada plano; só entram as quantidades > 0 (12 linhas dos planos One to One + 1 do PKZ),
+plano_beneficio,periodicidade,text,,treino: 'semana'; fisioterapia e nutricao: 'mes'; pkz_padrao: 'mes',
+plano_beneficio,pendencia,text,,,"fisioterapia: 'função mensal, mas o comentário diz sessões por semana: confirmar periodicidade'; pkz_padrao: 'quantidade do PKZ (monthly_credits) a confirmar'"
+plano_beneficio,criado_em,timestamptz,,now(),
+plano_beneficio,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+papel,id,uuid,,gen_random_uuid(),chave de reexecução: codigo
+papel,codigo,text,enum app_role,"9 valores → 5 códigos: admin; professor (professor, professor_pkz, professor_one_to_one); especialista (nutricionista, psicologo, fisioterapeuta); responsavel; recepcao","recepcao entra como papel próprio, mas cada papel_usuario de recepção leva pendência (script 20)"
+papel,nome,text,,"constante: Administrador, Professor, Especialista, Responsável, Recepção",
+papel,ativo,boolean,,true,
+papel,criado_em,timestamptz,,now(),
+papel,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+—,—,—,origem.app_settings.id,não migra,sempre 1 (linha única); a chave nova é unidade_id

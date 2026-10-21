@@ -1,0 +1,29 @@
+# Dados: nunca no repositório
+*.csv
+!mapeamento/*.csv
+*.dump
+*.backup
+*.tar
+*.zip
+*.xlsx
+*.xls
+dados/
+dumps/
+
+# Segredos
+.env
+.env.*
+*.pem
+*.key
+
+# Supabase CLI local
+supabase/.branches/
+supabase/.temp/
+
+# Sistema / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.log

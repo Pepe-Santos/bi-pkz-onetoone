@@ -1,0 +1,96 @@
+tabela_destino,coluna,tipo,origem,transformacao,regra_pendencia_ou_rejeicao
+horario_grade,id,uuid,,gen_random_uuid(),"chave de reexecução: (unidade_id, servico_id, dia_semana, hora_inicio, vigencia_inicio)"
+horario_grade,unidade_id,uuid,public.get_service_day (definição),"treino: uma grade por unidade; fisioterapia, nutricao, psicologia: nulo (grade compartilhada, 009)",
+horario_grade,servico_id,uuid,public.get_service_day (definição),os 4 serviços,
+horario_grade,dia_semana,smallint,public.is_valid_slot (definição),"segunda a sexta (1–5) e sábado (6), em extract(dow); domingo não tem grade",
+horario_grade,hora_inicio,time,public.is_valid_slot + get_service_day (definição),"seg–sex: treino PKZ 08:00; treino One to One 06:00; fisioterapia 07:00; nutrição/psicologia 08:00. Sábado: 08:00 para todos (treino: uma faixa 08:00 e outra a partir de 09:00, ver capacidade)",
+horario_grade,hora_fim,time,idem,último início + intervalo. Seg–sex: treino 21:00 (último início 20:00); fisioterapia 20:15; nutrição/psicologia 20:30. Sábado: treino PKZ 12:00; treino One to One 11:30; fisioterapia 11:15; nutrição/psicologia 11:30,
+horario_grade,capacidade,integer,public.service_capacity (definição),"treino 6; treino sábado 08:00 = 10 em faixa própria: PKZ 08:00–09:00 (intervalo 60), One to One 08:00–08:30 (intervalo 30), para que só o início das 08:00 tenha 10, como em service_capacity; fisioterapia, nutrição, psicologia 1",
+horario_grade,vigencia_inicio,date,origem.bookings.slot_date,min(slot_date) da origem (início do histórico),
+horario_grade,vigencia_fim,date,,nulo,
+horario_grade,pendencia,text,,,sempre: 'grade reconstruída das regras do app: confirmar com a coordenação'
+horario_grade,criado_em,timestamptz,,now(),
+horario_grade,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+horario_grade,intervalo_min,smallint,idem,treino PKZ 60; treino One to One: 30 antes das 17:00 e 60 a partir das 17:00 (duas faixas); fisioterapia 15; nutrição/psicologia 30,coluna criada no 009
+bloqueio_agenda,id,uuid,origem.schedule_blocks.id,direto,chave de reexecução
+bloqueio_agenda,unidade_id,uuid,origem.schedule_blocks.program,"nulo → nulo (todas as unidades; 36/36 na foto); senão program: pkz→pkz, one_to_one→one_to_one; busca novo.unidade.id pelo codigo",
+bloqueio_agenda,servico_id,uuid,origem.schedule_blocks.service,"nulo → nulo (todos); senão service: treino→treino, fisioterapeuta→fisioterapia, nutricionista→nutricao, psicologo→psicologia; busca novo.servico.id pelo codigo",
+bloqueio_agenda,data,date,origem.schedule_blocks.block_date,"direto (no permanente, é a data a partir da qual vale)",block_date nulo (a coluna aceita nulo na foto; 0 casos): carga_rejeitado
+bloqueio_agenda,permanente,boolean,origem.schedule_blocks.is_permanent,direto,
+bloqueio_agenda,dia_semana,smallint,origem.schedule_blocks.weekday,weekday % 7 (a origem usa ISO: 1 = segunda … 7 = domingo; o destino usa dow: 0 = domingo),"permanente com weekday nulo = vale todos os dias, como no app (1 caso)"
+bloqueio_agenda,hora_inicio,time,origem.schedule_blocks.start_time,direto,
+bloqueio_agenda,hora_fim,time,origem.schedule_blocks.end_time,direto,fim <= início: carga_rejeitado
+bloqueio_agenda,motivo,text,origem.schedule_blocks.reason,direto,
+bloqueio_agenda,criado_por,uuid,origem.schedule_blocks.created_by,direto; sem perfil → nulo,
+bloqueio_agenda,pendencia,text,,,nenhuma regra por enquanto
+bloqueio_agenda,criado_em,timestamptz,origem.schedule_blocks.created_at,direto,
+bloqueio_agenda,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+bloqueio_grade,bloqueio_id,uuid,,novo.bloqueio_agenda.id,"chave de reexecução: (bloqueio_id, horario_grade_id)"
+bloqueio_grade,horario_grade_id,uuid,,"grades do mesmo serviço (ou todas) e unidade (ou todas), no dia da semana do bloqueio (permanente: dia_semana ou todos; avulso: dow(data)), com sobreposição de horário e vigência que cubra a data",
+bloqueio_grade,criado_em,timestamptz,,now(),
+bloqueio_grade,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+agendamento,id,uuid,origem.bookings.id,direto,chave de reexecução
+agendamento,aluno_id,uuid,origem.bookings.athlete_id,direto (0 fora de athletes),aluno inexistente no destino: carga_rejeitado
+agendamento,unidade_id,uuid,,novo.unidade_atual_do_aluno(aluno_id),
+agendamento,servico_id,uuid,origem.bookings.service,"service: treino→treino, fisioterapeuta→fisioterapia, nutricionista→nutricao, psicologo→psicologia; busca novo.servico.id pelo codigo",service nulo: carga_rejeitado (0 na foto)
+agendamento,horario_grade_id,uuid,,"grade da unidade ou compartilhada, mesmo serviço, dow(slot_date), start_time dentro da faixa, vigência cobrindo a data (novo.grade_do_horario)",sem grade: 'fora da grade reconstruída'
+agendamento,profissional_id,uuid,origem.bookings.professor_id | origem.specialist_evolutions.professional_id,"direto (313/536 nulos na foto); serviço especializado sem professor (69/69 na foto): professional_id da evolução do mesmo agendamento, quando houver (15)",preenchido pela evolução: 'profissional deduzido da evolução'
+agendamento,data,date,origem.bookings.slot_date,direto,nulo: carga_rejeitado (0 na foto)
+agendamento,hora_inicio,time,origem.bookings.start_time,direto,nulo: carga_rejeitado (0 na foto)
+agendamento,hora_fim,time,origem.bookings.start_time + origem.athletes.plan / program / training_duration_min,start_time + duração da regra do app (get_service_day): treino One to One com início >= 17:00 → 60 min; treino com plano express → 30 min; treino → athletes.training_duration_min (ou 60); fisioterapia com plano be_the_one → 60 min; fisioterapia → 15 min; nutrição e psicologia → 60 min,passou da meia-noite: nulo + 'fim do horário não calculado'
+agendamento,status,text,origem.bookings.status,enum booking_status → texto,
+agendamento,criado_por,uuid,origem.bookings.created_by,direto; sem perfil → nulo,
+agendamento,confirmado_em,timestamptz,origem.bookings.confirmed_at,direto,
+agendamento,cancelado_em,timestamptz,origem.activity_logs.created_at,status cancelado: created_at do último activity_logs com action = 'cancel_booking' e entity_id = bookings.id,cancelado sem registro: 'data de cancelamento desconhecida'
+agendamento,motivo_cancelamento,text,,nulo: a origem não guarda motivo (o payload de cancel_booking só tem refund),
+agendamento,pendencia,text,,,"acima da capacidade (pico de ocupação no intervalo do agendamento, regra do 009): 'horário acima da capacidade (N de M)'; serviço especializado com status presente sem atendimento no script 70 (11 na foto): 'realizado sem registro de atendimento' (marcado no script 70); ver também profissional_id, horario_grade_id, hora_fim, cancelado_em"
+agendamento,criado_em,timestamptz,origem.bookings.created_at,direto,
+agendamento,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+sessao_treino,id,uuid,,gen_random_uuid(),chave de reexecução: agendamento_id
+sessao_treino,agendamento_id,uuid,origem.bookings.id,"só bookings com status 'presente' e service 'treino' (no especializado, a realização é o atendimento, script 70)",
+sessao_treino,profissional_id,uuid,origem.bookings.professor_id,direto,
+sessao_treino,data,date,origem.bookings.slot_date,direto,
+sessao_treino,hora_inicio,time,origem.bookings.start_time,direto,
+sessao_treino,hora_fim,time,,= agendamento.hora_fim,
+sessao_treino,observacao,text,,nulo,
+sessao_treino,pendencia,text,,,nenhuma regra por enquanto
+sessao_treino,criado_em,timestamptz,origem.activity_logs.created_at,created_at do último mark_attendance do agendamento; sem registro (0 na foto) → agendamento.criado_em,
+sessao_treino,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+lista_espera,id,uuid,origem.waitlist.id,direto (0 linhas na foto: só estrutura),chave de reexecução
+lista_espera,aluno_id,uuid,origem.waitlist.athlete_id,direto,
+lista_espera,unidade_id,uuid,,novo.unidade_atual_do_aluno(aluno_id),
+lista_espera,servico_id,uuid,origem.waitlist.service,"service: treino→treino, fisioterapeuta→fisioterapia, nutricionista→nutricao, psicologo→psicologia; busca novo.servico.id pelo codigo",
+lista_espera,data,date,origem.waitlist.slot_date,direto,
+lista_espera,hora_inicio,time,origem.waitlist.start_time,direto,
+lista_espera,solicitante_id,uuid,origem.waitlist.responsavel_id,direto,
+lista_espera,status,text,origem.waitlist.status,direto,
+lista_espera,notificado_em,timestamptz,origem.waitlist.notified_at,direto,
+lista_espera,expira_em,timestamptz,origem.waitlist.expires_at,direto,
+lista_espera,pendencia,text,,,
+lista_espera,criado_em,timestamptz,origem.waitlist.created_at,direto,
+lista_espera,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+feedback_treino,id,uuid,origem.training_feedback.id,direto,chave de reexecução
+feedback_treino,agendamento_id,uuid,origem.training_feedback.booking_id,direto (1 por agendamento na foto),agendamento inexistente no destino: carga_rejeitado
+feedback_treino,nota_treino,smallint,origem.training_feedback.rating_treino,direto (3 a 5 na foto),
+feedback_treino,nota_professor,smallint,origem.training_feedback.rating_professor,direto,
+feedback_treino,gostou,text[],origem.training_feedback.liked,direto (array de texto),
+feedback_treino,comentario,text,origem.training_feedback.comentario,direto,
+feedback_treino,pulado,boolean,origem.training_feedback.skipped,direto,
+feedback_treino,criado_por,uuid,origem.training_feedback.created_by,direto; sem perfil → nulo,
+feedback_treino,pendencia,text,,,
+feedback_treino,criado_em,timestamptz,origem.training_feedback.created_at,direto,
+feedback_treino,atualizado_em,timestamptz,,now(); o on conflict do update grava now(),
+—,—,—,origem.app_settings.default_capacity,não migra,(também) a capacidade por horário vem de service_capacity; default_capacity vai para configuracao_unidade (referencia.csv)
+—,—,—,origem.bookings.slot_id,não migra,sempre nulo (536/536); training_slots não migra
+—,—,—,origem.bookings.updated_at,não migra,atualizado_em = momento da carga
+—,—,—,origem.schedule_blocks.updated_at,não migra,atualizado_em = momento da carga
+—,—,—,origem.training_feedback.athlete_id,não migra,o aluno vem do agendamento (0 divergências na foto)
+—,—,—,origem.training_slots.capacity,não migra,tabela morta (0 linhas; slot_id nulo em todos os bookings); a grade vem das regras do app
+—,—,—,origem.training_slots.created_at,não migra,tabela morta (0 linhas; slot_id nulo em todos os bookings); a grade vem das regras do app
+—,—,—,origem.training_slots.end_time,não migra,tabela morta (0 linhas; slot_id nulo em todos os bookings); a grade vem das regras do app
+—,—,—,origem.training_slots.id,não migra,tabela morta (0 linhas; slot_id nulo em todos os bookings); a grade vem das regras do app
+—,—,—,origem.training_slots.notes,não migra,tabela morta (0 linhas; slot_id nulo em todos os bookings); a grade vem das regras do app
+—,—,—,origem.training_slots.professor_id,não migra,tabela morta (0 linhas; slot_id nulo em todos os bookings); a grade vem das regras do app
+—,—,—,origem.training_slots.slot_date,não migra,tabela morta (0 linhas; slot_id nulo em todos os bookings); a grade vem das regras do app
+—,—,—,origem.training_slots.start_time,não migra,tabela morta (0 linhas; slot_id nulo em todos os bookings); a grade vem das regras do app
+—,—,—,origem.training_slots.updated_at,não migra,tabela morta (0 linhas; slot_id nulo em todos os bookings); a grade vem das regras do app

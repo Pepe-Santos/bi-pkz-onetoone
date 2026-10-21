@@ -1,0 +1,79 @@
+graph "cadastro" {
+  graph [rankdir=TB, splines=spline, nodesep=0.62, ranksep=0.85,
+         bgcolor="#FAFAF8", fontname="Helvetica", fontsize=26, pad=0.5,
+         label=<<B>1 &#183; Cadastro e Identidade</B><BR/><BR/><FONT POINT-SIZE="15" COLOR="#6A6A6A">Quem é quem. Correção principal: Responsabilidade deixa de ser entidade e vira relacionamento N:M.<BR/>v2 (16/10/2026): em verde, o que mudou na construção do banco. Os códigos M remetem ao registro de mudanças.</FONT><BR/> >,
+         labelloc=t, fontcolor="#2B2B2B"];
+  node [fontname="Helvetica", fontsize=11];
+  edge [fontname="Helvetica", fontsize=9, color="#5A5A5A", penwidth=1.1,
+        fontcolor="#444444", labeldistance=1.5, labelfloat=false];
+  UNIDADE [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="UNIDADE", margin="0.18,0.10"];
+  PESSOA [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="PESSOA", margin="0.18,0.10"];
+  USUARIO [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="USUÁRIO", margin="0.18,0.10"];
+  PAPEL [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="PAPEL", margin="0.18,0.10"];
+  ATLETA [shape=box, style="filled,rounded", fillcolor="#EFEBE0", color="#8A7F66", penwidth=1.7, label="ATLETA", margin="0.18,0.10"];
+  R_acessa [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="acessa", fontsize=10, margin="0.02,0.02"];
+  R_responde [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="responde por", fontsize=10, margin="0.02,0.02"];
+  R_eh [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="é", fontsize=10, margin="0.02,0.02"];
+  R_exerce [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="exerce", fontsize=10, margin="0.02,0.02"];
+  R_lotado [shape=diamond, style=filled, fillcolor="#FBEFD3", color="#B9963F", penwidth=1.3, label="atua em", fontsize=10, margin="0.02,0.02"];
+  p_id [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label=<<U>id_pessoa</U>>, height=0.30, margin="0.04,0.02", style="filled,solid"];
+  p_nome [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="nome", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  p_nasc [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="data_nascimento", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  p_cpf [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="cpf", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  u_id [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label=<<U>id_usuário</U>>, height=0.30, margin="0.04,0.02", style="filled,solid"];
+  u_mail [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="e-mail", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  a_id [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label=<<U>id_atleta</U>>, height=0.30, margin="0.04,0.02", style="filled,solid"];
+  a_st [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="status", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  un_id [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label=<<U>id_unidade</U>>, height=0.30, margin="0.04,0.02", style="filled,solid"];
+  un_nome [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="nome", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  pa_id [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label=<<U>id_papel</U>>, height=0.30, margin="0.04,0.02", style="filled,solid"];
+  pa_nome [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="nome", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  rp_tipo [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="tipo_vínculo", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  rp_prin [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="principal", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  ex_desde [shape=ellipse, style="filled", fillcolor="#FFFFFF", color="#9A9A9A", penwidth=1.0, fontsize=9, label="desde", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  PESSOA:sw -- R_acessa [taillabel="(0,1)", labeldistance=2.6, labelangle=12, style=dashed, color="#B9963F"];
+  R_acessa -- USUARIO [taillabel="(1,1)", labeldistance=2.6, labelangle=12, style=dashed, color="#B9963F"];
+  PESSOA:s -- R_responde [taillabel="(0,N)", labeldistance=2.6, labelangle=12, style=dashed, color="#B9963F"];
+  R_responde -- ATLETA [taillabel="(1,N)", labeldistance=2.6, labelangle=12, style=dashed, color="#B9963F"];
+  PESSOA:se -- R_eh [taillabel="(0,1)", labeldistance=2.6, labelangle=12, style=dashed, color="#B9963F"];
+  R_eh -- ATLETA [taillabel="(1,1)", labeldistance=2.6, labelangle=12, style=dashed, color="#B9963F"];
+  USUARIO -- R_exerce [taillabel="(1,N)", labeldistance=2.6, labelangle=12];
+  R_exerce -- PAPEL [taillabel="(1,N)", labeldistance=2.6, labelangle=12];
+  PAPEL -- R_lotado [taillabel="(0,N)", labeldistance=2.6, labelangle=12, style=dashed, color="#B9963F"];
+  R_lotado -- UNIDADE [taillabel="(1,N)", labeldistance=2.6, labelangle=12, style=dashed, color="#B9963F"];
+  PESSOA -- p_id [color="#A8A8A8", penwidth=0.85];
+  PESSOA -- p_nome [color="#A8A8A8", penwidth=0.85];
+  PESSOA -- p_nasc [color="#A8A8A8", penwidth=0.85];
+  PESSOA -- p_cpf [color="#A8A8A8", penwidth=0.85];
+  USUARIO -- u_id [color="#A8A8A8", penwidth=0.85];
+  USUARIO -- u_mail [color="#A8A8A8", penwidth=0.85];
+  ATLETA -- a_id [color="#A8A8A8", penwidth=0.85];
+  ATLETA -- a_st [color="#A8A8A8", penwidth=0.85];
+  UNIDADE -- un_id [color="#A8A8A8", penwidth=0.85];
+  UNIDADE -- un_nome [color="#A8A8A8", penwidth=0.85];
+  PAPEL -- pa_id [color="#A8A8A8", penwidth=0.85];
+  PAPEL -- pa_nome [color="#A8A8A8", penwidth=0.85];
+  R_responde -- rp_tipo [color="#A8A8A8", penwidth=0.85];
+  R_responde -- rp_prin [color="#A8A8A8", penwidth=0.85];
+  R_exerce -- ex_desde [color="#A8A8A8", penwidth=0.85];
+  { rank=same; p_id; p_nome; p_nasc; p_cpf; }
+  { rank=same; USUARIO; PESSOA; }
+  CONFIG [shape=box, style="filled,rounded", fillcolor="#DCEFE7", color="#2F7D62", penwidth=2.2, label=<CONFIGURAÇÃO<BR/>DA UNIDADE<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M1</B></FONT>>, margin="0.18,0.10"];
+  R_configura [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<configura<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M1</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  cf_prazo [shape=ellipse, fillcolor="#FFFFFF", color="#2F7D62", fontcolor="#2F7D62", penwidth=1.2, fontsize=9, label="prazo_cancelamento", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  cf_cap [shape=ellipse, fillcolor="#FFFFFF", color="#2F7D62", fontcolor="#2F7D62", penwidth=1.2, fontsize=9, label="capacidade_padrão", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  cf_cred [shape=ellipse, fillcolor="#FFFFFF", color="#2F7D62", fontcolor="#2F7D62", penwidth=1.2, fontsize=9, label="créditos_padrão", height=0.30, margin="0.04,0.02", style="filled,solid"];
+  UNIDADE -- R_configura [taillabel="(1,1)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  R_configura -- CONFIG [taillabel="(1,1)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  CONFIG -- cf_prazo [color="#2F7D62", penwidth=0.9];
+  CONFIG -- cf_cap [color="#2F7D62", penwidth=0.9];
+  CONFIG -- cf_cred [color="#2F7D62", penwidth=0.9];
+  SERVICO [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="SERVIÇO", margin="0.18,0.10"];
+  R_podeagendar [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<pode agendar<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M2</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  ATLETA -- R_podeagendar [taillabel="(0,N)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  R_podeagendar -- SERVICO [taillabel="(0,N)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  PROF [shape=box, style="filled,rounded", fillcolor="#E4E0F5", color="#6B5FA8", penwidth=1.7, label="PROFISSIONAL", margin="0.18,0.10"];
+  R_ehprof [shape=diamond, style=filled, fillcolor="#E3F3EC", color="#2F7D62", penwidth=1.6, label=<é<BR/><FONT POINT-SIZE="8" COLOR="#2F7D62"><B>M3</B></FONT>>, fontsize=10, margin="0.02,0.02"];
+  USUARIO -- R_ehprof [taillabel="(0,1)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+  R_ehprof -- PROF [taillabel="(1,1)", labeldistance=2.6, labelangle=12, labelfontcolor="#2F7D62", color="#2F7D62", penwidth=1.6];
+}
