@@ -26,8 +26,8 @@ WITH ultimo_gabarito AS (
   (13,'avaliacao','weekly_evaluations','novo.avaliacao (semanal)',(SELECT COUNT(*) FROM novo.avaliacao WHERE tipo='semanal'),'VALIDA'),
   (14,'atendimento','physio_assessments','novo.avaliacao (fisioterapia)',(SELECT COUNT(*) FROM novo.avaliacao WHERE tipo='fisioterapia'),'PARCIAL'),
   (15,'atendimento','physio_assessments','novo.anamnese',(SELECT COUNT(*) FROM novo.anamnese),'PARCIAL'),
-  (16,'atendimento','physio_evolutions','novo.atendimento (fisio)',(SELECT COUNT(*) FROM novo.atendimento a WHERE EXISTS (SELECT 1 FROM origem.physio_evolutions o WHERE o.id=a.id),'VALIDA')),
-  (17,'atendimento','specialist_evolutions','novo.atendimento (especialista)',(SELECT COUNT(*) FROM novo.atendimento a WHERE EXISTS (SELECT 1 FROM origem.specialist_evolutions o WHERE o.id=a.id),'VALIDA')),
+  (16,'atendimento','physio_evolutions','novo.atendimento (fisio)',(SELECT COUNT(*) FROM novo.atendimento a WHERE EXISTS (SELECT 1 FROM origem.physio_evolutions o WHERE o.id=a.id)),'VALIDA'),
+  (17,'atendimento','specialist_evolutions','novo.atendimento (especialista)',(SELECT COUNT(*) FROM novo.atendimento a WHERE EXISTS (SELECT 1 FROM origem.specialist_evolutions o WHERE o.id=a.id)),'VALIDA'),
   (18,'documentos','activity_logs','novo.evento_auditoria (activity_logs)',(SELECT COUNT(*) FROM novo.evento_auditoria WHERE tabela_origem='activity_logs'),'VALIDA'),
   (19,'documentos','booking_audit_logs','novo.evento_auditoria (booking_audit_logs)',(SELECT COUNT(*) FROM novo.evento_auditoria WHERE tabela_origem='booking_audit_logs'),'VALIDA')
 )
@@ -241,12 +241,21 @@ SELECT *,CASE WHEN lancamentos_mesmo_timestamp>0 THEN true ELSE false END tem_em
       WHEN status='DIVERGENCIA' THEN 'DIVERGENCIA_A_INVESTIGAR'
       ELSE status END interpretacao
 FROM comparacoes ORDER BY aluno_id,servico_id;
-WITH comparacoes AS (
+-- Resumo: mesma reconstrucao da consulta anterior (reinicio na renovacao mais recente).
+WITH u AS (
+ SELECT DISTINCT ON(aluno_id,servico_id) aluno_id,servico_id,id renovacao_id,criado_em renovacao_em
+ FROM novo.credito_lancamento WHERE origem_tipo='renovacao'
+ ORDER BY aluno_id,servico_id,criado_em DESC,id DESC
+), s AS (
+ SELECT l.aluno_id,l.servico_id,SUM(l.delta)::int saldo_reconstruido
+ FROM novo.credito_lancamento l LEFT JOIN u ON u.aluno_id=l.aluno_id AND u.servico_id=l.servico_id
+ WHERE u.renovacao_id IS NULL OR (l.criado_em,l.id)>=(u.renovacao_em,u.renovacao_id)
+ GROUP BY l.aluno_id,l.servico_id
+), comparacoes AS (
  SELECT COALESCE(s.aluno_id,v.aluno_id) aluno_id,COALESCE(s.servico_id,v.servico_id) servico_id,
  CASE WHEN s.aluno_id IS NULL THEN 'SOMENTE_NA_VIEW'
       WHEN v.aluno_id IS NULL THEN 'SOMENTE_NA_RECONSTRUCAO'
       WHEN s.saldo_reconstruido IS NOT DISTINCT FROM v.saldo THEN 'OK' ELSE 'DIVERGENCIA' END status
- FROM (SELECT l.aluno_id,l.servico_id,SUM(l.delta)::int saldo_reconstruido FROM novo.credito_lancamento l GROUP BY l.aluno_id,l.servico_id) s
- FULL JOIN novo.vw_saldo_credito v USING(aluno_id,servico_id)
+ FROM s FULL JOIN novo.vw_saldo_credito v USING(aluno_id,servico_id)
 )
 SELECT status,COUNT(*) quantidade FROM comparacoes GROUP BY status ORDER BY status;
