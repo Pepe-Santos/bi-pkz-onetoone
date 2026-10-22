@@ -9,7 +9,7 @@ Estrutura o banco novo do projeto (schema `novo`) e carrega nele os dados do app
 - Dicionário de dados e domínios (Atleta, Treino, Avaliação).
 - Catálogo de métricas: unidade, direção, conversão e faixa plausível de cada teste.
 - `ENT-001` — modelo de dados documentado (homologação no marco M2).
-- `ENT-002` — base reestruturada, executada em 7 fases após o M2.
+- `ENT-002` — base reestruturada: construída, carregada e conferida no ensaio pela Frente 1 (tarefas 1.1 a 1.7, em [`migracoes/`](migracoes/)); na `main` desde 21/10.
 - Modelo analítico em estrela (7 dimensões, 6 fatos) para os dashboards.
 - Modelo conceitual do banco (seção 5.3 da documentação geral).
 
@@ -49,5 +49,5 @@ Notação de Chen, em 7 diagramas (visão geral e 6 domínios). A v2 (16/10) mos
 
 ## Regras
 
-- Só estrutura e scripts: nenhum dado real, dump ou CSV da produção ou da cópia. Os CSV de `migracoes/mapeamento/` são a exceção liberada no `.gitignore` da pasta: descrevem colunas e regras, sem nenhuma linha de dado.
-- Mudança no modelo que afete o `core` ou a `api` = PR revisado também pelo Desenvolvimento.
+- Só estrutura, scripts e contagens: nenhum dado real, dump ou CSV com registros da produção ou da cópia. Os CSV de `migracoes/mapeamento/` descrevem colunas e regras, sem nenhuma linha de dado (o README principal permite mapeamentos em CSV; o `.gitignore` da pasta os libera).
+- Mudança de estrutura em tabela do `novo` usada pelo Desenvolvimento: avisar o grupo **antes** (combinado de 20/10) e pedir revisão do Desenvolvimento no PR.

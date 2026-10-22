@@ -95,5 +95,7 @@ A ordem importa: cada script só referencia o que os anteriores já carregaram.
 
 ## 9. Git
 
-- Branch por tarefa (`micael/60-avaliacao`), pull request para `main`, revisão de outra pessoa do grupo antes de juntar.
+- Trabalho na branch do grupo, `dados`. Para uma tarefa maior, branch a partir dela no formato `<tipo>/<assunto>` (ex.: `feat/conferencias-origem`, `docs/pendencias-2-5`), citando o ID da task do ClickUp no PR. Nunca `dados/...`: o Git não cria essa branch enquanto existir a `dados`.
+- Pull request para a `main`, com 1 aprovação de outra pessoa. O repositório privado não tem proteção de branch no plano atual, então a regra vale pelo combinado: ninguém faz push direto na `main`.
+- Antes do PR, trazer a `main` para a branch (`git pull origin main`).
 - Mensagem de commit em português, no imperativo: `Adiciona carga de avaliação física`.

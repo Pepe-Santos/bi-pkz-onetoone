@@ -92,7 +92,7 @@ O destino definitivo é um **projeto Supabase separado**. Lá o arranjo vai ser 
 
 ### 21/10 — Respostas à revisão do PR #5 (Rafael)
 
-Três conferências novas, só de leitura, e a documentação que a revisão pediu:
+O PR #5 entrou na `main` em 21/10, com estas respostas. Três conferências novas, só de leitura, e a documentação que a revisão pediu:
 
 - `conferencia/01_cobertura_mapeamento.py`: refaz, de forma reproduzível, a conferência de cobertura do mapeamento contra o `information_schema` e classifica cada coluna (direta, transformada, gerada, não migrada). Resultado: 365/365 colunas da origem e 451/451 do destino, 0 erros. Ver "Como refazer a conferência" em [mapeamento/README.md](mapeamento/README.md).
 - `conferencia/02_papel_unidade.sql`: quais papéis são globais (`unidade_id` nula = todas as unidades) e quais são por unidade; 135 globais e 18 por unidade, 0 violações. Ver "Papéis e unidade". O `professor` sem sufixo virou a pendência 15.
@@ -144,4 +144,4 @@ Duas formas:
 
 ## Nunca vai para o Git
 
-Dados (CSV, dumps, planilhas com dados), `.env`, chaves, senhas, strings de conexão e o conteúdo do backup do app. O repositório é **público**. O `.gitignore` desta pasta só libera os CSV de `mapeamento/` (estrutura, sem dados); o resto segue o `.gitignore` da raiz. O `.gitignore` cobre os casos comuns, mas a responsabilidade é de quem faz o commit.
+Dados (CSV, dumps, planilhas com dados), `.env`, chaves, senhas, strings de conexão e o conteúdo do backup do app. O repositório é **privado** (desde 21/10), mas a regra continua: nada de dado pessoal nem credencial. O `.gitignore` desta pasta só libera os CSV de `mapeamento/` (estrutura, sem dados); o resto segue o `.gitignore` da raiz. O `.gitignore` cobre os casos comuns, mas a responsabilidade é de quem faz o commit.
