@@ -1,6 +1,10 @@
 # Frente 3 · 3.2 — Decisões sobre dado sensível
 
-> Pauta para a direção, com respaldo jurídico onde indicado. Iago · 23/10/2026.
+> Pauta para a direção. Iago · 23/10/2026.
+>
+> A pendência 5 previa "respaldo jurídico": o grupo dispensou a revisão jurídica em 23/10 (Micael),
+> por o ensaio rodar sobre cópia descaracterizada. As quatro decisões abaixo seguem necessárias, e são
+> de gestão.
 >
 > Fecha as pendências 4, 5 e a parte de consentimento da 11. Cada resposta vira ajuste no DDL e na
 > carga (Frente 1) e nas políticas de acesso (3.3), e volta registrada em
@@ -78,8 +82,9 @@ Recepção, professor e responsável não leem.
 | **Especialista** | Vê só o próprio serviço, ou fisio, nutri e psico se enxergam? | Vê só o próprio serviço |
 | **Admin** | Vê tudo, ou dado clínico fica fora também para o admin? | Vê tudo |
 
-**Ponto para o jurídico:** 105 dos 106 alunos são menores. Dado de saúde de menor tem proteção
-reforçada, e a regra de "quem pode ver" precisa estar escrita antes de o banco ser aberto para consumo.
+**Por que decidir agora:** 105 dos 106 alunos são menores, e a regra de "quem pode ver" precisa estar
+escrita antes de o banco ser aberto para consumo. A política vai junto para o projeto definitivo, onde
+o dado é real: escrever a regra agora assumindo dado de ensaio é levá-la assim para a produção.
 
 **Recomendação da Frente 3:** manter fechado para recepção e professor; abrir para o responsável apenas
 o que diz respeito ao próprio aluno; manter especialista restrito ao próprio serviço. Com uma condição:
