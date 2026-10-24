@@ -102,8 +102,8 @@ A string de conexão fica em **Connect**, no painel do Supabase.
 - O schema `api` está em *Project Settings → Data API → Exposed schemas* (24/10). Num projeto novo, incluir de novo: o `GRANT` do `01_schemas.sql` sozinho não basta. Como o projeto é compartilhado, combine com o Lucas antes de mudar essa configuração.
 - Quem chama envia o cabeçalho `Accept-Profile: api`; sem ele o Supabase procura a view em `public`.
 - Só recebem resposta o usuário logado (`authenticated`) e o gerador de relatórios (`service_role`, pela secret key). O papel `anon` não tem acesso ao schema. Como fazer login: seção "Login" do [`docs/api.md`](docs/api.md).
-- **Usuários:** o cadastro público está desligado (*Authentication → Sign In / Providers → Allow new users to sign up*). Usuários novos são criados pelo painel, em *Authentication → Users → Add user*, com *Auto Confirm User* marcado.
-- **Separação por unidade:** cada usuário só vê os atletas da unidade gravada em `app_metadata.unidade` (`PKZ`, `ONE_TO_ONE` ou `TODAS`). Usuário sem unidade não vê nada; o gerador de relatórios vê tudo. Depois de criar o usuário, defina a unidade no SQL Editor (comando no `docs/api.md`). O filtro fica em `trat.unidade_permitida`, no `06_api_avaliacoes.sql`.
+- **Usuários:** o cadastro público está desligado (*Authentication → Sign In / Providers → Allow new users to sign up*). Qualquer membro do grupo cria usuários pelo painel: passo a passo em "Criar um usuário", no [`docs/api.md`](docs/api.md).
+- **Separação por unidade:** cada usuário só vê os atletas da unidade gravada em `app_metadata.unidade` (`PKZ`, `ONE_TO_ONE` ou `TODAS`), definida no passo 4 de "Criar um usuário". Usuário sem unidade não vê nada; o gerador de relatórios vê tudo. O filtro fica em `trat.unidade_permitida`, no `06_api_avaliacoes.sql`.
 - **Teste de acesso:** com o `backend/.env` preenchido, `python backend/scripts/testar_acesso.py` confere os 3 casos (sem login não devolve dados; com o usuário de teste e com a secret key, devolve) e mostra quantos atletas de cada unidade cada acesso vê.
 
 ## Storage

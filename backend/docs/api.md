@@ -59,13 +59,24 @@ await supabase.auth.signInWithPassword({ email, password });
 const { data } = await supabase.from("evolucao").select("*").eq("atleta_id", atletaId);
 ```
 
-**Unidade do usuário.** Cada usuário só vê os atletas da unidade gravada em `app_metadata.unidade`: `PKZ`, `ONE_TO_ONE` ou `TODAS`. Usuário sem unidade não vê nada; a secret key vê tudo. Só um administrador muda a unidade, pelo SQL Editor (o valor entra no token no próximo login):
+### Criar um usuário
+
+O cadastro público está desligado: usuários novos são criados no painel do Supabase, por qualquer membro do grupo.
+
+1. No projeto do Supabase, abra **Authentication → Users**.
+2. Clique em **Add user → Create new user**.
+3. Preencha o e-mail e a senha e deixe **Auto Confirm User** marcado (sem isso o login falha). Clique em **Create user**.
+4. Defina a unidade que o usuário pode ver. No **SQL Editor**, rode o comando abaixo trocando o e-mail e a unidade (`PKZ`, `ONE_TO_ONE` ou `TODAS`):
 
 ```sql
 UPDATE auth.users
 SET raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || '{"unidade": "PKZ"}'
 WHERE email = '<e-mail do usuário>';
 ```
+
+5. Faça login com o usuário (passos acima). Se ele já estava logado quando a unidade mudou, faça login de novo: a unidade só vale a partir do próximo login.
+
+Cada usuário só vê os atletas da sua unidade. Usuário sem unidade (passo 4 esquecido) não vê nada; o gerador de relatórios vê as duas unidades. Já existe um usuário de teste com `TODAS`, usado nos testes de acesso.
 
 O `backend/scripts/testar_acesso.py` confere os três casos: sem login (não devolve dados), com o usuário de teste e com a secret key (devolvem). Ele lê as variáveis do `backend/.env`.
 
