@@ -43,6 +43,12 @@ CREATE TABLE IF NOT EXISTS trat.catalogo_teste (
   atualizado_em   timestamptz NOT NULL DEFAULT now()
 );
 
+-- RLS ligado e sem policy: ninguém lê estas tabelas direto pela API (anon nem
+-- authenticated). As views do trat e da api são do postgres, dono das tabelas, e por
+-- isso continuam lendo normalmente.
+ALTER TABLE trat.parametro      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE trat.catalogo_teste ENABLE ROW LEVEL SECURITY;
+
 -- Colunas criadas em 24/10, para o banco onde a tabela já existia.
 ALTER TABLE trat.catalogo_teste ADD COLUMN IF NOT EXISTS conversao_abaixo_de numeric;
 ALTER TABLE trat.catalogo_teste ADD COLUMN IF NOT EXISTS conversao_fator     numeric;
