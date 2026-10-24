@@ -13,7 +13,7 @@ Banco do app (Lovable / Supabase)
         │  foto congelada + carga feitas pelo grupo de Dados
         ▼
 novo            banco novo do grupo de Dados (o Grupo de Desenvolvimento só lê)
-        │  views de leitura publicadas pelo grupo de Dados (tarefa 3.4 deles)
+        │  lido direto pelas views do trat
         ▼
 trat            regras de tratamento: parâmetros, catálogo de testes, medidas padronizadas
         │
@@ -28,6 +28,7 @@ Tudo fica no **mesmo projeto Supabase**: o de ensaio do Lucas (`jhspjkelmnbvrnle
 
 - O Grupo de Desenvolvimento só cria objetos nos schemas `trat` e `api` e no bucket `relatorios`.
 - Nunca escreve em `novo`, `origem` ou `public`.
+- Lê direto as tabelas do `novo` (combinado com o grupo de Dados em 20/10): o grupo de Dados não monta views para nós, e avisa no grupo se mudar a estrutura de uma tabela que usamos (`aluno`, `pessoa`, `matricula`, `avaliacao`, `avaliacao_medida`, `metrica`, `relatorio_treino`, `agendamento`). Se mudar, as views do `trat` são ajustadas.
 - O grupo de Dados controla o banco pelo histórico de migrações do Supabase (`pkzbi_...`). Os scripts daqui **não** entram nesse histórico: rodam direto, pelo `psql` ou pelo SQL Editor.
 - Quando existir o projeto Supabase definitivo (tarefa 3.6 do grupo de Dados), os mesmos scripts recriam tudo.
 
@@ -51,8 +52,9 @@ O `02_fdw.sql` saiu em 20/10. Ele conectava a um banco remoto do grupo de Dados,
 ## Estado em 20/10
 
 - `01`, `03` e `04` aplicados no projeto do Lucas: schemas `trat` e `api`, bucket `relatorios` privado, 3 parâmetros e 10 testes no catálogo.
-- Views da `api`: contrato em `docs/api.md`, ainda não criadas. Vão ler as views de leitura do grupo de Dados.
-- Catálogo: a `novo.metrica` já traz unidade e direção dos 19 testes físicos, mas não traz faixa plausível nem regra de conversão, e os códigos são outros (`sprint_20` lá, `sprint_20m` aqui). O alinhamento está pendente com o grupo de Dados.
+- Views da `api`: contrato em `docs/api.md`, ainda não criadas. Vão ler as tabelas do `novo` por meio de views no `trat`.
+- Catálogo: a `novo.metrica` já traz unidade e direção dos 19 testes físicos, mas não traz faixa plausível nem regra de conversão, e os códigos são outros (`sprint_20` lá, `sprint_20m` aqui). Decidido em 20/10: os códigos da `novo.metrica` passam a ser o padrão, e o `trat.catalogo_teste` guarda só faixa plausível e conversão. Falta recodificar o catálogo.
+- Envio: nenhum aluno da cópia tem e-mail ligado (nem do responsável, nem próprio), então o envio automático é demonstrado com e-mails de teste.
 
 ## Como rodar os scripts
 
