@@ -75,7 +75,8 @@ def descrever(status, resp):
     if isinstance(resp, dict):
         if resp.get("code") == "PGRST106":
             return f"{status}, o schema api não está em Exposed schemas"
-        return f"{status}, {resp.get('code')}: {resp.get('message')}"
+        mensagem = resp.get("message") or resp.get("msg") or resp.get("error")
+        return f"{status}, {resp['code']}: {mensagem}" if resp.get("code") else f"{status}, {mensagem}"
     return f"{status}, {resp}"
 
 
