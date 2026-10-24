@@ -1,0 +1,32 @@
+# Ambientes locais
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+ENV/
+.pytest_cache/
+.mypy_cache/
+.pyre/
+
+# IDE e sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Logs e temporários
+*.log
+*.tmp
+*.bak
+*.sqlite3
+*.db
