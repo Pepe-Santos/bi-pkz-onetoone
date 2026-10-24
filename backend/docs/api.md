@@ -2,7 +2,7 @@
 
 Contrato das views que o Grupo de Desenvolvimento expõe pela API REST do Supabase para o gerador de relatórios e para os outros consumidores internos da empresa.
 
-**Estado:** provisório. Os nomes das colunas não mudam sem aviso no grupo. Os valores de exemplo são fictícios (`exemplos/api/`). As regras por teste (unidade, direção, faixa plausível) ficam marcadas como **não confirmadas** até a PKZ validar o catálogo.
+**Estado:** provisório. As views são criadas pelo `sql/06_api_avaliacoes.sql` (24/10). Os nomes das colunas não mudam sem aviso no grupo. Os valores de exemplo são fictícios (`exemplos/api/`). As regras por teste (unidade, direção, faixa plausível) ficam marcadas como **não confirmadas** até a PKZ validar o catálogo.
 
 ## Como chamar
 
@@ -96,14 +96,14 @@ Uma linha por atleta, teste e lado, comparando a última avaliação com a imedi
 | `data_atual` | date | |
 | `valor_atual` | numeric | |
 | `variacao_abs` | numeric | `valor_atual - valor_anterior`, na unidade do teste |
-| `variacao_pct` | numeric | `(valor_atual - valor_anterior) / valor_anterior * 100`, 1 casa decimal |
-| `situacao` | text | `melhorou`, `piorou`, `estavel` ou `sem_comparacao` |
+| `variacao_pct` | numeric | `(valor_atual - valor_anterior) / valor_anterior * 100`, 1 casa decimal; nulo quando o valor anterior é 0 (ex.: Aquabag sem desequilíbrio) |
+| `situacao` | text | `melhorou`, `piorou`, `estavel`, `sem_classificacao` ou `sem_comparacao` |
 
 Regras de `situacao`:
 
-- `estavel`: `abs(variacao_pct)` abaixo do parâmetro `variacao_estavel_pct` (2% provisório).
+- `estavel`: `abs(variacao_pct)` abaixo do parâmetro `variacao_estavel_pct` (2% provisório), ou valor igual.
+- `sem_classificacao`: mudou além do estável, mas o teste não tem direção (`maior_melhor` nulo: altura, peso e `slalom_wallball`, cuja direção ainda não foi definida).
 - `melhorou` / `piorou`: pela direção do teste (`maior_melhor`). Variação negativa num teste de tempo é melhora.
-- Teste com `maior_melhor` nulo (altura, peso e `slalom_wallball`, cuja direção ainda não foi definida) não é classificado: sai `estavel` ou `sem_comparacao`, nunca `melhorou`/`piorou`.
 - `sem_comparacao`: não há avaliação anterior com valor válido.
 
 **Regra para o relatório dos pais:** escrever "melhorou" ou "piorou" só quando `confirmado = true`. Teste não confirmado aparece com os valores, sem classificação.
