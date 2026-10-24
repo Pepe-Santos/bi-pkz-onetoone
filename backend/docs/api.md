@@ -24,6 +24,8 @@ Sem login não há resposta: o schema `api` só tem permissão para o papel `aut
 
 Filtros seguem a sintaxe do PostgREST: `?atleta_id=eq.<uuid>`, `&order=data_avaliacao.asc`, `&select=teste,valor`.
 
+Cada chamada devolve no máximo 1.000 linhas (limite do Supabase). Filtre por `atleta_id`; para ler tudo, pagine com `&limit=1000&offset=1000`.
+
 ### Login (dashboard e testes)
 
 Quem não é o gerador de relatórios entra com e-mail e senha de um usuário do Supabase (*Authentication → Users*). A senha do usuário de teste é passada em particular, nunca no GitHub.
