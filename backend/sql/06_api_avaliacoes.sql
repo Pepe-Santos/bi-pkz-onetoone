@@ -133,4 +133,4 @@ FROM prazo;
 
 -- O 01_schemas.sql já dá SELECT nas views novas por ALTER DEFAULT PRIVILEGES; o GRANT
 -- explícito cobre o caso de as views terem sido criadas antes dele.
-GRANT SELECT ON ALL TABLES IN SCHEMA api TO authenticated;
+GRANT SELECT ON ALL TABLES IN SCHEMA api TO authenticated, service_role;

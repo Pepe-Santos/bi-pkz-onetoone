@@ -20,7 +20,7 @@ Cabeçalhos obrigatórios:
 | `Authorization` | `Bearer <token>`: JWT do usuário logado, ou a secret key no gerador de relatórios |
 | `Accept-Profile` | `api` (sem isso o PostgREST procura a view em `public`) |
 
-Sem login não há resposta: o schema `api` só tem permissão para o papel `authenticated`. Para o schema aparecer na API, ele precisa estar em **Project Settings → Data API → Exposed schemas** no painel do Supabase.
+Sem login não há resposta: o schema `api` só tem permissão para os papéis `authenticated` (usuário logado) e `service_role` (secret key). Para o schema aparecer na API, ele precisa estar em **Project Settings → Data API → Exposed schemas** no painel do Supabase.
 
 Filtros seguem a sintaxe do PostgREST: `?atleta_id=eq.<uuid>`, `&order=data_avaliacao.asc`, `&select=teste,valor`.
 
