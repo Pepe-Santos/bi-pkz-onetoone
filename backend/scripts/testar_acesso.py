@@ -6,7 +6,8 @@ Roda os 3 testes do card "Proteger a API":
   3. com a secret key      -> devolve
 
 Só usa a biblioteca padrão. Lê as variáveis do backend/.env (veja backend/env.example).
-Não imprime dados dos atletas: só o status HTTP e quantas linhas vieram.
+Não imprime dados dos atletas: só o status HTTP e quantos atletas de cada unidade vieram
+(o usuário só vê a unidade de app_metadata.unidade; veja 06_api_avaliacoes.sql).
 
     python backend/scripts/testar_acesso.py
 """
@@ -66,12 +67,16 @@ def ler_view(base, apikey, token=None):
     cabecalhos = {"apikey": apikey, "Accept-Profile": "api"}
     if token:
         cabecalhos["Authorization"] = f"Bearer {token}"
-    return requisicao("GET", f"{base}/rest/v1/{VIEW}?select=atleta_id&limit=5", cabecalhos)
+    return requisicao("GET", f"{base}/rest/v1/{VIEW}?select=unidade", cabecalhos)
 
 
 def descrever(status, resp):
     if status == 200 and isinstance(resp, list):
-        return f"{status}, {len(resp)} linha(s)"
+        unidades = {}
+        for linha in resp:
+            unidades[linha.get("unidade")] = unidades.get(linha.get("unidade"), 0) + 1
+        por_unidade = ", ".join(f"{u}={n}" for u, n in sorted(unidades.items(), key=str))
+        return f"{status}, {len(resp)} atleta(s) ({por_unidade or 'nenhum'})"
     if isinstance(resp, dict):
         if resp.get("code") == "PGRST106":
             return f"{status}, o schema api não está em Exposed schemas"

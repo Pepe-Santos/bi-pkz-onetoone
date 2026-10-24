@@ -59,6 +59,14 @@ await supabase.auth.signInWithPassword({ email, password });
 const { data } = await supabase.from("evolucao").select("*").eq("atleta_id", atletaId);
 ```
 
+**Unidade do usuário.** Cada usuário só vê os atletas da unidade gravada em `app_metadata.unidade`: `PKZ`, `ONE_TO_ONE` ou `TODAS`. Usuário sem unidade não vê nada; a secret key vê tudo. Só um administrador muda a unidade, pelo SQL Editor (o valor entra no token no próximo login):
+
+```sql
+UPDATE auth.users
+SET raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || '{"unidade": "PKZ"}'
+WHERE email = '<e-mail do usuário>';
+```
+
 O `backend/scripts/testar_acesso.py` confere os três casos: sem login (não devolve dados), com o usuário de teste e com a secret key (devolvem). Ele lê as variáveis do `backend/.env`.
 
 ### Gerador de relatórios (secret key)

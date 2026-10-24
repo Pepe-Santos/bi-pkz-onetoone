@@ -4,19 +4,37 @@
 --
 -- As views são do postgres e rodam com as permissões dele: quem chama a API só precisa
 -- de SELECT no schema api, sem acesso ao trat nem ao novo.
+--
+-- Separação por unidade: cada usuário tem app_metadata.unidade = PKZ, ONE_TO_ONE ou
+-- TODAS (só um administrador muda, por SQL em auth.users). As views mostram só os atletas
+-- dessa unidade. Usuário sem unidade não vê nada. A secret key (service_role) e o acesso
+-- direto ao banco (SQL Editor, psql: sem token) veem tudo.
+
+-- ---------------------------------------------------------------------------
+-- Unidade atual de cada aluno: a da matrícula mais recente (novo.matricula).
+-- ---------------------------------------------------------------------------
+CREATE OR REPLACE VIEW trat.aluno_unidade AS
+SELECT DISTINCT ON (mt.aluno_id) mt.aluno_id, upper(u.codigo) AS unidade
+FROM novo.matricula mt
+JOIN novo.unidade u ON u.id = mt.unidade_id
+ORDER BY mt.aluno_id, mt.vigencia_inicio DESC;
+
+-- Quem fez a chamada pode ver atletas desta unidade?
+CREATE OR REPLACE FUNCTION trat.unidade_permitida(unidade text)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT auth.jwt() IS NULL                                     -- fora da API
+      OR auth.jwt() ->> 'role' = 'service_role'                 -- secret key
+      OR auth.jwt() -> 'app_metadata' ->> 'unidade' IN ('TODAS', unidade);
+$$;
 
 -- ---------------------------------------------------------------------------
 -- atleta: identificação e filtros. Única view com nome.
--- A unidade vem da matrícula mais recente (novo.matricula).
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE VIEW api.atleta AS
-WITH unidade_atual AS (
-  SELECT DISTINCT ON (mt.aluno_id) mt.aluno_id, upper(u.codigo) AS unidade
-  FROM novo.matricula mt
-  JOIN novo.unidade u ON u.id = mt.unidade_id
-  ORDER BY mt.aluno_id, mt.vigencia_inicio DESC
-),
-avaliacoes AS (
+WITH avaliacoes AS (
   SELECT aluno_id,
          count(DISTINCT avaliacao_id)::int AS total_avaliacoes,
          max(data_avaliacao)               AS ultima_avaliacao_em
@@ -33,9 +51,10 @@ SELECT
   coalesce(av.total_avaliacoes, 0)                       AS total_avaliacoes,
   av.ultima_avaliacao_em
 FROM novo.aluno a
-JOIN novo.pessoa p          ON p.id = a.pessoa_id
-LEFT JOIN unidade_atual ua  ON ua.aluno_id = a.id
-LEFT JOIN avaliacoes av     ON av.aluno_id = a.id;
+JOIN novo.pessoa p               ON p.id = a.pessoa_id
+LEFT JOIN trat.aluno_unidade ua  ON ua.aluno_id = a.id
+LEFT JOIN avaliacoes av          ON av.aluno_id = a.id
+WHERE trat.unidade_permitida(ua.unidade);
 
 -- ---------------------------------------------------------------------------
 -- evolucao: histórico de cada teste do atleta, uma linha por avaliação, teste e lado.
@@ -54,7 +73,11 @@ SELECT
   r.valor,
   r.tentativas_validas
 FROM trat.resultado_teste r
-JOIN trat.catalogo_teste c ON c.codigo = r.teste;
+JOIN trat.catalogo_teste c       ON c.codigo = r.teste
+LEFT JOIN trat.aluno_unidade ua  ON ua.aluno_id = r.aluno_id
+WHERE trat.unidade_permitida(ua.unidade);
+
+-- comparacao e reavaliacao leem de api.evolucao e api.atleta, então já saem filtradas.
 
 -- ---------------------------------------------------------------------------
 -- comparacao: última avaliação contra a anterior, por atleta, teste e lado.
