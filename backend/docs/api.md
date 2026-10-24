@@ -63,33 +63,34 @@ Exemplo: `exemplos/api/atleta.json`.
 
 ### `evolucao`: histórico de cada teste do atleta
 
-Uma linha por atleta, avaliação e teste. O valor é a **melhor tentativa válida** da avaliação (menor tempo ou maior distância), já na unidade padrão do catálogo. Avaliação sem tentativa válida para um teste não gera linha: o valor foi para `revisao_dados`.
+Uma linha por atleta, avaliação, teste e lado. O valor é a **melhor tentativa válida** da avaliação (menor tempo ou maior distância), já na unidade padrão do catálogo. Avaliação sem tentativa válida para um teste não gera linha: o valor foi para `revisao_dados`.
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
 | `atleta_id` | uuid | |
 | `avaliacao_id` | uuid | id da avaliação no banco novo |
 | `data_avaliacao` | date | |
-| `teste` | text | código do teste no catálogo (ex.: `sprint_20m`) |
+| `teste` | text | código do teste, igual ao `novo.metrica.codigo` (ex.: `sprint_20`) |
 | `teste_nome` | text | nome para exibir |
-| `unidade_medida` | text | `s`, `cm`, `m` ou `pontos` |
+| `lado` | text | `dir` ou `esq` nos testes feitos com cada perna (`single_hop`, `cross_hop`); nulo nos demais |
+| `unidade_medida` | text | `s`, `ms`, `cm`, `m`, `km/h`, `kg`, `hits` ou `desequilibrios` |
 | `maior_melhor` | bool | `true`: maior valor é melhor; `false`: menor é melhor |
 | `confirmado` | bool | `true` só depois que a PKZ validou a regra do teste |
 | `valor` | numeric | melhor tentativa válida, na unidade padrão |
 | `tentativas_validas` | int | quantas tentativas entraram na escolha |
 
-Serve para o gráfico de evolução: filtrar por `atleta_id`, agrupar por `teste`, ordenar por `data_avaliacao`.
+Serve para o gráfico de evolução: filtrar por `atleta_id`, agrupar por `teste` e `lado`, ordenar por `data_avaliacao`.
 
 Exemplo: `exemplos/api/evolucao.json`.
 
 ### `comparacao`: avaliação atual contra a anterior
 
-Uma linha por atleta e teste, comparando a última avaliação com a imediatamente anterior em que o teste tem valor válido.
+Uma linha por atleta, teste e lado, comparando a última avaliação com a imediatamente anterior em que o teste tem valor válido.
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
 | `atleta_id` | uuid | |
-| `teste`, `teste_nome`, `unidade_medida`, `maior_melhor`, `confirmado` | | como em `evolucao` |
+| `teste`, `teste_nome`, `lado`, `unidade_medida`, `maior_melhor`, `confirmado` | | como em `evolucao` |
 | `data_anterior` | date | nulo quando só existe uma avaliação do teste |
 | `valor_anterior` | numeric | idem |
 | `data_atual` | date | |
@@ -102,6 +103,7 @@ Regras de `situacao`:
 
 - `estavel`: `abs(variacao_pct)` abaixo do parâmetro `variacao_estavel_pct` (2% provisório).
 - `melhorou` / `piorou`: pela direção do teste (`maior_melhor`). Variação negativa num teste de tempo é melhora.
+- Teste com `maior_melhor` nulo (altura, peso e `slalom_wallball`, cuja direção ainda não foi definida) não é classificado: sai `estavel` ou `sem_comparacao`, nunca `melhorou`/`piorou`.
 - `sem_comparacao`: não há avaliação anterior com valor válido.
 
 **Regra para o relatório dos pais:** escrever "melhorou" ou "piorou" só quando `confirmado = true`. Teste não confirmado aparece com os valores, sem classificação.
@@ -137,5 +139,5 @@ As regras por teste (unidade padrão, direção, faixa plausível, conversão, c
 
 - Confirmar com a PKZ a unidade, a direção e a faixa plausível de cada teste, e se algum teste usa média em vez da melhor tentativa.
 - Origem dos dados (24/10, a pedido do Lucas): as views leem o banco novo por views de leitura que o grupo de Dados cria no `novo` (o Rafael passa a lista ao Micael), sem cálculo: `vw_aluno`, `vw_avaliacao_medida`, `vw_relatorio_treino` (sem os campos de dor) e `vw_agendamento`. Enquanto não existirem, leem as tabelas (`novo.aluno`, `novo.avaliacao`, `novo.avaliacao_medida`, `novo.metrica`, `novo.relatorio_treino`, `novo.agendamento`) e depois só trocam o `FROM`. A unidade (PKZ ou One to One) vem de `novo.matricula` e `novo.unidade`. Campos de dor não entram nas views, na API nem nos relatórios.
-- Códigos dos testes: decidido em 20/10 que o contrato passa a usar os códigos do banco novo (`novo.metrica.codigo`, ex.: `sprint_20` em vez de `sprint_20m`). A troca nos arquivos de `exemplos/api/` é avisada no grupo antes, porque o gerador de relatórios usa esses arquivos.
+- Códigos dos testes: decidido em 20/10 que o contrato usa os códigos do banco novo (`novo.metrica.codigo`). Em 24/10 o catálogo e os exemplos em `backend/exemplos/api/` passaram a usar esses códigos, ganharam a coluna `lado` e os testes que faltavam (Banco de Wells, Blazepod, os 3 saltos verticais, o restante do VO2 e o peso). A cópia em `exemplos/api/` na raiz, usada pelo gerador de relatórios, ainda está no formato antigo.
 - Views de treino (`ultimo_treino`, `treino_mes`) para o relatório One to One: tarefa separada.

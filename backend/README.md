@@ -53,7 +53,7 @@ O `02_fdw.sql` saiu em 20/10. Ele conectava a um banco remoto do grupo de Dados,
 
 - `01`, `03` e `04` aplicados no projeto do Lucas: schemas `trat` e `api`, bucket `relatorios` privado, 3 parâmetros e 10 testes no catálogo.
 - Views da `api`: contrato em `docs/api.md`, ainda não criadas. Vão ler as views `vw_*` do `novo` (24/10).
-- Catálogo: a `novo.metrica` já traz unidade e direção dos 19 testes físicos, mas não traz faixa plausível nem regra de conversão, e os códigos são outros (`sprint_20` lá, `sprint_20m` aqui). Decidido em 20/10: os códigos da `novo.metrica` passam a ser o padrão, e o `trat.catalogo_teste` guarda só faixa plausível e conversão. Falta recodificar o catálogo.
+- Catálogo: recodificado em 24/10 com os códigos da `novo.metrica` (decidido em 20/10). Tem 20 testes, os físicos numéricos mais altura e peso, com faixas e conversões tiradas dos valores reais do `novo`. Os testes por perna (`single_hop`, `cross_hop`) saem com a coluna `lado` na API.
 - Envio: nenhum aluno da cópia tem e-mail ligado (nem do responsável, nem próprio), então o envio automático é demonstrado com e-mails de teste.
 
 ## Como rodar os scripts
