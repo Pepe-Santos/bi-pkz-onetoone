@@ -61,7 +61,17 @@ const { data } = await supabase.from("evolucao").select("*").eq("atleta_id", atl
 
 ### Criar um usuário
 
-O cadastro público está desligado: usuários novos são criados no painel do Supabase, por qualquer membro do grupo.
+O cadastro público está desligado: qualquer membro do grupo cria os usuários, de um destes dois jeitos.
+
+**Pelo script (um passo só).** Precisa da `SUPABASE_SECRET_KEY` no `backend/.env`. Cria o usuário já confirmado e com a unidade:
+
+```
+python backend/scripts/criar_usuario.py <email> <senha> <PKZ|ONE_TO_ONE|TODAS>
+```
+
+Se o e-mail já existir, o script avisa e não muda nada; para trocar a unidade de quem já existe, use o passo 4 abaixo.
+
+**Pelo painel do Supabase.** O formulário do painel não tem campo para a unidade, então são dois passos (criar e depois definir a unidade):
 
 1. No projeto do Supabase, abra **Authentication → Users**.
 2. Clique em **Add user → Create new user**.
