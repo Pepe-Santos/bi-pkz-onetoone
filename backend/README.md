@@ -39,7 +39,10 @@ backend/
 ├── sql/
 │   ├── 01_schemas.sql                  schemas trat e api e leitura da API
 │   ├── 03_storage.sql                  bucket privado relatorios para os PDFs
-│   └── 04_trat_parametros_catalogo.sql parâmetros de negócio e catálogo de regras por teste
+│   ├── 04_trat_parametros_catalogo.sql parâmetros de negócio e catálogo de regras por teste
+│   ├── 05_trat_medidas.sql             medidas padronizadas, revisão de dados e resultado por teste
+│   └── 06_api_avaliacoes.sql           views da API: atleta, evolucao, comparacao, reavaliacao
+├── scripts/testar_acesso.py            os 3 testes de acesso à API (sem login, com login, secret key)
 ├── docs/api.md                         contrato das views do schema api
 ├── exemplos/api/                       respostas de exemplo, com dados fictícios
 ├── agents/git_flow.md                  regras do agente de git
@@ -52,8 +55,8 @@ O `02_fdw.sql` saiu em 20/10. Ele conectava a um banco remoto do grupo de Dados,
 ## Estado em 20/10
 
 - `01`, `03` e `04` aplicados no projeto do Lucas: schemas `trat` e `api`, bucket `relatorios` privado, 3 parâmetros e 10 testes no catálogo.
-- Views da `api`: contrato em `docs/api.md`, ainda não criadas. Vão ler as views `vw_*` do `novo` (24/10).
-- Catálogo: a `novo.metrica` já traz unidade e direção dos 19 testes físicos, mas não traz faixa plausível nem regra de conversão, e os códigos são outros (`sprint_20` lá, `sprint_20m` aqui). Decidido em 20/10: os códigos da `novo.metrica` passam a ser o padrão, e o `trat.catalogo_teste` guarda só faixa plausível e conversão. Falta recodificar o catálogo.
+- Views da `api`: contrato em `docs/api.md`, criadas pelo `06` (24/10) a partir do `trat` (`05`). Por enquanto leem as tabelas do `novo`; quando as views `vw_*` do grupo de Dados existirem, só muda o `FROM` do `05`.
+- Catálogo: recodificado em 24/10 com os códigos da `novo.metrica` (decidido em 20/10). Tem 20 testes, os físicos numéricos mais altura e peso, com faixas e conversões tiradas dos valores reais do `novo`. Os testes por perna (`single_hop`, `cross_hop`) saem com a coluna `lado` na API.
 - Envio: nenhum aluno da cópia tem e-mail ligado (nem do responsável, nem próprio), então o envio automático é demonstrado com e-mails de teste.
 
 ## Como rodar os scripts
@@ -67,6 +70,8 @@ set -a; source backend/.env; set +a
 psql "$SUPABASE_DB_URL" -f backend/sql/01_schemas.sql
 psql "$SUPABASE_DB_URL" -f backend/sql/03_storage.sql
 psql "$SUPABASE_DB_URL" -f backend/sql/04_trat_parametros_catalogo.sql
+psql "$SUPABASE_DB_URL" -f backend/sql/05_trat_medidas.sql
+psql "$SUPABASE_DB_URL" -f backend/sql/06_api_avaliacoes.sql
 ```
 
 Windows (PowerShell), na raiz do repositório:
@@ -76,6 +81,8 @@ $env:SUPABASE_DB_URL = "postgresql://postgres:SENHA@db.xxxx.supabase.co:5432/pos
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\01_schemas.sql
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\03_storage.sql
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\04_trat_parametros_catalogo.sql
+psql "$env:SUPABASE_DB_URL" -f .\backend\sql\05_trat_medidas.sql
+psql "$env:SUPABASE_DB_URL" -f .\backend\sql\06_api_avaliacoes.sql
 ```
 
 A string de conexão fica em **Connect**, no painel do Supabase.

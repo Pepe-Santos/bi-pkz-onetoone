@@ -2,7 +2,7 @@
 
 Contrato das views que o Grupo de Desenvolvimento expõe pela API REST do Supabase para o gerador de relatórios e para os outros consumidores internos da empresa.
 
-**Estado:** provisório. Os nomes das colunas não mudam sem aviso no grupo. Os valores de exemplo são fictícios (`exemplos/api/`). As regras por teste (unidade, direção, faixa plausível) ficam marcadas como **não confirmadas** até a PKZ validar o catálogo.
+**Estado:** provisório. As views são criadas pelo `sql/06_api_avaliacoes.sql` (24/10). Os nomes das colunas não mudam sem aviso no grupo. Os valores de exemplo são fictícios (`exemplos/api/`). As regras por teste (unidade, direção, faixa plausível) ficam marcadas como **não confirmadas** até a PKZ validar o catálogo.
 
 ## Como chamar
 
@@ -20,11 +20,58 @@ Cabeçalhos obrigatórios:
 | `Authorization` | `Bearer <token>`: JWT do usuário logado, ou a secret key no gerador de relatórios |
 | `Accept-Profile` | `api` (sem isso o PostgREST procura a view em `public`) |
 
-Sem login não há resposta: o schema `api` só tem permissão para o papel `authenticated`. Para o schema aparecer na API, ele precisa estar em **Project Settings → Data API → Exposed schemas** no painel do Supabase.
+Sem login não há resposta: o schema `api` só tem permissão para os papéis `authenticated` (usuário logado) e `service_role` (secret key). Para o schema aparecer na API, ele precisa estar em **Project Settings → Data API → Exposed schemas** no painel do Supabase.
 
 Filtros seguem a sintaxe do PostgREST: `?atleta_id=eq.<uuid>`, `&order=data_avaliacao.asc`, `&select=teste,valor`.
 
-Exemplo em Python (gerador de relatórios, com a secret key):
+Cada chamada devolve no máximo 1.000 linhas (limite do Supabase). Filtre por `atleta_id`; para ler tudo, pagine com `&limit=1000&offset=1000`.
+
+### Login (dashboard e testes)
+
+Quem não é o gerador de relatórios entra com e-mail e senha de um usuário do Supabase (*Authentication → Users*). A senha do usuário de teste é passada em particular, nunca no GitHub.
+
+1. Pedir o token, com a publishable key:
+
+```
+POST {SUPABASE_URL}/auth/v1/token?grant_type=password
+apikey: <publishable key>
+Content-Type: application/json
+
+{"email": "<e-mail>", "password": "<senha>"}
+```
+
+2. A resposta traz `access_token` (vale 1 hora) e `refresh_token`. Chamar as views com o token:
+
+```
+GET {SUPABASE_URL}/rest/v1/atleta
+apikey: <publishable key>
+Authorization: Bearer <access_token>
+Accept-Profile: api
+```
+
+3. Quando o token vencer, a API responde `401`. Pedir outro com `POST /auth/v1/token?grant_type=refresh_token` e o corpo `{"refresh_token": "<refresh_token>"}`, ou fazer login de novo.
+
+No front, a biblioteca `supabase-js` faz o login e renova o token sozinha:
+
+```js
+const supabase = createClient(SUPABASE_URL, PUBLISHABLE_KEY, { db: { schema: "api" } });
+await supabase.auth.signInWithPassword({ email, password });
+const { data } = await supabase.from("evolucao").select("*").eq("atleta_id", atletaId);
+```
+
+**Unidade do usuário.** Cada usuário só vê os atletas da unidade gravada em `app_metadata.unidade`: `PKZ`, `ONE_TO_ONE` ou `TODAS`. Usuário sem unidade não vê nada; a secret key vê tudo. Só um administrador muda a unidade, pelo SQL Editor (o valor entra no token no próximo login):
+
+```sql
+UPDATE auth.users
+SET raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || '{"unidade": "PKZ"}'
+WHERE email = '<e-mail do usuário>';
+```
+
+O `backend/scripts/testar_acesso.py` confere os três casos: sem login (não devolve dados), com o usuário de teste e com a secret key (devolvem). Ele lê as variáveis do `backend/.env`.
+
+### Gerador de relatórios (secret key)
+
+Exemplo em Python, com a secret key:
 
 ```python
 import os, requests
@@ -63,44 +110,46 @@ Exemplo: `exemplos/api/atleta.json`.
 
 ### `evolucao`: histórico de cada teste do atleta
 
-Uma linha por atleta, avaliação e teste. O valor é a **melhor tentativa válida** da avaliação (menor tempo ou maior distância), já na unidade padrão do catálogo. Avaliação sem tentativa válida para um teste não gera linha: o valor foi para `revisao_dados`.
+Uma linha por atleta, avaliação, teste e lado. O valor é a **melhor tentativa válida** da avaliação (menor tempo ou maior distância), já na unidade padrão do catálogo. Avaliação sem tentativa válida para um teste não gera linha: o valor foi para `revisao_dados`.
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
 | `atleta_id` | uuid | |
 | `avaliacao_id` | uuid | id da avaliação no banco novo |
 | `data_avaliacao` | date | |
-| `teste` | text | código do teste no catálogo (ex.: `sprint_20m`) |
+| `teste` | text | código do teste, igual ao `novo.metrica.codigo` (ex.: `sprint_20`) |
 | `teste_nome` | text | nome para exibir |
-| `unidade_medida` | text | `s`, `cm`, `m` ou `pontos` |
+| `lado` | text | `dir` ou `esq` nos testes feitos com cada perna (`single_hop`, `cross_hop`); nulo nos demais |
+| `unidade_medida` | text | `s`, `ms`, `cm`, `m`, `km/h`, `kg`, `hits` ou `desequilibrios` |
 | `maior_melhor` | bool | `true`: maior valor é melhor; `false`: menor é melhor |
 | `confirmado` | bool | `true` só depois que a PKZ validou a regra do teste |
 | `valor` | numeric | melhor tentativa válida, na unidade padrão |
 | `tentativas_validas` | int | quantas tentativas entraram na escolha |
 
-Serve para o gráfico de evolução: filtrar por `atleta_id`, agrupar por `teste`, ordenar por `data_avaliacao`.
+Serve para o gráfico de evolução: filtrar por `atleta_id`, agrupar por `teste` e `lado`, ordenar por `data_avaliacao`.
 
 Exemplo: `exemplos/api/evolucao.json`.
 
 ### `comparacao`: avaliação atual contra a anterior
 
-Uma linha por atleta e teste, comparando a última avaliação com a imediatamente anterior em que o teste tem valor válido.
+Uma linha por atleta, teste e lado, comparando a última avaliação com a imediatamente anterior em que o teste tem valor válido.
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
 | `atleta_id` | uuid | |
-| `teste`, `teste_nome`, `unidade_medida`, `maior_melhor`, `confirmado` | | como em `evolucao` |
+| `teste`, `teste_nome`, `lado`, `unidade_medida`, `maior_melhor`, `confirmado` | | como em `evolucao` |
 | `data_anterior` | date | nulo quando só existe uma avaliação do teste |
 | `valor_anterior` | numeric | idem |
 | `data_atual` | date | |
 | `valor_atual` | numeric | |
 | `variacao_abs` | numeric | `valor_atual - valor_anterior`, na unidade do teste |
-| `variacao_pct` | numeric | `(valor_atual - valor_anterior) / valor_anterior * 100`, 1 casa decimal |
-| `situacao` | text | `melhorou`, `piorou`, `estavel` ou `sem_comparacao` |
+| `variacao_pct` | numeric | `(valor_atual - valor_anterior) / valor_anterior * 100`, 1 casa decimal; nulo quando o valor anterior é 0 (ex.: Aquabag sem desequilíbrio) |
+| `situacao` | text | `melhorou`, `piorou`, `estavel`, `sem_classificacao` ou `sem_comparacao` |
 
 Regras de `situacao`:
 
-- `estavel`: `abs(variacao_pct)` abaixo do parâmetro `variacao_estavel_pct` (2% provisório).
+- `estavel`: `abs(variacao_pct)` abaixo do parâmetro `variacao_estavel_pct` (2% provisório), ou valor igual.
+- `sem_classificacao`: mudou além do estável, mas o teste não tem direção (`maior_melhor` nulo: altura, peso e `slalom_wallball`, cuja direção ainda não foi definida).
 - `melhorou` / `piorou`: pela direção do teste (`maior_melhor`). Variação negativa num teste de tempo é melhora.
 - `sem_comparacao`: não há avaliação anterior com valor válido.
 
@@ -137,5 +186,5 @@ As regras por teste (unidade padrão, direção, faixa plausível, conversão, c
 
 - Confirmar com a PKZ a unidade, a direção e a faixa plausível de cada teste, e se algum teste usa média em vez da melhor tentativa.
 - Origem dos dados (24/10, a pedido do Lucas): as views leem o banco novo por views de leitura que o grupo de Dados cria no `novo` (o Rafael passa a lista ao Micael), sem cálculo: `vw_aluno`, `vw_avaliacao_medida`, `vw_relatorio_treino` (sem os campos de dor) e `vw_agendamento`. Enquanto não existirem, leem as tabelas (`novo.aluno`, `novo.avaliacao`, `novo.avaliacao_medida`, `novo.metrica`, `novo.relatorio_treino`, `novo.agendamento`) e depois só trocam o `FROM`. A unidade (PKZ ou One to One) vem de `novo.matricula` e `novo.unidade`. Campos de dor não entram nas views, na API nem nos relatórios.
-- Códigos dos testes: decidido em 20/10 que o contrato passa a usar os códigos do banco novo (`novo.metrica.codigo`, ex.: `sprint_20` em vez de `sprint_20m`). A troca nos arquivos de `exemplos/api/` é avisada no grupo antes, porque o gerador de relatórios usa esses arquivos.
+- Códigos dos testes: decidido em 20/10 que o contrato usa os códigos do banco novo (`novo.metrica.codigo`). Em 24/10 o catálogo e os exemplos em `backend/exemplos/api/` passaram a usar esses códigos, ganharam a coluna `lado` e os testes que faltavam (Banco de Wells, Blazepod, os 3 saltos verticais, o restante do VO2 e o peso). A cópia em `exemplos/api/` na raiz, usada pelo gerador de relatórios, ainda está no formato antigo.
 - Views de treino (`ultimo_treino`, `treino_mes`) para o relatório One to One: tarefa separada.
