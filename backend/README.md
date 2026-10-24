@@ -42,6 +42,7 @@ backend/
 │   ├── 04_trat_parametros_catalogo.sql parâmetros de negócio e catálogo de regras por teste
 │   ├── 05_trat_medidas.sql             medidas padronizadas, revisão de dados e resultado por teste
 │   └── 06_api_avaliacoes.sql           views da API: atleta, evolucao, comparacao, reavaliacao
+├── scripts/testar_acesso.py            os 3 testes de acesso à API (sem login, com login, secret key)
 ├── docs/api.md                         contrato das views do schema api
 ├── exemplos/api/                       respostas de exemplo, com dados fictícios
 ├── agents/git_flow.md                  regras do agente de git

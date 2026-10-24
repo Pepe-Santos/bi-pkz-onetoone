@@ -24,7 +24,44 @@ Sem login não há resposta: o schema `api` só tem permissão para o papel `aut
 
 Filtros seguem a sintaxe do PostgREST: `?atleta_id=eq.<uuid>`, `&order=data_avaliacao.asc`, `&select=teste,valor`.
 
-Exemplo em Python (gerador de relatórios, com a secret key):
+### Login (dashboard e testes)
+
+Quem não é o gerador de relatórios entra com e-mail e senha de um usuário do Supabase (*Authentication → Users*). A senha do usuário de teste é passada em particular, nunca no GitHub.
+
+1. Pedir o token, com a publishable key:
+
+```
+POST {SUPABASE_URL}/auth/v1/token?grant_type=password
+apikey: <publishable key>
+Content-Type: application/json
+
+{"email": "<e-mail>", "password": "<senha>"}
+```
+
+2. A resposta traz `access_token` (vale 1 hora) e `refresh_token`. Chamar as views com o token:
+
+```
+GET {SUPABASE_URL}/rest/v1/atleta
+apikey: <publishable key>
+Authorization: Bearer <access_token>
+Accept-Profile: api
+```
+
+3. Quando o token vencer, a API responde `401`. Pedir outro com `POST /auth/v1/token?grant_type=refresh_token` e o corpo `{"refresh_token": "<refresh_token>"}`, ou fazer login de novo.
+
+No front, a biblioteca `supabase-js` faz o login e renova o token sozinha:
+
+```js
+const supabase = createClient(SUPABASE_URL, PUBLISHABLE_KEY, { db: { schema: "api" } });
+await supabase.auth.signInWithPassword({ email, password });
+const { data } = await supabase.from("evolucao").select("*").eq("atleta_id", atletaId);
+```
+
+O `backend/scripts/testar_acesso.py` confere os três casos: sem login (não devolve dados), com o usuário de teste e com a secret key (devolvem). Ele lê as variáveis do `backend/.env`.
+
+### Gerador de relatórios (secret key)
+
+Exemplo em Python, com a secret key:
 
 ```python
 import os, requests
