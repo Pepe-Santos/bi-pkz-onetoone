@@ -34,12 +34,18 @@ CREATE TABLE IF NOT EXISTS trat.catalogo_teste (
   maior_melhor    boolean,                       -- true: maior é melhor; false: menor é melhor; NULL: não se classifica (medida antropométrica)
   faixa_min       numeric,                       -- faixa plausível, na unidade padrão; fora dela vai para revisão
   faixa_max       numeric,
-  regra_conversao text,                          -- como padronizar a unidade quando a origem mistura (texto, aplicado na view de medidas)
+  regra_conversao text,                          -- a conversão abaixo, por extenso
+  conversao_abaixo_de numeric,                   -- valor menor que este está na unidade errada...
+  conversao_fator     numeric,                   -- ...e é multiplicado por este (aplicado em trat.medida)
   usa_media       boolean NOT NULL DEFAULT false,-- false: melhor tentativa válida; true: média das tentativas
   confirmado      boolean NOT NULL DEFAULT false,-- true só depois da PKZ validar unidade, direção e faixa
   observacao      text,
   atualizado_em   timestamptz NOT NULL DEFAULT now()
 );
+
+-- Colunas criadas em 24/10, para o banco onde a tabela já existia.
+ALTER TABLE trat.catalogo_teste ADD COLUMN IF NOT EXISTS conversao_abaixo_de numeric;
+ALTER TABLE trat.catalogo_teste ADD COLUMN IF NOT EXISTS conversao_fator     numeric;
 
 -- Códigos antigos (antes de 24/10), que não existem em novo.metrica.
 DELETE FROM trat.catalogo_teste
@@ -53,12 +59,12 @@ WHERE codigo IN ('sprint_10m', 'sprint_20m', 'agilidade', 'slalom', 'salto_horiz
 INSERT INTO trat.catalogo_teste
   (codigo, nome, unidade_padrao, maior_melhor, faixa_min, faixa_max, regra_conversao, observacao) VALUES
   ('sprint_10',                   'Sprint 10 m',                     's',              false, 1.2,  4.0,  NULL,                                                     'Ex.: 10 m em 17 s é impossível e vai para revisão.'),
-  ('sprint_20',                   'Sprint 20 m',                     's',              false, 2.3,  6.0,  NULL,                                                     NULL),
+  ('sprint_20',                   'Sprint 20 m',                     's',              false, 2.3,  8.0,  NULL,                                                     'Tempos de 6 a 7,5 s são plausíveis para crianças; 10 s vai para revisão.'),
   ('illinois',                    'Agilidade (Illinois)',            's',              false, 5.0,  25.0, NULL,                                                     NULL),
   ('slalom_wallball',             'Slalom com bola / Wall Ball',     's',              NULL,  3.0,  60.0, NULL,                                                     'Unidade e direção em aberto (pendência 3 do grupo de Dados). Valores de 227 a 400 vão para revisão. Sem direção, aparece sem classificação.'),
   ('estabilidade_aquabag',        'Estabilidade Aquabag',            'desequilibrios', false, 0,    6,    NULL,                                                     'Nº de desequilíbrios (inteiros de 0 a 6, mediana 1): menor é melhor.'),
   ('banco_wells',                 'Banco de Wells (flexibilidade)',  'cm',             true,  0,    60,   NULL,                                                     NULL),
-  ('single_hop',                  'Single hop (salto horizontal)',   'cm',             true,  50,   350,  'valor abaixo de 10 está em metros: multiplicar por 100', 'Por lado. Origem mistura 1,22 (m) e 141 (cm); valores de 450 a 495 parecem cross hop e vão para revisão.'),
+  ('single_hop',                  'Single hop (salto horizontal)',   'cm',             true,  30,   350,  'valor abaixo de 10 está em metros: multiplicar por 100', 'Por lado. Origem mistura 1,22 (m) e 141 (cm); valores de 450 a 495 parecem cross hop e vão para revisão.'),
   ('cross_hop',                   'Cross hop',                       'cm',             true,  100,  600,  'valor abaixo de 10 está em metros: multiplicar por 100', 'Por lado. Origem mistura 4,01 (m) e 543 (cm); sem conversão daria melhora de 13.000%.'),
   ('saltos_vert_squat_jump',      'Salto vertical (squat jump)',     'cm',             true,  5,    80,   NULL,                                                     NULL),
   ('saltos_vert_countermovement', 'Salto vertical (contramovimento)','cm',             true,  5,    80,   NULL,                                                     NULL),
@@ -73,3 +79,15 @@ INSERT INTO trat.catalogo_teste
   ('antropometria_altura',        'Altura',                          'cm',             NULL,  90,   220,  'valor abaixo de 3 está em metros: multiplicar por 100',  'Medida antropométrica: aparece no relatório, mas não é classificada.'),
   ('antropometria_peso',          'Peso',                            'kg',             NULL,  15,   150,  NULL,                                                     'Medida antropométrica: aparece no relatório, mas não é classificada.')
 ON CONFLICT (codigo) DO NOTHING;
+
+-- Conversões em números, para a view de medidas aplicar (as mesmas de regra_conversao).
+UPDATE trat.catalogo_teste c
+SET conversao_abaixo_de = v.abaixo_de, conversao_fator = v.fator
+FROM (VALUES
+  ('single_hop',                10, 100),
+  ('cross_hop',                 10, 100),
+  ('teste_vo2_distancia_total', 10, 1000),
+  ('antropometria_altura',      3,  100)
+) AS v (codigo, abaixo_de, fator)
+WHERE c.codigo = v.codigo
+  AND c.conversao_abaixo_de IS NULL;

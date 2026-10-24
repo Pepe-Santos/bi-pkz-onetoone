@@ -39,7 +39,8 @@ backend/
 ├── sql/
 │   ├── 01_schemas.sql                  schemas trat e api e leitura da API
 │   ├── 03_storage.sql                  bucket privado relatorios para os PDFs
-│   └── 04_trat_parametros_catalogo.sql parâmetros de negócio e catálogo de regras por teste
+│   ├── 04_trat_parametros_catalogo.sql parâmetros de negócio e catálogo de regras por teste
+│   └── 05_trat_medidas.sql             medidas padronizadas, revisão de dados e resultado por teste
 ├── docs/api.md                         contrato das views do schema api
 ├── exemplos/api/                       respostas de exemplo, com dados fictícios
 ├── agents/git_flow.md                  regras do agente de git
@@ -67,6 +68,7 @@ set -a; source backend/.env; set +a
 psql "$SUPABASE_DB_URL" -f backend/sql/01_schemas.sql
 psql "$SUPABASE_DB_URL" -f backend/sql/03_storage.sql
 psql "$SUPABASE_DB_URL" -f backend/sql/04_trat_parametros_catalogo.sql
+psql "$SUPABASE_DB_URL" -f backend/sql/05_trat_medidas.sql
 ```
 
 Windows (PowerShell), na raiz do repositório:
@@ -76,6 +78,7 @@ $env:SUPABASE_DB_URL = "postgresql://postgres:SENHA@db.xxxx.supabase.co:5432/pos
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\01_schemas.sql
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\03_storage.sql
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\04_trat_parametros_catalogo.sql
+psql "$env:SUPABASE_DB_URL" -f .\backend\sql\05_trat_medidas.sql
 ```
 
 A string de conexão fica em **Connect**, no painel do Supabase.
