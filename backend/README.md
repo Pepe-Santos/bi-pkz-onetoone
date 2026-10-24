@@ -15,10 +15,10 @@ Banco do app (Lovable / Supabase)
 novo            banco novo do grupo de Dados (o Grupo de Desenvolvimento só lê)
         │  views de leitura (vw_*) feitas pelo grupo de Dados
         ▼
-trat            regras de tratamento: parâmetros, catálogo de testes, medidas padronizadas
+trat            regras de tratamento: parâmetros, catálogo de testes, medidas padronizadas, revisão de dados
         │
         ▼
-api             views expostas pela API REST do Supabase (contrato em docs/api.md)
+api             views expostas pela API REST do Supabase, filtradas pela unidade do usuário (contrato em docs/api.md)
         │
         ▼
 Consumidores    relatórios em PDF e envio por e-mail · telas e dashboards · outros grupos
@@ -52,11 +52,13 @@ backend/
 
 O `02_fdw.sql` saiu em 20/10. Ele conectava a um banco remoto do grupo de Dados, o que deixou de ser necessário com o banco novo no mesmo projeto. A numeração dos outros scripts foi mantida.
 
-## Estado em 20/10
+## Estado em 24/10
 
-- `01`, `03` e `04` aplicados no projeto do Lucas: schemas `trat` e `api`, bucket `relatorios` privado, 3 parâmetros e 10 testes no catálogo.
-- Views da `api`: contrato em `docs/api.md`, criadas pelo `06` (24/10) a partir do `trat` (`05`). Por enquanto leem as tabelas do `novo`; quando as views `vw_*` do grupo de Dados existirem, só muda o `FROM` do `05`.
-- Catálogo: recodificado em 24/10 com os códigos da `novo.metrica` (decidido em 20/10). Tem 20 testes, os físicos numéricos mais altura e peso, com faixas e conversões tiradas dos valores reais do `novo`. Os testes por perna (`single_hop`, `cross_hop`) saem com a coluna `lado` na API.
+- `01`, `03`, `04`, `05` e `06` aplicados no projeto do Lucas: schemas `trat` e `api`, bucket `relatorios` privado, 3 parâmetros, 20 testes no catálogo, medidas tratadas e as 4 views da API.
+- API no ar: o schema `api` está em Exposed schemas e as 4 views (`atleta`, `evolucao`, `comparacao`, `reavaliacao`) respondem pela REST. Contrato em `docs/api.md`.
+- Catálogo: recodificado com os códigos da `novo.metrica` (decidido em 20/10). Tem os testes físicos numéricos mais altura e peso, com faixas e conversões tiradas dos valores reais do `novo`. Os testes por perna (`single_hop`, `cross_hop`) saem com a coluna `lado` na API.
+- Medidas: o `05` converte as unidades misturadas (ex.: 4,01 m e 543 cm viram cm), separa os valores impossíveis em `trat.revisao_dados` (37 tentativas) e escolhe a melhor tentativa válida. Por enquanto lê as tabelas do `novo`; quando as views `vw_*` do grupo de Dados existirem, só muda o `FROM` do `05`.
+- Acesso: cadastro público de usuários desligado; usuário de teste criado, com acesso às duas unidades; separação por unidade ativa (ver [API](#api)). Os 3 testes de acesso passam.
 - Envio: nenhum aluno da cópia tem e-mail ligado (nem do responsável, nem próprio), então o envio automático é demonstrado com e-mails de teste.
 
 ## Como rodar os scripts
@@ -97,9 +99,12 @@ A string de conexão fica em **Connect**, no painel do Supabase.
 ## API
 
 - A API é a REST automática do Supabase: cada view do schema `api` vira um endpoint. Colunas, regras e exemplos estão em [`docs/api.md`](docs/api.md).
-- Para o schema `api` aparecer na API, ele precisa estar em *Project Settings → Data API → Exposed schemas*. O `GRANT` do `01_schemas.sql` sozinho não basta. Como o projeto é compartilhado, combine com o Lucas antes de mudar essa configuração.
+- O schema `api` está em *Project Settings → Data API → Exposed schemas* (24/10). Num projeto novo, incluir de novo: o `GRANT` do `01_schemas.sql` sozinho não basta. Como o projeto é compartilhado, combine com o Lucas antes de mudar essa configuração.
 - Quem chama envia o cabeçalho `Accept-Profile: api`; sem ele o Supabase procura a view em `public`.
-- Só usuário logado (`authenticated`) recebe resposta. O papel `anon` não tem acesso ao schema.
+- Só recebem resposta o usuário logado (`authenticated`) e o gerador de relatórios (`service_role`, pela secret key). O papel `anon` não tem acesso ao schema. Como fazer login: seção "Login" do [`docs/api.md`](docs/api.md).
+- **Usuários:** o cadastro público está desligado (*Authentication → Sign In / Providers → Allow new users to sign up*). Usuários novos são criados pelo painel, em *Authentication → Users → Add user*, com *Auto Confirm User* marcado.
+- **Separação por unidade:** cada usuário só vê os atletas da unidade gravada em `app_metadata.unidade` (`PKZ`, `ONE_TO_ONE` ou `TODAS`). Usuário sem unidade não vê nada; o gerador de relatórios vê tudo. Depois de criar o usuário, defina a unidade no SQL Editor (comando no `docs/api.md`). O filtro fica em `trat.unidade_permitida`, no `06_api_avaliacoes.sql`.
+- **Teste de acesso:** com o `backend/.env` preenchido, `python backend/scripts/testar_acesso.py` confere os 3 casos (sem login não devolve dados; com o usuário de teste e com a secret key, devolve) e mostra quantos atletas de cada unidade cada acesso vê.
 
 ## Storage
 
