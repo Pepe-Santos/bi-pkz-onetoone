@@ -14,8 +14,8 @@ Linhas no ensaio de 12/10: **2**
 |---|---|---|---|---|---|---|---|---|
 | `id` | uuid | sim | PK | — | gen_random_uuid() |  | tecnico | Chave primária. |
 | `codigo` | text | sim |  | enum student_program | valores do enum: pkz, one_to_one (2 linhas) | one_to_one \| pkz | operacional | Código curto e estável, usado nas regras e nos scripts. |
-| `nome` | text | sim |  | — | constante: 'PKZ Lab / Playmakerz' (pkz), 'Studio One to One' (one_to_one) |  | pessoal | Nome de exibição. |
-| `endereco` | text | não |  | — | nulo (o endereço de contato fica em configuracao_unidade) |  | pessoal | [revisar] |
+| `nome` | text | sim |  | — | constante: 'PKZ Lab / Playmakerz' (pkz), 'Studio One to One' (one_to_one) |  | operacional | Nome de exibição. |
+| `endereco` | text | não |  | — | nulo (o endereço de contato fica em configuracao_unidade) |  | operacional | [revisar] |
 | `ativo` | boolean | sim |  | — | true |  | operacional | Se o registro está ativo. |
 | `criado_em` | timestamp with time zone | sim |  | — | now() |  | tecnico | Quando o registro entrou no banco novo; recebe o `created_at` da origem quando existe. |
 | `atualizado_em` | timestamp with time zone | sim |  | — | now(); o on conflict do update grava now() |  | tecnico | Última atualização; o `on conflict do update` grava `now()`. |
@@ -30,7 +30,7 @@ Linhas no ensaio de 12/10: **4**
 |---|---|---|---|---|---|---|---|---|
 | `id` | uuid | sim | PK | — | gen_random_uuid() |  | tecnico | Chave primária. |
 | `codigo` | text | sim |  | enum service_type | treino→treino, fisioterapeuta→fisioterapia, nutricionista→nutricao, psicologo→psicologia (4 linhas) | fisioterapia \| nutricao \| psicologia \| treino | operacional | Código curto e estável, usado nas regras e nos scripts. |
-| `nome` | text | sim |  | — | constante: Treino, Fisioterapia, Nutrição, Psicologia |  | pessoal | Nome de exibição. |
+| `nome` | text | sim |  | — | constante: Treino, Fisioterapia, Nutrição, Psicologia |  | operacional | Nome de exibição. |
 | `especializado` | boolean | sim |  | — | codigo <> 'treino' |  | operacional | [revisar] |
 | `ativo` | boolean | sim |  | — | true |  | operacional | Se o registro está ativo. |
 | `ordem` | integer | sim |  | — | 1 treino, 2 fisioterapia, 3 nutricao, 4 psicologia |  | operacional | Ordem de exibição na tela. |
@@ -118,7 +118,7 @@ Linhas no ensaio de 12/10: **5**
 |---|---|---|---|---|---|---|---|---|
 | `id` | uuid | sim | PK | — | gen_random_uuid() |  | tecnico | Chave primária. |
 | `codigo` | text | sim |  | enum app_role | 9 valores → 5 códigos: admin; professor (professor, professor_pkz, professor_one_to_one); especialista (nutricionista, psicologo, fisioterapeuta); responsavel; recepcao | admin \| especialista \| professor \| recepcao \| responsavel | operacional | Código curto e estável, usado nas regras e nos scripts. |
-| `nome` | text | sim |  | — | constante: Administrador, Professor, Especialista, Responsável, Recepção |  | pessoal | Nome de exibição. |
+| `nome` | text | sim |  | — | constante: Administrador, Professor, Especialista, Responsável, Recepção |  | operacional | Nome de exibição. |
 | `ativo` | boolean | sim |  | — | true |  | operacional | Se o registro está ativo. |
 | `criado_em` | timestamp with time zone | sim |  | — | now() |  | tecnico | Quando o registro entrou no banco novo; recebe o `created_at` da origem quando existe. |
 | `atualizado_em` | timestamp with time zone | sim |  | — | now(); o on conflict do update grava now() |  | tecnico | Última atualização; o `on conflict do update` grava `now()`. |
@@ -156,7 +156,7 @@ Linhas no ensaio de 12/10: **106**
 | `data_saida` | date | não |  | — | nulo (a origem não guarda saída) |  | operacional | [revisar] |
 | `categoria` | text | não |  | origem.athletes.category | c = lower(btrim(espaços múltiplos → 1)); 'sub 10' / 'sub10' → 'sub_10'; só número ('13') → 'sub_13'; esportes sem acento ('natação' → 'natacao'); vazio → nulo | hipismo \| natacao \| sub_10 \| sub_11 \| sub_12 \| sub_13 \| sub_8 \| sub_9 | operacional | [revisar] |
 | `categoria_original` | text | não |  | origem.athletes.category | direto (sem normalizar) |  | operacional | [revisar] |
-| `observacao` | text | não |  | origem.athletes.notes | direto |  | operacional | Texto livre escrito por quem registrou. |
+| `observacao` | text | não |  | origem.athletes.notes | direto |  | pessoal | Texto livre escrito por quem registrou. |
 | `pendencia` | text | não |  | — |  |  | tecnico | Dúvidas que a carga marcou, separadas por `; `. Nunca bloqueia a carga. |
 | `criado_em` | timestamp with time zone | sim |  | origem.athletes.created_at | direto |  | tecnico | Quando o registro entrou no banco novo; recebe o `created_at` da origem quando existe. |
 | `atualizado_em` | timestamp with time zone | sim |  | — | now(); o on conflict do update grava now() |  | tecnico | Última atualização; o `on conflict do update` grava `now()`. |
