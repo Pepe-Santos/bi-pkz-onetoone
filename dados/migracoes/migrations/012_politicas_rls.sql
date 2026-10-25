@@ -2,11 +2,12 @@
 -- 012_politicas_rls.sql
 -- Políticas de acesso por papel no schema novo
 -- Dono: Iago (Frente 3, tarefas 3.1 e 3.3). Pré-requisito: 011_saldo_nao_cumulativo.sql.
+-- Revisão da Frente 1 (Micael, 25/10/2026): ver "Mudanças da revisão" abaixo.
 --
--- Cria: grants mínimos no schema, 9 funções de escopo e uma política de select
+-- Cria: grants mínimos no schema, 10 funções de escopo e uma política de select
 --       por tabela, seguindo a matriz em ../../seguranca/matriz-papeis.md.
 --
--- Por que agora: as 44 tabelas estão com RLS ligado e nenhuma política, e
+-- Por que agora: as 43 tabelas estão com RLS ligado e nenhuma política, e
 -- ninguém tem USAGE no schema — nem authenticated, nem service_role. Hoje o
 -- banco está carregado e inalcançável, inclusive para o back-end, que ficou de
 -- ler o novo direto (combinado de 20/10, PR #4).
@@ -20,14 +21,28 @@
 --     Todas com search_path vazio e nomes qualificados (CONVENCOES §6).
 --   * Dado clínico fecha por padrão (CONVENCOES §7): avaliacao com
 --     tipo = 'fisioterapia', atendimento por servico_id, anamnese, e arquivo
---     onde confidencialidade <> 'normal'.
+--     onde confidencialidade <> 'normal'. O especialista só vê o clínico do
+--     PRÓPRIO serviço, e só de aluno que ele atende nesse serviço.
 --   * Pendência 5 (quem vê dado clínico) e pendência 11 (dado pessoal na
 --     auditoria) entram na versão mais fechada, marcadas abaixo.
+--   * Roda uma vez, como as migrations 001–011: mudança de política entra numa
+--     migration nova (CONVENCOES §8). Não recria políticas apagando antes,
+--     porque o conector do Supabase trava nesse tipo de comando.
+--   * Sem begin/commit e sem comando do psql, como as migrations 001–011
+--     (o apply_migration já roda tudo numa transação).
+--
+-- Mudanças da revisão (25/10):
+--   1. pode_ver_clinico e aluno_que_atendo recebem o serviço: nutrição não vê
+--      anamnese nem arquivo de fisioterapia (a matriz já dizia "no seu serviço").
+--   2. tem_unidade recebe o papel: a unidade só vale para o vínculo de
+--      professor, não para outro papel global da mesma pessoa.
+--   3. relatorio_emissao e relatorio_envio sem acesso de especialista (matriz).
+--   4. Nova função servico_do_arquivo: o arquivo clínico herda o serviço do
+--      atendimento, da avaliação de fisio ou do tipo; sem serviço, só admin.
+--   5. EXECUTE das funções do novo tirado de PUBLIC, anon e authenticated;
+--      authenticated só executa as 10 funções de escopo; service_role, todas.
+--   6. v_resumo_carga também fechada para authenticated (é controle de carga).
 -- =============================================================================
-
-\set ON_ERROR_STOP on
-
-begin;
 
 -- -----------------------------------------------------------------------------
 -- 1. Acesso ao schema
@@ -44,7 +59,7 @@ grant select on all tables in schema novo to authenticated;
 
 -- Auditoria e controle de carga não são legíveis pela API (pendência 11).
 revoke select on novo.carga_execucao, novo.carga_rejeitado, novo.carga_gabarito,
-                novo.evento_auditoria, novo.acesso_dado_sensivel
+                novo.v_resumo_carga, novo.evento_auditoria, novo.acesso_dado_sensivel
   from authenticated;
 
 -- -----------------------------------------------------------------------------
@@ -69,12 +84,14 @@ returns uuid language sql stable security definer set search_path = '' as $$
   select pu.pessoa_id from novo.perfil_usuario pu where pu.usuario_id = auth.uid();
 $$;
 
--- unidade nula no vínculo vale para todas as unidades (pendência 15)
-create or replace function novo.tem_unidade(p_unidade uuid)
+-- O vínculo de um PAPEL com a unidade. Unidade nula no vínculo vale para todas
+-- as unidades (pendência 15). Outro papel global da mesma pessoa não conta.
+create or replace function novo.tem_unidade(p_papel text, p_unidade uuid)
 returns boolean language sql stable security definer set search_path = '' as $$
   select exists (
     select 1 from novo.papel_usuario pu
-    where pu.usuario_id = auth.uid()
+    join novo.papel p on p.id = pu.papel_id
+    where pu.usuario_id = auth.uid() and p.codigo = p_papel and p.ativo
       and (pu.unidade_id is null or pu.unidade_id = p_unidade)
   );
 $$;
@@ -87,40 +104,74 @@ returns boolean language sql stable security definer set search_path = '' as $$
   );
 $$;
 
+-- aluno matriculado numa unidade em que eu sou professor
 create or replace function novo.aluno_na_minha_unidade(p_aluno uuid)
 returns boolean language sql stable security definer set search_path = '' as $$
   select exists (
     select 1 from novo.matricula m
-    where m.aluno_id = p_aluno and novo.tem_unidade(m.unidade_id)
+    where m.aluno_id = p_aluno and novo.tem_unidade('professor', m.unidade_id)
   );
 $$;
 
--- aluno que eu atendo: agendamento, atendimento, avaliação ou relatório meu
-create or replace function novo.aluno_que_atendo(p_aluno uuid)
+-- aluno que eu atendo: agendamento, atendimento, avaliação ou relatório meu.
+-- Com p_servico (código do serviço), só conta o atendimento NESSE serviço.
+create or replace function novo.aluno_que_atendo(p_aluno uuid, p_servico text default null)
 returns boolean language sql stable security definer set search_path = '' as $$
   select exists (select 1 from novo.agendamento a
-                  where a.aluno_id = p_aluno and a.profissional_id = auth.uid())
+                   join novo.servico s on s.id = a.servico_id
+                  where a.aluno_id = p_aluno and a.profissional_id = auth.uid()
+                    and (p_servico is null or s.codigo = p_servico))
       or exists (select 1 from novo.atendimento t
-                  where t.aluno_id = p_aluno and t.profissional_id = auth.uid())
+                   join novo.servico s on s.id = t.servico_id
+                  where t.aluno_id = p_aluno and t.profissional_id = auth.uid()
+                    and (p_servico is null or s.codigo = p_servico))
       or exists (select 1 from novo.avaliacao v
-                  where v.aluno_id = p_aluno and v.avaliador_id = auth.uid())
+                  where v.aluno_id = p_aluno and v.avaliador_id = auth.uid()
+                    and (p_servico is null
+                         or (p_servico = 'fisioterapia' and v.tipo = 'fisioterapia')))
       or exists (select 1 from novo.relatorio_treino r
-                  where r.aluno_id = p_aluno and r.profissional_id = auth.uid());
+                  where r.aluno_id = p_aluno and r.profissional_id = auth.uid()
+                    and (p_servico is null or p_servico = 'treino'));
 $$;
 
--- PENDÊNCIA 5: quem vê dado clínico é decisão da direção, com respaldo
--- jurídico. Até lá: admin, e o especialista que atende aquele aluno.
-create or replace function novo.pode_ver_clinico(p_aluno uuid)
+-- PENDÊNCIA 5: quem vê dado clínico é decisão da direção. Até lá: admin, e o
+-- especialista do serviço daquele dado que atende o aluno nesse serviço.
+-- Sem serviço identificado, só admin.
+create or replace function novo.pode_ver_clinico(p_aluno uuid, p_servico text)
 returns boolean language sql stable security definer set search_path = '' as $$
   select novo.tem_papel('admin')
-      or (novo.tem_papel('especialista') and novo.aluno_que_atendo(p_aluno));
+      or (p_servico is not null
+          and novo.tem_papel('especialista')
+          and exists (select 1 from novo.profissional_servico ps
+                        join novo.servico s on s.id = ps.servico_id
+                       where ps.profissional_id = auth.uid() and s.codigo = p_servico)
+          and novo.aluno_que_atendo(p_aluno, p_servico));
+$$;
+
+-- serviço de um arquivo clínico: o do atendimento, o da avaliação de fisio ou,
+-- sem vínculo, o do tipo do arquivo. Nulo = não identificado (fecha).
+create or replace function novo.servico_do_arquivo(p_arquivo uuid)
+returns text language sql stable security definer set search_path = '' as $$
+  select coalesce(
+    (select s.codigo from novo.arquivo a
+       join novo.atendimento t on t.id = a.atendimento_id
+       join novo.servico s on s.id = t.servico_id
+      where a.id = p_arquivo),
+    (select 'fisioterapia' from novo.arquivo a
+       join novo.avaliacao v on v.id = a.avaliacao_id
+      where a.id = p_arquivo and v.tipo = 'fisioterapia'),
+    (select 'fisioterapia' from novo.arquivo a
+      where a.id = p_arquivo
+        and a.tipo in ('fisioterapia', 'avaliacao_fisioterapia', 'imagem_postural',
+                       'imagem_mobilidade', 'carimbo_profissional'))
+  );
 $$;
 
 create or replace function novo.enxerga_aluno(p_aluno uuid)
 returns boolean language sql stable security definer set search_path = '' as $$
   select novo.e_staff()
       or novo.aluno_sob_responsavel(p_aluno)
-      or (novo.tem_papel('professor') and novo.aluno_na_minha_unidade(p_aluno))
+      or novo.aluno_na_minha_unidade(p_aluno)
       or (novo.tem_papel('especialista') and novo.aluno_que_atendo(p_aluno));
 $$;
 
@@ -241,7 +292,7 @@ create policy relatorio_item_pelo_relatorio on novo.relatorio_item
 create policy avaliacao_clinica_restrita on novo.avaliacao
   for select to authenticated using (
     case when tipo = 'fisioterapia'
-         then novo.pode_ver_clinico(aluno_id)
+         then novo.pode_ver_clinico(aluno_id, 'fisioterapia')
          else novo.enxerga_aluno(aluno_id) or avaliador_id = auth.uid() end
   );
 
@@ -250,7 +301,7 @@ create policy medida_pela_avaliacao on novo.avaliacao_medida
     exists (select 1 from novo.avaliacao v
              where v.id = novo.avaliacao_medida.avaliacao_id
                and case when v.tipo = 'fisioterapia'
-                        then novo.pode_ver_clinico(v.aluno_id)
+                        then novo.pode_ver_clinico(v.aluno_id, 'fisioterapia')
                         else novo.enxerga_aluno(v.aluno_id) or v.avaliador_id = auth.uid() end)
   );
 
@@ -262,12 +313,8 @@ create policy medida_pela_avaliacao on novo.avaliacao_medida
 create policy atendimento_clinico on novo.atendimento
   for select to authenticated using (
     profissional_id = auth.uid()
-    or novo.tem_papel('admin')
-    or (novo.tem_papel('especialista')
-        and novo.aluno_que_atendo(aluno_id)
-        and exists (select 1 from novo.profissional_servico ps
-                     where ps.profissional_id = auth.uid()
-                       and ps.servico_id = novo.atendimento.servico_id))
+    or novo.pode_ver_clinico(aluno_id,
+         (select s.codigo from novo.servico s where s.id = novo.atendimento.servico_id))
   );
 
 create policy evolucao_pelo_atendimento on novo.evolucao
@@ -277,20 +324,21 @@ create policy evolucao_pelo_atendimento on novo.evolucao
                and (t.profissional_id = auth.uid() or novo.tem_papel('admin')))
   );
 
+-- anamnese vem da avaliação de fisioterapia
 create policy anamnese_clinica_restrita on novo.anamnese
-  for select to authenticated using (novo.pode_ver_clinico(aluno_id));
+  for select to authenticated using (novo.pode_ver_clinico(aluno_id, 'fisioterapia'));
 
 -- -----------------------------------------------------------------------------
 -- 9. Documentos e comunicação
 -- Os valores reais de arquivo.confidencialidade são 'clinico' e 'normal' (em
 -- anamnese, 'restrito'). A regra fecha por padrão: só 'normal' segue o caminho
--- aberto; nulo ou valor novo cai no clínico.
+-- aberto; nulo ou valor novo cai no clínico, com o serviço do arquivo.
 -- -----------------------------------------------------------------------------
 create policy arquivo_clinico_restrito on novo.arquivo
   for select to authenticated using (
     case when coalesce(confidencialidade, 'restrito') = 'normal'
          then novo.enxerga_aluno(aluno_id)
-         else novo.pode_ver_clinico(aluno_id) end
+         else novo.pode_ver_clinico(aluno_id, novo.servico_do_arquivo(id)) end
   );
 
 create policy consentimento_proprio_ou_staff on novo.consentimento
@@ -298,14 +346,19 @@ create policy consentimento_proprio_ou_staff on novo.consentimento
     pessoa_id = novo.pessoa_atual() or novo.e_staff()
   );
 
+-- matriz: staff, professor da unidade e responsável; especialista não
 create policy emissao_pelo_aluno on novo.relatorio_emissao
-  for select to authenticated using (novo.enxerga_aluno(aluno_id));
+  for select to authenticated using (
+    novo.e_staff() or novo.aluno_sob_responsavel(aluno_id)
+    or novo.aluno_na_minha_unidade(aluno_id)
+  );
 
 create policy envio_pela_emissao on novo.relatorio_envio
   for select to authenticated using (
     exists (select 1 from novo.relatorio_emissao e
              where e.id = novo.relatorio_envio.emissao_id
-               and novo.enxerga_aluno(e.aluno_id))
+               and (novo.e_staff() or novo.aluno_sob_responsavel(e.aluno_id)
+                    or novo.aluno_na_minha_unidade(e.aluno_id)))
   );
 
 create policy notificacao_propria on novo.notificacao
@@ -317,14 +370,27 @@ create policy notificacao_propria on novo.notificacao
 -- carregar dado pessoal. Leitura só por papel privilegiado até a decisão.
 -- -----------------------------------------------------------------------------
 
-commit;
+-- -----------------------------------------------------------------------------
+-- 11. Execução de funções
+-- -----------------------------------------------------------------------------
+-- Feito no fim porque o Supabase dá EXECUTE a anon e authenticated em toda
+-- função nova (privilégio padrão): revogar antes de criar não adianta.
+revoke execute on all functions in schema novo from public, anon, authenticated;
+grant execute on all functions in schema novo to service_role;
+grant execute on function
+  novo.tem_papel(text), novo.e_staff(), novo.pessoa_atual(),
+  novo.tem_unidade(text, uuid), novo.aluno_sob_responsavel(uuid),
+  novo.aluno_na_minha_unidade(uuid), novo.aluno_que_atendo(uuid, text),
+  novo.pode_ver_clinico(uuid, text), novo.servico_do_arquivo(uuid),
+  novo.enxerga_aluno(uuid)
+  to authenticated;
 
 -- =============================================================================
 -- Teste por papel, depois de aplicar (segunda metade da 3.3):
 --   set local role authenticated;
 --   set local request.jwt.claims = '{"sub":"<usuario_id>"}';
 --   select count(*) from novo.aluno;                      -- muda conforme o papel
---   select count(*) from novo.anamnese;                   -- 0 fora de admin e do especialista
+--   select count(*) from novo.anamnese;                   -- 0 fora de admin e da fisio que atende
 --   select count(*) from novo.avaliacao where tipo = 'fisioterapia';  -- idem
 --   select count(*) from novo.evento_auditoria;           -- erro de permissão
 --   reset role;
