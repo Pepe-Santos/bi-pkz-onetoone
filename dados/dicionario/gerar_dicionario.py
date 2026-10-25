@@ -57,22 +57,32 @@ DOMINIOS = [
       "evento_auditoria", "acesso_dado_sensivel"]),
 ]
 
-# Classificação de sensibilidade. A primeira regra que casar vale.
+# Classificação de sensibilidade. A primeira regra que casar vale: tabela inteira,
+# nome de coluna (vale em qualquer tabela) ou par "tabela.coluna".
 # Revisada pela Frente 3; é o que a política de acesso (012) usa como critério.
+# Revisão de 25/10 (Frente 1): "nome" e "endereco" saíram da regra por coluna
+# (nome de unidade, serviço, plano, métrica não identifica ninguém) e entraram
+# como par onde identificam; ip, nome e caminho de arquivo de aluno (CONVENCOES §7),
+# payload da auditoria (pendência 11) e texto livre sobre a pessoa passaram a pessoal.
 SENSIBILIDADE = [
     ("clinico", {
         "tabelas": {"anamnese", "atendimento", "evolucao"},
         "colunas": {"dor", "dor_local", "dor_intensidade", "dor_movimento", "confidencialidade"},
+        "pares": set(),
     }),
     ("pessoal", {
         "tabelas": set(),
-        "colunas": {"nome", "cpf", "telefone", "email", "username", "foto_url", "data_nascimento",
-                    "endereco", "avaliador_nome", "registro_conselho"},
+        "colunas": {"cpf", "telefone", "email", "username", "foto_url", "data_nascimento",
+                    "avaliador_nome", "registro_conselho", "ip"},
+        "pares": {"pessoa.nome", "arquivo.nome", "arquivo.storage_path",
+                  "evento_auditoria.valor_anterior", "evento_auditoria.valor_novo",
+                  "aluno.observacao", "feedback_treino.comentario", "notificacao.mensagem"},
     }),
     ("tecnico", {
         "tabelas": {"carga_execucao", "carga_rejeitado", "carga_gabarito"},
         "colunas": {"id", "criado_em", "atualizado_em", "pendencia", "id_origem", "origem_tabela",
                     "origem_id", "tabela_origem"},
+        "pares": set(),
     }),
 ]
 
@@ -133,7 +143,8 @@ def significado_padrao(coluna):
 
 def classificar(tabela, coluna):
     for nivel, regra in SENSIBILIDADE:
-        if tabela in regra["tabelas"] or coluna in regra["colunas"]:
+        if (tabela in regra["tabelas"] or coluna in regra["colunas"]
+                or f"{tabela}.{coluna}" in regra["pares"]):
             return nivel
     return "operacional"
 
