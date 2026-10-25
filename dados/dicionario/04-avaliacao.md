@@ -14,7 +14,7 @@ Linhas no ensaio de 12/10: **109**
 |---|---|---|---|---|---|---|---|---|
 | `id` | uuid | sim | PK | — | gen_random_uuid() |  | tecnico | Chave primária. |
 | `codigo` | text | sim |  | src/lib/physical-test-schema.ts, src/lib/physio-pkz-schema.ts, colunas de physio_assessments e weekly_evaluations | uma linha por métrica de avaliacao_metricas.csv (as de fisioterapia são criadas aqui também, para o script 70 usar) | antropometria_altura \| antropometria_peso \| banco_wells \| blazepod_foco \| blazepod_vel_reacao_hits \| blazepod_vel_reacao_legado \| blazepod_vel_reacao_ms \| cross_hop \| estabilidade_aquabag \| fisio_appley_inf \| fisio_appley_sup \| fisio_cotovelo_ext \| fisio_cotovelo_flex | operacional | Código curto e estável, usado nas regras e nos scripts. |
-| `nome` | text | sim |  | idem | rótulo do app (avaliacao_metricas.csv) |  | pessoal | Nome de exibição. |
+| `nome` | text | sim |  | idem | rótulo do app (avaliacao_metricas.csv) |  | operacional | Nome de exibição. |
 | `dominio` | text | sim |  | — | avaliacao_metricas.csv | antropometria \| fisioterapia \| semanal \| teste_fisico | operacional | [revisar] |
 | `unidade_medida` | text | não |  | src/lib/physical-test-schema.ts (unit) | avaliacao_metricas.csv | % \| cm \| desequilibrios \| escala_1_5 \| graus \| hits \| kg \| km/h \| m \| ms \| s | operacional | [revisar] |
 | `tipo_dado` | text | sim |  | — | avaliacao_metricas.csv | escala \| numero \| texto | operacional | [revisar] |
