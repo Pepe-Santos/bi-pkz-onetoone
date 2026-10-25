@@ -3,7 +3,7 @@
 > Iago · atualizado em 22/10/2026 · vira a especificação da 3.3 (políticas RLS).
 >
 > Refeito contra o banco real: o schema `novo` ficou pronto em 21/10 (Frente 1, PR #5) com
-> **44 tabelas e 5 views**. A primeira versão desta matriz usava os 9 papéis do app; o modelo novo tem
+> **43 tabelas e 5 views**. A primeira versão desta matriz usava os 9 papéis do app; o modelo novo tem
 > **5**. Fontes: estrutura lida do banco em 22/10.
 >
 > Legenda: **[Fato]** lido do banco · **[Proposta]** desta frente · **[Pendência]** depende de decisão.
@@ -12,7 +12,7 @@
 
 **[Fato] O banco está carregado e inalcançável.** Três camadas de fechadura, todas ativas:
 
-1. Todas as 44 tabelas têm RLS ligado e **nenhuma política**.
+1. Todas as 43 tabelas têm RLS ligado e **nenhuma política**.
 2. Nenhum papel tem `USAGE` no schema `novo` — nem `authenticated`, nem `service_role`.
 3. O schema não está exposto na Data API.
 
@@ -51,7 +51,7 @@ controle nessa ponta é o que a view mostra, não a política.
 | Própria pessoa | `perfil_usuario.usuario_id = auth.uid()` → `pessoa_id` |
 | Próprio aluno | `responsavel_aluno(aluno_id, pessoa_id)` |
 | Própria unidade | `papel_usuario.unidade_id` × `matricula.unidade_id` |
-| Aluno que atende | `profissional_id` em agendamento, atendimento, avaliação ou relatório |
+| Aluno que atende | `profissional_id` em agendamento, atendimento, avaliação ou relatório; para dado clínico, só no serviço do dado |
 | Clínico | `anamnese.confidencialidade` e `arquivo.confidencialidade` |
 
 ## A matriz
@@ -95,18 +95,20 @@ escrita, `authenticated` não grava nada — e isso é proposital.
 
 ## A migration
 
-Está escrita em [`scripts/seguranca/012_politicas_rls.sql`](../scripts/seguranca/012_politicas_rls.sql),
-para entrar como `dados/migracoes/migrations/012_politicas_rls.sql`. Ela faz três coisas:
+Está em [`dados/migracoes/migrations/012_politicas_rls.sql`](../migracoes/migrations/012_politicas_rls.sql).
+Ela faz três coisas:
 
 1. Abre o schema para `authenticated` e `service_role`, e deixa `anon` de fora.
-2. Cria 9 funções que respondem quem sou eu e o que é meu (`tem_papel`, `e_staff`, `pessoa_atual`,
+2. Cria 10 funções que respondem quem sou eu e o que é meu (`tem_papel`, `e_staff`, `pessoa_atual`,
    `tem_unidade`, `aluno_sob_responsavel`, `aluno_na_minha_unidade`, `aluno_que_atendo`,
-   `pode_ver_clinico`, `enxerga_aluno`). Todas `security definer`, senão a política da própria tabela
-   entra em recursão.
+   `pode_ver_clinico`, `servico_do_arquivo`, `enxerga_aluno`). Todas `security definer`, senão a
+   política da própria tabela entra em recursão. Só elas são executáveis por `authenticated`.
 3. Cria uma política de SELECT por tabela, seguindo a matriz.
 
-Conferi as 40 referências de tabela e coluna que ela usa: todas existem no banco. Falta aplicar e rodar
-o teste por papel, que é a segunda metade da 3.3.
+Conferi as 40 referências de tabela e coluna que ela usa: todas existem no banco. Na revisão de 25/10
+(Frente 1), a migration foi aplicada no ensaio dentro de uma transação desfeita no fim e testada por
+papel (admin, recepção, professor de cada unidade, professor global, fisio, nutri e responsável): nada
+ficou gravado. Falta aplicar de vez, que fecha a 3.3.
 
 ## O que falta decidir
 
