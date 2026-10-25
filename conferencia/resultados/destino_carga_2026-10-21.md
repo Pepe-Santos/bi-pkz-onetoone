@@ -25,8 +25,9 @@
    registro, com username, storage_path e uuids de aluno/servico/renovacao/lancamento. Rodei os mesmos predicados
    dentro de agregacoes que so retornam contagens por chave/categoria. Isso vale para as duplicidades do bloco 5,
    as listagens de renovacoes/lancamentos e a comparacao detalhada do bloco 7. As consultas de FK do bloco 6
-   foram unidas num unico SELECT (UNION ALL), com os predicados inalterados. Essas formas agregadas nao estao
-   no arquivo; o arquivo continua com as consultas detalhadas.
+   foram unidas num unico SELECT (UNION ALL), com os predicados inalterados. Na revisao de 25/10 (Frente 1)
+   essas formas agregadas passaram para o proprio arquivo, e foram reexecutadas com o mesmo resultado
+   (12/12 chaves sem duplicidade; 201 pares OK).
 
 ## Resumo
 
