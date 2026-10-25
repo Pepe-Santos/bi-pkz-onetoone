@@ -13,7 +13,7 @@ Linhas no ensaio de 12/10: **523**
 | Coluna | Tipo | Obrig. | Chave | Origem | Transformação | Valores de hoje | Sensib. | Significado |
 |---|---|---|---|---|---|---|---|---|
 | `id` | uuid | sim | PK | — | gen_random_uuid() |  | tecnico | Chave primária. |
-| `storage_path` | text | sim |  | origem.student_files.storage_path \| origem.nutritionist_files.storage_path \| origem.physio_evolutions.storage_path \| origem.specialist_evolutions.file_path \| origem.training_reports.file_path \| origem.training_reports.pdf_storage_path \| origem.physical_test_comparisons.file_path \| origem.physio_assessments.file_path \| origem.physio_assessments.pkz_data (img_*, carimbo_path, laudo_path) \| origem.student_tests.file_path | um arquivo por caminho distinto não vazio (523 na foto); training_reports.file_path e pdf_storage_path são o mesmo caminho em 205/205 |  | operacional | [revisar] |
+| `storage_path` | text | sim |  | origem.student_files.storage_path \| origem.nutritionist_files.storage_path \| origem.physio_evolutions.storage_path \| origem.specialist_evolutions.file_path \| origem.training_reports.file_path \| origem.training_reports.pdf_storage_path \| origem.physical_test_comparisons.file_path \| origem.physio_assessments.file_path \| origem.physio_assessments.pkz_data (img_*, carimbo_path, laudo_path) \| origem.student_tests.file_path | um arquivo por caminho distinto não vazio (523 na foto); training_reports.file_path e pdf_storage_path são o mesmo caminho em 205/205 |  | pessoal | [revisar] |
 | `nome` | text | não |  | origem.student_files.file_name \| origem.nutritionist_files.file_name \| origem.physio_evolutions.file_name \| origem.specialist_evolutions.file_name | file_name quando existe; senão o último trecho do caminho |  | pessoal | Nome de exibição. |
 | `mime` | text | não |  | origem.student_files.mime_type \| origem.nutritionist_files.mime_type | direto; sem mime: pela extensão (.pdf → application/pdf, .png → image/png, .jpg/.jpeg → image/jpeg) | application/pdf \| image/jpeg \| image/png | operacional | [revisar] |
 | `bytes` | bigint | não |  | origem.student_files.size_bytes \| origem.nutritionist_files.size_bytes | direto; demais: nulo |  | operacional | [revisar] |
@@ -94,7 +94,7 @@ Linhas no ensaio de 12/10: **0**
 | `id` | uuid | sim | PK | — | sem origem: só estrutura |  | tecnico | Chave primária. |
 | `usuario_id` | uuid | sim | FK → novo.perfil_usuario | — | sem origem: só estrutura |  | operacional | Usuário de login dono do registro. |
 | `tipo` | text | sim |  | — | sem origem: só estrutura |  | operacional | [revisar] |
-| `mensagem` | text | sim |  | — | sem origem: só estrutura |  | operacional | [revisar] |
+| `mensagem` | text | sim |  | — | sem origem: só estrutura |  | pessoal | [revisar] |
 | `lida` | boolean | sim |  | — | sem origem: só estrutura |  | operacional | [revisar] |
 | `criado_em` | timestamp with time zone | sim |  | — | sem origem: só estrutura |  | tecnico | Quando o registro entrou no banco novo; recebe o `created_at` da origem quando existe. |
 | `atualizado_em` | timestamp with time zone | sim |  | — | sem origem: só estrutura |  | tecnico | Última atualização; o `on conflict do update` grava `now()`. |
@@ -113,10 +113,10 @@ Linhas no ensaio de 12/10: **1389**
 | `acao_original` | text | não |  | idem | o texto original, só quando a ação foi padronizada | assign_booking_professor \| Link de ativação enviado via WhatsApp \| professor_assigned | operacional | [revisar] |
 | `entidade` | text | não |  | origem.activity_logs.entity | athlete → aluno; booking → agendamento; user → usuario; system → sistema; nulo → nulo; booking_audit_logs → agendamento | agendamento \| aluno \| sistema \| usuario | operacional | [revisar] |
 | `entidade_id` | uuid | não |  | origem.activity_logs.entity_id \| origem.booking_audit_logs.booking_id | direto (sem FK: pode apontar para registro apagado) |  | operacional | Chave estrangeira; ver a coluna Chave. |
-| `valor_anterior` | jsonb | não |  | origem.booking_audit_logs.previous_professor_id \| old_value | activity_logs: nulo; booking_audit_logs: jsonb_strip_nulls(jsonb_build_object('professor_id', previous_professor_id, 'valor', old_value)) |  | operacional | [revisar] |
-| `valor_novo` | jsonb | não |  | origem.activity_logs.payload \| origem.booking_audit_logs.new_professor_id \| new_value \| reason | activity_logs: payload SEM as chaves athlete_name, phone, full_name e username; booking_audit_logs: jsonb_strip_nulls(jsonb_build_object('professor_id', new_professor_id, 'valor', new_value, 'motivo', reason)) |  | operacional | [revisar] |
+| `valor_anterior` | jsonb | não |  | origem.booking_audit_logs.previous_professor_id \| old_value | activity_logs: nulo; booking_audit_logs: jsonb_strip_nulls(jsonb_build_object('professor_id', previous_professor_id, 'valor', old_value)) |  | pessoal | [revisar] |
+| `valor_novo` | jsonb | não |  | origem.activity_logs.payload \| origem.booking_audit_logs.new_professor_id \| new_value \| reason | activity_logs: payload SEM as chaves athlete_name, phone, full_name e username; booking_audit_logs: jsonb_strip_nulls(jsonb_build_object('professor_id', new_professor_id, 'valor', new_value, 'motivo', reason)) |  | pessoal | [revisar] |
 | `unidade_id` | uuid | não | FK → novo.unidade | — | entidade aluno: unidade atual do aluno (entity_id); entidade agendamento: novo.agendamento.unidade_id (pelo entity_id / booking_id); demais: nulo |  | operacional | Unidade (PKZ ou One to One) a que o registro pertence. |
-| `ip` | inet | não |  | — | nulo (a origem não guarda) |  | operacional | [revisar] |
+| `ip` | inet | não |  | — | nulo (a origem não guarda) |  | pessoal | [revisar] |
 | `tabela_origem` | text | não |  | — | 'activity_logs' ou 'booking_audit_logs' |  | tecnico | Tabela da origem que gerou a linha. |
 | `id_origem` | uuid | não |  | origem.activity_logs.id \| origem.booking_audit_logs.id | direto |  | tecnico | Id da linha na origem, usado para reexecutar a carga sem duplicar. |
 | `pendencia` | text | não |  | — |  |  | tecnico | Dúvidas que a carga marcou, separadas por `; `. Nunca bloqueia a carga. |
