@@ -15,7 +15,7 @@ Linhas no ensaio de 12/10: **7**
 | `id` | uuid | sim | PK | — | gen_random_uuid() |  | tecnico | Chave primária. |
 | `unidade_id` | uuid | sim | FK → novo.unidade | — | one_to_one para os planos do enum e para one_to_one_sem_plano; pkz para pkz_padrao |  | operacional | Unidade (PKZ ou One to One) a que o registro pertence. |
 | `codigo` | text | sim |  | enum one_to_one_plan | os 5 valores do enum (express, one_move, one_power, one_power_legacy, be_the_one) + 'pkz_padrao' + 'one_to_one_sem_plano' (7 linhas) | be_the_one \| express \| one_move \| one_power \| one_power_legacy \| one_to_one_sem_plano \| pkz_padrao | operacional | Código curto e estável, usado nas regras e nos scripts. |
-| `nome` | text | sim |  | — | constante: Express, One Move, One Power, One Power (legado), Be The One, PKZ padrão, One to One sem plano |  | pessoal | Nome de exibição. |
+| `nome` | text | sim |  | — | constante: Express, One Move, One Power, One Power (legado), Be The One, PKZ padrão, One to One sem plano |  | operacional | Nome de exibição. |
 | `ativo` | boolean | sim |  | — | true; false para one_power_legacy e one_to_one_sem_plano |  | operacional | Se o registro está ativo. |
 | `pendencia` | text | não |  | — |  |  | tecnico | Dúvidas que a carga marcou, separadas por `; `. Nunca bloqueia a carga. |
 | `criado_em` | timestamp with time zone | sim |  | — | now() |  | tecnico | Quando o registro entrou no banco novo; recebe o `created_at` da origem quando existe. |
