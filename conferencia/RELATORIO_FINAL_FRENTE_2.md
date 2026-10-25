@@ -214,11 +214,11 @@ Os registros afetados entraram e estão marcados; nenhuma dessas pendências é 
 ## Limitações do relatório
 
 - **Ensaio, não produção.** A origem é uma cópia descaracterizada da produção, que continua mudando; os números valem para a foto de 12/10.
-- **FKs fora da lista do `06`** (`bloqueio_grade`, `horario_grade`, `sessao_treino`, `lista_espera`, `avaliacao_medida`, `evolucao`, `consentimento`, `relatorio_emissao`, `relatorio_envio`, `notificacao`, `acesso_dado_sensivel`) não foram conferidas por consulta.
+- **FKs fora da lista do `06`** (`bloqueio_grade`, `horario_grade`, `sessao_treino`, `lista_espera`, `avaliacao_medida`, `evolucao`, `consentimento`, `relatorio_emissao`, `relatorio_envio`, `notificacao`, `acesso_dado_sensivel`) não foram conferidas por consulta de órfãos. Na auditoria de 24/10 (Frente 1), as 89 FKs do `novo` estavam todas validadas pelo banco (`convalidated`), o que impede órfãos.
 - **`avaliacao_medida` (2908)** foi conferida por amostra campo a campo, não por contagem total contra os valores preenchidos da origem.
-- **Blocos 5 e 7** rodaram em forma agregada para não expor uuids; o arquivo versionado mantém as consultas detalhadas.
+- **Blocos 5 e 7** rodaram em forma agregada para não expor uuids; desde a revisão de 25/10 (PR #8) o próprio `06_destino_carga.sql` usa essas formas agregadas.
 - **Atendimento:** a explicação do serviço vem do código e das contagens, sem reexecução da amostra.
-- **Descaracterização da cópia:** há CPFs não substituídos na fisioterapia e 280 nomes de arquivo não descaracterizados. Em `novo`, RLS ligado sem policies impede leitura por `anon` e `authenticated`; o acesso fica com a Frente 3 e a pendência 5.
+- **Descaracterização da cópia:** as ressalvas sobre a descaracterização da cópia de ensaio foram passadas à gerência pelo canal interno e não ficam no repositório (regra do README: achado de segurança sobre o dado do cliente não vai para PR, issue ou commit). Em `novo`, o acesso é definido pela migration 012 (Frente 3) e pela pendência 5.
 - Este relatório não contém dados pessoais: só contagens, status e nomes de objetos.
 
 **Evidências:** `conferencia/README.md`; `conferencia/resultados/preflight_2026-10-21.md` e `destino_carga_2026-10-21.md` (PR #8); `conferencia/TASK_2_4_AMOSTRAS.md`; `dados/migracoes/TASK-2.5-PENDENCIAS-SIGNIFICADO.md` (PR #7); `dados/migracoes/conferencia/`; `dados/migracoes/PENDENCIAS.md`; `dados/migracoes/mapeamento/README.md`.
