@@ -1,4 +1,4 @@
-# Conferências da origem
+# Conferências da origem e do destino
 
 Consultas da tarefa 2.1 para calcular valores esperados exclusivamente no schema `origem`.
 
@@ -6,7 +6,7 @@ Consultas da tarefa 2.1 para calcular valores esperados exclusivamente no schema
 
 - Todas as consultas são somente leitura (`SELECT`, `WITH` e `VALUES`).
 - Nenhuma consulta lê `novo` ou `novo_pre_ensaio_geral` para calcular o gabarito.
-- Nenhum resultado de produção é versionado neste repositório.
+- Nenhum dado de produção é versionado: os resultados em `resultados/` têm só contagens e status.
 - A validação executada em 20/10/2026 confirmou o schema `origem` do projeto Supabase configurado no MCP e suas 28 tabelas de origem.
 
 ## Consultas
@@ -39,7 +39,7 @@ A classificação é conservadora. Renovação mensal genérica, como `Renovaç�
 - Há 2 saldos positivos de treino sem renovação identificável; eles permanecem fora das comparações e exigem evidência adicional para reconstrução segura.
 - Classificações textuais continuam limitadas quando o motivo mistura marcadores, embora os motivos operacionais de fisioterapia e nutrição sejam excluídos da regra de treino.
 - A consulta não altera dados materializados e não declara homologação completa enquanto houver casos genéricos ou saldos sem renovação identificável.
-- Os resultados de validação não são armazenados neste repositório para evitar dados de produção.
+- Os resultados guardados em `resultados/` têm só contagens e status, sem dado de produção.
 
 ## Task 2.3 — Destino
 
@@ -49,7 +49,7 @@ O arquivo `sql/00_preflight_destino.sql` prepara a execução controlada da Task
 
 As etapas são exclusivamente de leitura e devem ser executadas manualmente, na ordem, sem executar a etapa seguinte quando a anterior apresentar ausência, incompatibilidade, permissão insuficiente ou resultado inconclusivo. A confirmação do ambiente exige um canal operacional independente, pois `current_database()` não identifica sozinho o projeto Supabase. As verificações de `SELECT` e RLS não comprovam visibilidade integral dos dados.
 
-A etapa 10 só pode ser executada após confirmar o ambiente, a tabela `origem.physio_assessments`, a permissão de leitura e o tipo `jsonb` de `pkz_data`. O arquivo `sql/06_destino_carga.sql` não deve ser executado antes da revisão dos resultados do preflight e de autorização explícita. A Task 2.3 permanece não homologada; histórico sem chave de execução semanticamente validada, empate de rótulos do gabarito, snapshot ausente e demais estados inconclusivos bloqueiam a continuidade.
+A etapa 10 só pode ser executada após confirmar o ambiente, a tabela `origem.physio_assessments`, a permissão de leitura e o tipo `jsonb` de `pkz_data`. O arquivo `sql/06_destino_carga.sql` não deve ser executado antes da revisão dos resultados do preflight e de autorização explícita. Na execução de 21/10/2026 o preflight passou nas 10 etapas (`resultados/preflight_2026-10-21.md`). Em execuções futuras, histórico sem chave de execução semanticamente validada, empate de rótulos do gabarito, snapshot ausente e demais estados inconclusivos continuam bloqueando a continuidade.
 
 `sql/06_destino_carga.sql` reúne consultas exclusivamente de leitura para o schema `novo`. O preflight identifica o rótulo de congelamento mais recente em `novo.carga_gabarito`, mas bloqueia empates e exige confirmação operacional de que o rótulo corresponde ao ensaio. A consulta distingue `GABARITO_INEXISTENTE`, `SEM_TABELA_NO_GABARITO`, `DIVERGENCIA` e estados `INCONCLUSIVO` sem misturar snapshots.
 
@@ -65,11 +65,11 @@ A etapa 10 só pode ser executada após confirmar o ambiente, a tabela `origem.p
 
 ### Resultados e interpretação
 
-Os resultados históricos registrados anteriormente continuam sendo apenas evidência observada: duas execuções por script, zero rejeições registradas, 106 alunos, 152 perfis, 258 pessoas e as comparações parciais documentadas. As novas consultas ainda precisam ser executadas no destino para confirmar a cobertura completa.
+Os resultados históricos registrados anteriormente continuam sendo apenas evidência observada: duas execuções por script, zero rejeições registradas, 106 alunos, 152 perfis, 258 pessoas e as comparações parciais documentadas. As consultas foram executadas no destino em 21/10/2026, sem divergência nos dados: ver `resultados/destino_carga_2026-10-21.md`. Os blocos 5 (duplicidades) e 7 (créditos) devolvem só contagens agregadas, sem username, caminho de arquivo ou uuid.
 
 A regra de rejeição `motivo LIKE 'chave %'` é deliberada: esses registros são reportados, mas não reduzem a contagem de linhas da reconciliação porque representam conferências de chave sem métrica, conforme a conferência geral da Frente 1. A ausência de rejeições não prova ausência de perdas ou duplicações; as consultas de chaves devem ser analisadas em conjunto.
 
-Renovações sem lançamento e lançamentos de renovação sem `renovacao_id` são retornados em detalhe para investigação e exigem interpretação de negócio. Não são classificados automaticamente como defeitos. Na reconstrução, a renovação entra pelo próprio `delta` uma vez; movimentações posteriores são somadas uma vez. Todos os lançamentos com o mesmo timestamp da renovação selecionada são identificados, inclusive empates anteriores por `id`; divergências com empate são marcadas como potencialmente explicadas pelo empate e não como defeito automático. A consulta retorna `OK`, `DIVERGENCIA`, `SOMENTE_NA_RECONSTRUCAO` e `SOMENTE_NA_VIEW`.
+Renovações sem lançamento e lançamentos de renovação sem `renovacao_id` são contados (o esperado é 0) para investigação e exigem interpretação de negócio. Não são classificados automaticamente como defeitos. Na reconstrução, a renovação entra pelo próprio `delta` uma vez; movimentações posteriores são somadas uma vez. Todos os lançamentos com o mesmo timestamp da renovação selecionada são identificados, inclusive empates anteriores por `id`; divergências com empate são marcadas como potencialmente explicadas pelo empate e não como defeito automático. A consulta retorna `OK`, `DIVERGENCIA`, `SOMENTE_NA_RECONSTRUCAO` e `SOMENTE_NA_VIEW`.
 
 ### Limitações
 
@@ -78,4 +78,4 @@ Renovações sem lançamento e lançamentos de renovação sem `renovacao_id` s�
 - A lista de FKs consultadas cobre cadastro, comercial, agenda, atendimento, arquivos e auditoria nas relações explicitadas no SQL. Permanecem pendentes as FKs não listadas do DDL, especialmente `bloqueio_grade`, `horario_grade`, `sessao_treino`, `lista_espera`, `avaliacao_medida`, `evolucao`, `consentimento`, `relatorio_emissao`, `relatorio_envio`, `notificacao` e `acesso_dado_sensivel`; elas não são consideradas homologadas pela consulta.
 - A reconstrução expõe a renovação selecionada, `criado_em`, `delta`, quantidade de lançamentos considerados e todos os lançamentos com o mesmo timestamp, inclusive empates anteriores por `id`. A view `novo.vw_saldo_credito` usa o maior `criado_em` e não desempata por `id`, enquanto a reconstrução usa `criado_em` e `id`; divergências com empate são marcadas como potencialmente explicadas pelo empate e não como defeito automático.
 - Pendências de negócio, renovações genéricas e classificações ambíguas de `dados/migracoes/PENDENCIAS.md` continuam exigindo decisão ou validação adicional.
-- A Task 2.3 não está homologada: a execução das consultas e a análise dos resultados reais permanecem pendentes.
+- A Task 2.3 foi executada em 21/10/2026 sem divergência nos dados; a aprovação do resultado fica com o relatório final da Frente 2 (Task 2.6, `RELATORIO_FINAL_FRENTE_2.md`).
