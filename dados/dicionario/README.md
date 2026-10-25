@@ -35,9 +35,11 @@ lista de valores de coluna categórica.
 a regra de negócio; as colunas de padrão do grupo (id, chaves, datas, pendência) já vêm preenchidas.
 A tabela com mais pendência de revisão é a de cadastro (36 colunas).
 
-A classificação de sensibilidade é a mesma que a política de acesso usa
+A classificação de sensibilidade segue o mesmo critério da política de acesso
 ([`../migracoes/migrations/012_politicas_rls.sql`](../migracoes/migrations/012_politicas_rls.sql)):
-`clinico` fecha por padrão, `pessoal` segue o aluno, `tecnico` não é legível pela API.
+`clinico` fecha por padrão, `pessoal` segue o aluno, e as tabelas de controle da carga (`carga_*`)
+não são legíveis pela API. A política é por linha; esta classificação é por coluna e serve de guia
+para as views do schema `api` (o que não deve aparecer em relatório ou tela).
 
 ## Como gerar de novo
 
