@@ -141,7 +141,7 @@ Linhas no ensaio de 12/10: **169**
 | `nota_treino` | smallint | não |  | origem.training_feedback.rating_treino | direto (3 a 5 na foto) |  | operacional | [revisar] |
 | `nota_professor` | smallint | não |  | origem.training_feedback.rating_professor | direto |  | operacional | [revisar] |
 | `gostou` | text[] | sim |  | origem.training_feedback.liked | direto (array de texto) |  | operacional | [revisar] |
-| `comentario` | text | não |  | origem.training_feedback.comentario | direto |  | operacional | [revisar] |
+| `comentario` | text | não |  | origem.training_feedback.comentario | direto |  | pessoal | [revisar] |
 | `pulado` | boolean | sim |  | origem.training_feedback.skipped | direto |  | operacional | [revisar] |
 | `criado_por` | uuid | não | FK → novo.perfil_usuario | origem.training_feedback.created_by | direto; sem perfil → nulo |  | operacional | Usuário que criou o registro na origem. |
 | `pendencia` | text | não |  | — |  |  | tecnico | Dúvidas que a carga marcou, separadas por `; `. Nunca bloqueia a carga. |
@@ -159,7 +159,7 @@ Linhas no ensaio de 12/10: **72**
 | `id` | uuid | sim | PK | — | gen_random_uuid() |  | tecnico | Chave primária. |
 | `dominio` | text | sim |  | origem.training_report_materials \| origem.training_report_technologies \| arrays de origem.training_reports | materials → material; technologies → tecnologia; capacidades_fisicas/tecnicas/cognitivas → capacidade_*; objetivo_sessao, foco, conduta → o próprio nome | capacidade_cognitiva \| capacidade_fisica \| capacidade_tecnica \| conduta \| foco \| material \| objetivo_sessao \| tecnologia | operacional | [revisar] |
 | `codigo` | text | sim |  | origem.training_report_materials.name \| origem.training_report_technologies.name \| valores distintos dos arrays | slug: lower, sem acento, espaços → '_' (ex.: 'Coordenação motora' → 'coordenacao_motora'); textos de materials_other/technologies_other: 'outro_' \|\| slug. ATENÇÃO: material e tecnologia vêm SÓ das tabelas de catálogo (os arrays apontam para elas, 100% casados na foto); os arrays só criam itens nos 6 domínios sem tabela (capacidade_fisica, capacidade_tecnica, capacidade_cognitiva, objetivo_sessao, foco, conduta). Valor de materials/technologies sem item no catálogo: item novo com pendência (0 na foto). Gere uma linha por (dominio, codigo) antes do insert, senão o on conflict falha | acquabag \| agilidade \| argolas \| atencao \| bands \| barreiras \| bastao_estabilidade \| blazepod \| bola_suica \| bosu \| camera_para_analise \| cinto_tracao \| colchao_de_instabilidade | operacional | Código curto e estável, usado nas regras e nos scripts. |
-| `nome` | text | sim |  | idem | o texto original |  | pessoal | Nome de exibição. |
+| `nome` | text | sim |  | idem | o texto original |  | operacional | Nome de exibição. |
 | `ativo` | boolean | sim |  | origem.training_report_materials.active \| origem.training_report_technologies.active | direto; valores dos arrays: true |  | operacional | Se o registro está ativo. |
 | `ordem` | integer | sim |  | origem.training_report_materials.sort_order \| origem.training_report_technologies.sort_order | direto; valores dos arrays: ordem alfabética |  | operacional | Ordem de exibição na tela. |
 | `id_origem` | uuid | não |  | origem.training_report_materials.id \| origem.training_report_technologies.id | direto; valores dos arrays: nulo |  | tecnico | Id da linha na origem, usado para reexecutar a carga sem duplicar. |
