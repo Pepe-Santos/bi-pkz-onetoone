@@ -134,24 +134,50 @@ SELECT script,quantidade_execucoes,ultima_executada_em,penultima_executada_em,
 FROM resumo ORDER BY script;
 
 -- 5) Duplicidades conforme unicidades relevantes do DDL.
-SELECT 'perfil_usuario.username' chave,username,COUNT(*) quantidade FROM novo.perfil_usuario GROUP BY username HAVING COUNT(*)>1;
-SELECT 'pessoa.origem' chave,origem_tabela,origem_id,COUNT(*) quantidade FROM novo.pessoa
-WHERE origem_tabela IS NOT NULL AND origem_id IS NOT NULL GROUP BY origem_tabela,origem_id HAVING COUNT(*)>1;
-SELECT 'papel_usuario' chave,usuario_id,papel_id,unidade_id,COUNT(*) quantidade FROM novo.papel_usuario
-GROUP BY usuario_id,papel_id,unidade_id HAVING COUNT(*)>1;
-SELECT 'plano.codigo' chave,codigo,COUNT(*) quantidade FROM novo.plano GROUP BY codigo HAVING COUNT(*)>1;
-SELECT 'servico.codigo' chave,codigo,COUNT(*) quantidade FROM novo.servico GROUP BY codigo HAVING COUNT(*)>1;
-SELECT 'unidade.codigo' chave,codigo,COUNT(*) quantidade FROM novo.unidade GROUP BY codigo HAVING COUNT(*)>1;
-SELECT 'renovacao_chave_constraint' chave,aluno_id,servico_id,periodicidade,competencia,COUNT(*) quantidade
-FROM novo.renovacao GROUP BY aluno_id,servico_id,periodicidade,competencia HAVING COUNT(*)>1;
+-- So contagens: cada consulta devolve quantos grupos duplicados existem e quantas linhas eles somam,
+-- sem mostrar a chave (username, caminho de arquivo, uuids). Esperado: 0 em todas.
+SELECT 'perfil_usuario.username' chave,COUNT(*) grupos_duplicados,COALESCE(SUM(quantidade),0) linhas_nos_grupos FROM (
+  SELECT 'perfil_usuario.username' chave,username,COUNT(*) quantidade FROM novo.perfil_usuario GROUP BY username HAVING COUNT(*)>1
+) d;
+SELECT 'pessoa.origem' chave,COUNT(*) grupos_duplicados,COALESCE(SUM(quantidade),0) linhas_nos_grupos FROM (
+  SELECT 'pessoa.origem' chave,origem_tabela,origem_id,COUNT(*) quantidade FROM novo.pessoa
+  WHERE origem_tabela IS NOT NULL AND origem_id IS NOT NULL GROUP BY origem_tabela,origem_id HAVING COUNT(*)>1
+) d;
+SELECT 'papel_usuario' chave,COUNT(*) grupos_duplicados,COALESCE(SUM(quantidade),0) linhas_nos_grupos FROM (
+  SELECT 'papel_usuario' chave,usuario_id,papel_id,unidade_id,COUNT(*) quantidade FROM novo.papel_usuario
+  GROUP BY usuario_id,papel_id,unidade_id HAVING COUNT(*)>1
+) d;
+SELECT 'plano.codigo' chave,COUNT(*) grupos_duplicados,COALESCE(SUM(quantidade),0) linhas_nos_grupos FROM (
+  SELECT 'plano.codigo' chave,codigo,COUNT(*) quantidade FROM novo.plano GROUP BY codigo HAVING COUNT(*)>1
+) d;
+SELECT 'servico.codigo' chave,COUNT(*) grupos_duplicados,COALESCE(SUM(quantidade),0) linhas_nos_grupos FROM (
+  SELECT 'servico.codigo' chave,codigo,COUNT(*) quantidade FROM novo.servico GROUP BY codigo HAVING COUNT(*)>1
+) d;
+SELECT 'unidade.codigo' chave,COUNT(*) grupos_duplicados,COALESCE(SUM(quantidade),0) linhas_nos_grupos FROM (
+  SELECT 'unidade.codigo' chave,codigo,COUNT(*) quantidade FROM novo.unidade GROUP BY codigo HAVING COUNT(*)>1
+) d;
+SELECT 'renovacao_chave_constraint' chave,COUNT(*) grupos_duplicados,COALESCE(SUM(quantidade),0) linhas_nos_grupos FROM (
+  SELECT 'renovacao_chave_constraint' chave,aluno_id,servico_id,periodicidade,competencia,COUNT(*) quantidade
+  FROM novo.renovacao GROUP BY aluno_id,servico_id,periodicidade,competencia HAVING COUNT(*)>1
+) d;
 -- Regra adicional de neg?cio mais restritiva que a constraint final.
-SELECT 'renovacao_regra_negocio_restritiva' chave,aluno_id,servico_id,competencia,COUNT(*) quantidade
-FROM novo.renovacao GROUP BY aluno_id,servico_id,competencia HAVING COUNT(*)>1;
-SELECT 'arquivo.storage_path' chave,storage_path,COUNT(*) quantidade FROM novo.arquivo GROUP BY storage_path HAVING COUNT(*)>1;
-SELECT 'feedback_treino.agendamento_id' chave,agendamento_id,COUNT(*) quantidade FROM novo.feedback_treino GROUP BY agendamento_id HAVING COUNT(*)>1;
-SELECT 'sessao_treino.agendamento_id' chave,agendamento_id,COUNT(*) quantidade FROM novo.sessao_treino GROUP BY agendamento_id HAVING COUNT(*)>1;
-SELECT 'agendamento.ativo' chave,aluno_id,servico_id,data,hora_inicio,COUNT(*) quantidade FROM novo.agendamento
-WHERE status<>'cancelado' GROUP BY aluno_id,servico_id,data,hora_inicio HAVING COUNT(*)>1;
+SELECT 'renovacao_regra_negocio_restritiva' chave,COUNT(*) grupos_duplicados,COALESCE(SUM(quantidade),0) linhas_nos_grupos FROM (
+  SELECT 'renovacao_regra_negocio_restritiva' chave,aluno_id,servico_id,competencia,COUNT(*) quantidade
+  FROM novo.renovacao GROUP BY aluno_id,servico_id,competencia HAVING COUNT(*)>1
+) d;
+SELECT 'arquivo.storage_path' chave,COUNT(*) grupos_duplicados,COALESCE(SUM(quantidade),0) linhas_nos_grupos FROM (
+  SELECT 'arquivo.storage_path' chave,storage_path,COUNT(*) quantidade FROM novo.arquivo GROUP BY storage_path HAVING COUNT(*)>1
+) d;
+SELECT 'feedback_treino.agendamento_id' chave,COUNT(*) grupos_duplicados,COALESCE(SUM(quantidade),0) linhas_nos_grupos FROM (
+  SELECT 'feedback_treino.agendamento_id' chave,agendamento_id,COUNT(*) quantidade FROM novo.feedback_treino GROUP BY agendamento_id HAVING COUNT(*)>1
+) d;
+SELECT 'sessao_treino.agendamento_id' chave,COUNT(*) grupos_duplicados,COALESCE(SUM(quantidade),0) linhas_nos_grupos FROM (
+  SELECT 'sessao_treino.agendamento_id' chave,agendamento_id,COUNT(*) quantidade FROM novo.sessao_treino GROUP BY agendamento_id HAVING COUNT(*)>1
+) d;
+SELECT 'agendamento.ativo' chave,COUNT(*) grupos_duplicados,COALESCE(SUM(quantidade),0) linhas_nos_grupos FROM (
+  SELECT 'agendamento.ativo' chave,aluno_id,servico_id,data,hora_inicio,COUNT(*) quantidade FROM novo.agendamento
+  WHERE status<>'cancelado' GROUP BY aluno_id,servico_id,data,hora_inicio HAVING COUNT(*)>1
+) d;
 -- A consulta acima cobre a chave operacional usada para agendamentos ativos;
 -- outras regras de sobreposicao nao sao inferidas sem constraint/index no DDL.
 
@@ -200,9 +226,9 @@ SELECT 'evento_auditoria.unidade_id' relacao,COUNT(*) FILTER(WHERE x.unidade_id 
 
 -- 7) Creditos: renovacao reinicia pelo delta; sem reset fixo de 10.
 SELECT origem_tipo,COUNT(*) lancamentos FROM novo.credito_lancamento GROUP BY origem_tipo ORDER BY origem_tipo;
-SELECT r.id,r.aluno_id,r.servico_id,r.matricula_id,r.competencia,r.periodicidade,r.pendencia
+SELECT 'renovacoes sem lancamento' verificacao,COUNT(*) quantidade
 FROM novo.renovacao r WHERE NOT EXISTS(SELECT 1 FROM novo.credito_lancamento l WHERE l.renovacao_id=r.id);
-SELECT l.id,l.aluno_id,l.servico_id,l.delta,l.motivo,l.criado_em
+SELECT 'lancamentos renovacao sem renovacao_id' verificacao,COUNT(*) quantidade
 FROM novo.credito_lancamento l WHERE l.origem_tipo='renovacao' AND l.renovacao_id IS NULL;
 WITH u AS (
  SELECT DISTINCT ON(aluno_id,servico_id) aluno_id,servico_id,id renovacao_id,criado_em renovacao_em,delta delta_renovacao
@@ -234,13 +260,20 @@ WITH u AS (
  FROM s FULL JOIN novo.vw_saldo_credito v USING(aluno_id,servico_id)
  LEFT JOIN empates e ON e.aluno_id=COALESCE(s.aluno_id,v.aluno_id)
   AND e.servico_id=COALESCE(s.servico_id,v.servico_id)
+), detalhe AS (
+ SELECT *,CASE WHEN lancamentos_mesmo_timestamp>0 THEN true ELSE false END tem_empate_no_timestamp,
+  CASE WHEN status='DIVERGENCIA' AND lancamentos_mesmo_timestamp>0
+       THEN 'DIVERGENCIA_POTENCIALMENTE_EXPLICADA_POR_EMPATE'
+       WHEN status='DIVERGENCIA' THEN 'DIVERGENCIA_A_INVESTIGAR'
+       ELSE status END interpretacao
+ FROM comparacoes
 )
-SELECT *,CASE WHEN lancamentos_mesmo_timestamp>0 THEN true ELSE false END tem_empate_no_timestamp,
- CASE WHEN status='DIVERGENCIA' AND lancamentos_mesmo_timestamp>0
-      THEN 'DIVERGENCIA_POTENCIALMENTE_EXPLICADA_POR_EMPATE'
-      WHEN status='DIVERGENCIA' THEN 'DIVERGENCIA_A_INVESTIGAR'
-      ELSE status END interpretacao
-FROM comparacoes ORDER BY aluno_id,servico_id;
+-- Agregado por interpretacao (sem uuid de aluno, servico ou lancamento).
+SELECT interpretacao,tem_empate_no_timestamp,renovacao_id IS NOT NULL tem_renovacao,
+ COUNT(*) pares_aluno_servico,
+ SUM(ABS(COALESCE(saldo_reconstruido,0)-COALESCE(saldo_view,0))) soma_dif_abs,
+ MAX(ABS(COALESCE(saldo_reconstruido,0)-COALESCE(saldo_view,0))) maior_dif_abs
+FROM detalhe GROUP BY 1,2,3 ORDER BY 1,2,3;
 -- Resumo: mesma reconstrucao da consulta anterior (reinicio na renovacao mais recente).
 WITH u AS (
  SELECT DISTINCT ON(aluno_id,servico_id) aluno_id,servico_id,id renovacao_id,criado_em renovacao_em
