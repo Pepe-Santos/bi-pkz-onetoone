@@ -81,7 +81,7 @@ A ordem importa: cada script só referencia o que os anteriores já carregaram.
 
 ## 7. Segurança
 
-- RLS ligado em **toda** tabela nova, no mesmo arquivo que a cria (`alter table ... enable row level security`). As políticas por papel vêm depois; até lá, nada fica aberto pela API.
+- RLS ligado em **toda** tabela nova, no mesmo arquivo que a cria (`alter table ... enable row level security`). As políticas por papel ficam em `migrations/012_politicas_rls.sql` (Frente 3): uma de leitura por tabela, sem política de escrita. Tabela nova nasce sem política (fechada) e ganha a sua numa migration nova, seguindo [`../seguranca/matriz-papeis.md`](../seguranca/matriz-papeis.md).
 - Dado clínico (anamnese, fisioterapia, arquivos de fisio) fica em tabela própria ou com coluna `confidencialidade`, para a política de acesso poder separar.
   - **Exceção decidida em 15/10:** as medidas de fisioterapia ficam em `avaliacao`/`avaliacao_medida` (`tipo = 'fisioterapia'`) e os atendimentos de fisio, nutrição e psicologia em `atendimento`, sem coluna `confidencialidade`. O próprio dado já diz que é clínico: a política de acesso (Frente 3) filtra por `avaliacao.tipo` e `atendimento.servico_id`. `anamnese` (restrito) e `arquivo` (normal/clínico/restrito) seguem a regra.
 - Fora do Git: dados (CSV, dumps, planilhas com dados), `.env`, chaves, senhas, strings de conexão.
