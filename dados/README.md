@@ -31,13 +31,20 @@ Estrutura nova do banco (DDL) e scripts que carregam os dados do app para ela, t
 
 | Pasta | O que tem |
 |---|---|
-| [`migrations/`](migracoes/migrations/) | DDL 001–011: 43 tabelas e 5 views no schema `novo`, um arquivo por domínio |
+| [`migrations/`](migracoes/migrations/) | DDL 001–011: 43 tabelas e 5 views no schema `novo`, um arquivo por domínio; 012: políticas de acesso por papel (Frente 3), aplicada no ensaio em 26/10 |
 | [`mapeamento/`](migracoes/mapeamento/) | De/para coluna a coluna, origem → destino (só estrutura e regras, sem dados) e o **catálogo das 109 métricas** (`avaliacao_metricas.csv`: unidade, direção, conversão e faixa) |
 | [`carga/`](migracoes/carga/) | Scripts de carga 10–80 por domínio e o mestre `99_carga_mestre.sql`; todos podem rodar mais de uma vez sem duplicar |
 | [`conferencia/`](migracoes/conferencia/) | Conferências só de leitura: estrutura do DDL, cobertura do mapeamento (`01`, reproduzível), papéis × unidade (`02`), saldo de créditos (`03`) e conferência geral origem × destino (`99`) |
 | [`ensaio/`](migracoes/ensaio/) | Foto da origem, estrutura da origem para teste local e dados inventados |
 
 Regras do grupo: [`CONVENCOES.md`](migracoes/CONVENCOES.md) · decisões em aberto: [`PENDENCIAS.md`](migracoes/PENDENCIAS.md).
+
+### Segurança e dicionário: [`seguranca/`](seguranca/) e [`dicionario/`](dicionario/) (Frente 3, Iago)
+
+- [`seguranca/matriz-papeis.md`](seguranca/matriz-papeis.md): quem lê o quê, por papel; é a especificação da migration 012.
+- [`seguranca/decisoes-dado-sensivel.md`](seguranca/decisoes-dado-sensivel.md): as decisões de gestão que faltam sobre dado sensível (pendências 4, 5 e 11).
+- [`dicionario/`](dicionario/): dicionário de dados do `novo`, coluna a coluna, com a sensibilidade de cada uma.
+- [`plano-projeto-definitivo.md`](plano-projeto-definitivo.md): passo a passo da virada para o projeto definitivo (tarefa 3.6, proposta).
 
 ### Modelo conceitual: [`modelo/conceitual/`](modelo/conceitual/)
 
