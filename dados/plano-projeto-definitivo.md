@@ -15,7 +15,7 @@ pelo Dev Lucas. Nele:
 |---|---|
 | `public` | o app em uso, que continua mudando (rotinas automáticas às 00:00 e 00:15) |
 | `origem` | foto congelada das 28 tabelas, de 12/10 |
-| `novo` | o banco construído: 43 tabelas, 5 views, 11 migrations |
+| `novo` | o banco construído: 43 tabelas, 5 views, 12 migrations (a 012 é a das políticas de acesso, aplicada em 26/10) |
 
 A decisão de 12/10 é que o destino definitivo é **um projeto Supabase separado do app**. Lá o arranjo é o
 mesmo, então os scripts rodam sem mudança: é por isso que a virada é um roteiro, e não uma reescrita.
@@ -24,7 +24,7 @@ mesmo, então os scripts rodam sem mudança: é por isso que a virada é um rote
 
 | # | Decisão | Opções | Recomendação da Frente 3 |
 |---|---|---|---|
-| 7.1 | **Nome do schema definitivo** | manter `novo`; ou `core`; ou `pkz` | **Manter `novo`.** Trocar o nome obriga a mexer em 11 migrations, 8 cargas, 5 conferências e na política 012. O nome não aparece para quem consome: o consumo é pelo schema `api` |
+| 7.1 | **Nome do schema definitivo** | manter `novo`; ou `core`; ou `pkz` | **Manter `novo`.** Trocar o nome obriga a mexer em 12 migrations (inclusive a política 012), 8 cargas e 5 conferências. O nome não aparece para quem consome: o consumo é pelo schema `api` |
 | 7.2 | **Quem cria o projeto** | gerência (Pedro/Lucas); o cliente; o Dev Lucas | **A gerência**, numa conta do projeto e não numa conta pessoal. Hoje o ensaio depende da conta do Dev Lucas |
 | 7.3 | **Quem administra** | uma pessoa; a gerência + a Frente 1 | **Dois donos**, para ninguém ficar bloqueado. Papel de administrador só para esses dois |
 | 7.4 | **Plano do Supabase** | gratuito; pago | **Precisa de resposta antes da virada.** O gratuito pausa projeto sem uso e não tem backup automático — e o banco definitivo guarda dado real de 105 menores |
