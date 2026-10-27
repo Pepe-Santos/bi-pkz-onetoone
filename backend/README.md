@@ -28,7 +28,7 @@ Tudo fica no **mesmo projeto Supabase**: o de ensaio do Lucas (`jhspjkelmnbvrnle
 
 - O Grupo de Desenvolvimento só cria objetos nos schemas `trat` e `api` e no bucket `relatorios`.
 - Nunca escreve em `novo`, `origem` ou `public`.
-- Lê o `novo` por views feitas pelo grupo de Dados, a pedido do Lucas (24/10). O Rafael passa ao Micael a lista, sem cálculo: `vw_aluno`, `vw_avaliacao_medida`, `vw_relatorio_treino` (sem os campos de dor) e `vw_agendamento`. Enquanto não existirem, as views do `trat` leem as tabelas e depois só trocam o `FROM`. O grupo de Dados avisa no grupo se mudar a estrutura de uma tabela ou view que usamos.
+- Lê o `novo` por views feitas pelo grupo de Dados, a pedido do Lucas (24/10). O Rafael passa ao Micael a lista, sem cálculo: `vw_aluno`, `vw_avaliacao_medida`, `vw_relatorio_treino` (sem os campos de dor) e `vw_agendamento`. O Iago criou as quatro no `013_views_consumo.sql` do grupo de Dados (27/10), e o `05` e o `06` leem a `vw_avaliacao_medida` e a `vw_aluno`. O grupo de Dados avisa no grupo se mudar a estrutura de uma tabela ou view que usamos.
 - O grupo de Dados controla o banco pelo histórico de migrações do Supabase (`pkzbi_...`). Os scripts daqui **não** entram nesse histórico: rodam direto, pelo `psql` ou pelo SQL Editor.
 - Quando existir o projeto Supabase definitivo (tarefa 3.6 do grupo de Dados), os mesmos scripts recriam tudo.
 
@@ -59,7 +59,7 @@ O `02_fdw.sql` saiu em 20/10. Ele conectava a um banco remoto do grupo de Dados,
 - `01`, `03`, `04`, `05` e `06` aplicados no projeto do Lucas: schemas `trat` e `api`, bucket `relatorios` privado, 3 parâmetros, 20 testes no catálogo, medidas tratadas e as 4 views da API.
 - API no ar: o schema `api` está em Exposed schemas e as 4 views (`atleta`, `evolucao`, `comparacao`, `reavaliacao`) respondem pela REST. Contrato em `docs/api.md`.
 - Catálogo: recodificado com os códigos da `novo.metrica` (decidido em 20/10). Tem os testes físicos numéricos mais altura e peso, com faixas e conversões tiradas dos valores reais do `novo`. Os testes por perna (`single_hop`, `cross_hop`) saem com a coluna `lado` na API.
-- Medidas: o `05` converte as unidades misturadas (ex.: 4,01 m e 543 cm viram cm), separa os valores impossíveis em `trat.revisao_dados` (37 tentativas) e escolhe a melhor tentativa válida. Por enquanto lê as tabelas do `novo`; quando as views `vw_*` do grupo de Dados existirem, só muda o `FROM` do `05`.
+- Medidas: o `05` converte as unidades misturadas (ex.: 4,01 m e 543 cm viram cm), separa os valores impossíveis em `trat.revisao_dados` (37 tentativas) e escolhe a melhor tentativa válida. Lê a `novo.vw_avaliacao_medida` do grupo de Dados; a unidade e os dados do atleta vêm da `novo.vw_aluno` (matrícula vigente). Rode o `06` sempre depois do `05`: o `05` recria o `trat` e apaga as views da `api`.
 - Acesso: cadastro público de usuários desligado; usuário de teste criado, com acesso às duas unidades; separação por unidade ativa (ver [API](#api)). Os 3 testes de acesso passam.
 - Envio: nenhum aluno da cópia tem e-mail ligado (nem do responsável, nem próprio), então o envio automático é demonstrado com e-mails de teste.
 

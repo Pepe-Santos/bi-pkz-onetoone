@@ -1,30 +1,30 @@
 -- Medidas padronizadas dos testes físicos (schema trat).
--- Depende do 04_trat_parametros_catalogo.sql e do banco novo do grupo de Dados.
--- Pode rodar quantas vezes quiser (CREATE OR REPLACE VIEW).
+-- Depende do 04_trat_parametros_catalogo.sql e da novo.vw_avaliacao_medida, view de
+-- consumo do grupo de Dados (013_views_consumo.sql deles).
 --
--- Lê as tabelas do novo enquanto as views do grupo de Dados não existem. Quando
--- novo.vw_avaliacao_medida existir, troca só o FROM de trat.medida.
+-- Lê a vw_avaliacao_medida, que já traz só avaliações consolidadas e não substituídas
+-- por uma correção. Aqui entram só as do tipo teste_fisico.
 --
--- Só entram avaliações do tipo teste_fisico, consolidadas e não substituídas por uma
--- correção (outra avaliação com corrige_avaliacao_id apontando para ela).
+-- Começa com DROP ... CASCADE, porque a troca para a view do grupo de Dados tirou
+-- colunas (medida_id e pendencia_origem) e CREATE OR REPLACE não remove coluna.
+-- O CASCADE apaga também as views da api: depois deste script, rode o 06.
+DROP VIEW IF EXISTS trat.medida CASCADE;
 
 -- ---------------------------------------------------------------------------
 -- Uma linha por tentativa, já na unidade padrão do catálogo, com o motivo de revisão
 -- quando o valor não serve.
 -- ---------------------------------------------------------------------------
-CREATE OR REPLACE VIEW trat.medida AS
+CREATE VIEW trat.medida AS
 WITH base AS (
   SELECT
-    am.id                AS medida_id,
-    a.id                 AS avaliacao_id,
-    a.aluno_id,
-    a.data               AS data_avaliacao,
+    am.avaliacao_id,
+    am.aluno_id,
+    am.data              AS data_avaliacao,
     c.codigo             AS teste,
     am.lado,
     am.tentativa,
     am.valor_num         AS valor_origem,
     am.valor_texto       AS valor_texto_origem,
-    am.pendencia         AS pendencia_origem,
     CASE
       WHEN am.valor_num < c.conversao_abaixo_de THEN am.valor_num * c.conversao_fator
       ELSE am.valor_num
@@ -32,18 +32,11 @@ WITH base AS (
     (am.valor_num < c.conversao_abaixo_de) AS convertido,
     c.faixa_min,
     c.faixa_max
-  FROM novo.avaliacao_medida am
-  JOIN novo.avaliacao a     ON a.id = am.avaliacao_id
-  JOIN novo.metrica m       ON m.id = am.metrica_id
-  JOIN trat.catalogo_teste c ON c.codigo = m.codigo
-  WHERE a.tipo = 'teste_fisico'
-    AND a.status = 'consolidada'
-    AND NOT EXISTS (
-      SELECT 1 FROM novo.avaliacao corr WHERE corr.corrige_avaliacao_id = a.id
-    )
+  FROM novo.vw_avaliacao_medida am
+  JOIN trat.catalogo_teste c ON c.codigo = am.metrica_codigo
+  WHERE am.tipo = 'teste_fisico'
 )
 SELECT
-  medida_id,
   avaliacao_id,
   aluno_id,
   data_avaliacao,
@@ -52,7 +45,6 @@ SELECT
   tentativa,
   valor_origem,
   valor_texto_origem,
-  pendencia_origem,
   valor,
   coalesce(convertido, false) AS convertido,
   CASE
@@ -73,7 +65,6 @@ COMMENT ON VIEW trat.medida IS
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE VIEW trat.revisao_dados AS
 SELECT
-  medida_id,
   avaliacao_id,
   aluno_id,
   data_avaliacao,
@@ -83,8 +74,7 @@ SELECT
   valor_origem,
   valor_texto_origem,
   valor,
-  motivo_revisao,
-  pendencia_origem
+  motivo_revisao
 FROM trat.medida
 WHERE NOT valido;
 

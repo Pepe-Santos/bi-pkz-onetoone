@@ -1,6 +1,7 @@
 -- Views da API de avaliações (schema api). Contrato em backend/docs/api.md.
--- Depende do 04_trat_parametros_catalogo.sql, do 05_trat_medidas.sql e do banco novo.
--- Pode rodar quantas vezes quiser (CREATE OR REPLACE VIEW).
+-- Depende do 04_trat_parametros_catalogo.sql, do 05_trat_medidas.sql e da novo.vw_aluno
+-- (view de consumo do grupo de Dados). Pode rodar quantas vezes quiser (CREATE OR
+-- REPLACE VIEW); rode sempre depois do 05, que apaga estas views ao recriar o trat.
 --
 -- As views são do postgres e rodam com as permissões dele: quem chama a API só precisa
 -- de SELECT no schema api, sem acesso ao trat nem ao novo.
@@ -11,13 +12,13 @@
 -- direto ao banco (SQL Editor, psql: sem token) veem tudo.
 
 -- ---------------------------------------------------------------------------
--- Unidade atual de cada aluno: a da matrícula mais recente (novo.matricula).
+-- Unidade de cada aluno, da novo.vw_aluno (view de consumo do grupo de Dados): a da
+-- matrícula vigente. Aluno sem matrícula vigente fica sem unidade e só aparece para
+-- quem vê TODAS.
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE VIEW trat.aluno_unidade AS
-SELECT DISTINCT ON (mt.aluno_id) mt.aluno_id, upper(u.codigo) AS unidade
-FROM novo.matricula mt
-JOIN novo.unidade u ON u.id = mt.unidade_id
-ORDER BY mt.aluno_id, mt.vigencia_inicio DESC;
+SELECT aluno_id, upper(unidade) AS unidade
+FROM novo.vw_aluno;
 
 -- Quem fez a chamada pode ver atletas desta unidade?
 CREATE OR REPLACE FUNCTION trat.unidade_permitida(unidade text)
@@ -42,19 +43,17 @@ WITH avaliacoes AS (
   GROUP BY aluno_id
 )
 SELECT
-  a.id                                                   AS atleta_id,
-  ua.unidade,
-  p.nome,
-  extract(year FROM age(current_date, p.data_nascimento))::int AS idade,
+  a.aluno_id                                             AS atleta_id,
+  upper(a.unidade)                                       AS unidade,
+  a.nome,
+  extract(year FROM age(current_date, a.data_nascimento))::int AS idade,
   a.categoria,
   (a.status = 'ativo')                                   AS ativo,
   coalesce(av.total_avaliacoes, 0)                       AS total_avaliacoes,
   av.ultima_avaliacao_em
-FROM novo.aluno a
-JOIN novo.pessoa p               ON p.id = a.pessoa_id
-LEFT JOIN trat.aluno_unidade ua  ON ua.aluno_id = a.id
-LEFT JOIN avaliacoes av          ON av.aluno_id = a.id
-WHERE trat.unidade_permitida(ua.unidade);
+FROM novo.vw_aluno a
+LEFT JOIN avaliacoes av ON av.aluno_id = a.aluno_id
+WHERE trat.unidade_permitida(upper(a.unidade));
 
 -- ---------------------------------------------------------------------------
 -- evolucao: histórico de cada teste do atleta, uma linha por avaliação, teste e lado.
