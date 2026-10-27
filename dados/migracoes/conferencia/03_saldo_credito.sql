@@ -10,9 +10,12 @@
 --      lançamentos desde a última renovação do serviço, INCLUSIVE a renovação,
 --      cujo delta é a cota do plano. Sem renovação: soma de tudo.
 --   B) Conferência 5 da tarefa 2.1 (Frente 2): só os pares (atleta, serviço) que
---      têm uma renovação cujo texto identifica o serviço. Serviço pelo texto
---      (fisio > nutri > treino/PKZ), sem olhar o colchete; renovações genéricas
---      ficam de fora. Saldo = 10 + lançamentos DEPOIS da última renovação.
+--      têm uma renovação cujo texto identifica o serviço; renovações genéricas
+--      ficam de fora. Aqui o universo B é reproduzido pela classificação da
+--      primeira versão da 2.1 (fisio > nutri > treino/PKZ pelo texto), que dá os
+--      mesmos 196 pares. A 2.1 corrigida (PR #3, 21/10) parte do delta da última
+--      renovação (a cota); a primeira versão partia de 10. A consulta mostra as
+--      duas bases: divergentes_base_cota = 2.1 atual; divergentes_base_10 = antiga.
 -- Como ler as duas juntas: explicação em mapeamento/README.md, seção
 -- "Saldo de créditos: as duas conferências".
 -- Nenhuma consulta mostra dado pessoal: só contagens.

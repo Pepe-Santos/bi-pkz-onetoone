@@ -92,13 +92,19 @@ O destino definitivo é um **projeto Supabase separado**. Lá o arranjo vai ser 
 
 ### 21/10 — Respostas à revisão do PR #5 (Rafael)
 
-Três conferências novas, só de leitura, e a documentação que a revisão pediu:
+O PR #5 entrou na `main` em 21/10, com estas respostas. Três conferências novas, só de leitura, e a documentação que a revisão pediu:
 
 - `conferencia/01_cobertura_mapeamento.py`: refaz, de forma reproduzível, a conferência de cobertura do mapeamento contra o `information_schema` e classifica cada coluna (direta, transformada, gerada, não migrada). Resultado: 365/365 colunas da origem e 451/451 do destino, 0 erros. Ver "Como refazer a conferência" em [mapeamento/README.md](mapeamento/README.md).
 - `conferencia/02_papel_unidade.sql`: quais papéis são globais (`unidade_id` nula = todas as unidades) e quais são por unidade; 135 globais e 18 por unidade, 0 violações. Ver "Papéis e unidade". O `professor` sem sufixo virou a pendência 15.
 - `conferencia/03_saldo_credito.sql`: a ponte entre a conferência de saldo da carga 30 e a conferência 5 da tarefa 2.1. Ver "Saldo de créditos: as duas conferências".
 
 Nada muda no DDL nem nos scripts de carga.
+
+### 26/10 — Políticas de acesso (migration 012, Frente 3)
+
+- `migrations/012_politicas_rls.sql` (Iago, revisada pela Frente 1): grants mínimos (`anon` fora), 10 funções de escopo e uma política de leitura por tabela em 38 tabelas; `evento_auditoria`, `acesso_dado_sensivel` e as 3 `carga_*` ficam fechadas para a API. Matriz em [`../seguranca/matriz-papeis.md`](../seguranca/matriz-papeis.md).
+- Testada em 25/10 numa transação desfeita no fim e aplicada no ensaio em 26/10 (migration `pkzbi_012_politicas_rls`, idêntica ao arquivo). Teste por papel: admin vê tudo; recepção, professores e responsável não veem dado clínico; o especialista só vê o clínico do próprio serviço e dos alunos que atende; `anon` não tem acesso ao schema.
+- Não muda dado: a carga roda com papel privilegiado e passa por cima do RLS. As pendências 5 e 11 ficam na versão mais fechada até a direção decidir.
 
 ### Rodar pelo Claude (conector do Supabase)
 
@@ -130,7 +136,7 @@ Duas formas:
 **Ensaio geral** (antes de entregar; refeito sempre que uma migration mudar):
 
 1. Tirar o `novo` atual do caminho. Pelo SQL Editor ou psql: `drop schema novo cascade;`. Pelo Claude (o conector trava em `drop`): `alter schema novo rename to novo_pre_ensaio_<data>;` e apagar esse schema depois, pelo SQL Editor: `drop schema novo_pre_ensaio_<data> cascade;`.
-2. Aplicar as migrations **001 a 011**, em ordem (os scripts de carga dependem da 009, 010 e 011).
+2. Aplicar as migrations **001 a 012**, em ordem (os scripts de carga dependem da 009, 010 e 011; a 012, de políticas, não muda dado).
 3. Registrar o gabarito de novo: `select novo.registrar_gabarito('congelamento-2026-10-12');` (`origem` não muda).
 4. Rodar `conferencia/00_estrutura_ddl.sql`: as 4 primeiras consultas voltam vazias.
 5. Rodar o mestre (`psql $env:ENSAIO_URL -f carga/99_carga_mestre.sql`, de dentro de `dados/migracoes`). A conferência no fim precisa ter `ok` em todas as linhas.
@@ -144,4 +150,4 @@ Duas formas:
 
 ## Nunca vai para o Git
 
-Dados (CSV, dumps, planilhas com dados), `.env`, chaves, senhas, strings de conexão e o conteúdo do backup do app. O repositório é **público**. O `.gitignore` desta pasta só libera os CSV de `mapeamento/` (estrutura, sem dados); o resto segue o `.gitignore` da raiz. O `.gitignore` cobre os casos comuns, mas a responsabilidade é de quem faz o commit.
+Dados (CSV, dumps, planilhas com dados), `.env`, chaves, senhas, strings de conexão e o conteúdo do backup do app. O repositório é **privado** (desde 21/10), mas a regra continua: nada de dado pessoal nem credencial. O `.gitignore` desta pasta só libera os CSV de `mapeamento/` (estrutura, sem dados); o resto segue o `.gitignore` da raiz. O `.gitignore` cobre os casos comuns, mas a responsabilidade é de quem faz o commit.

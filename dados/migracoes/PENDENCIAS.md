@@ -8,13 +8,13 @@ Dúvidas de regra de negócio não são decididas pelo grupo: o registro entra c
 | 2 | Unidade e faixa válida de cada teste físico; regra para as alturas ambíguas (metros × centímetros); unidade das medidas posturais e da força abdominal da fisio PKZ | Coordenação técnica esportiva (fisio para as de fisioterapia) | 60, 70 | aberta |
 | 3 | Unidade e direção desejada do `slalom_wallball` | Coordenação técnica esportiva | 60 | aberta |
 | 4 | Onde ficam CPF, e-mail, endereço, telefone, profissão e sexo da fisio, ou se são descartados | Direção | 70 | aberta |
-| 5 | Quem pode ver anamnese e dado clínico | Direção, com respaldo jurídico | 70, 80 (políticas RLS) | aberta |
+| 5 | Quem pode ver anamnese e dado clínico | Direção (revisão jurídica dispensada pelo grupo em 23/10) | 70, 80 (políticas RLS) | aberta; até a decisão, a 012 usa a versão mais fechada (admin e o especialista do próprio serviço) |
 | 6 | Migrar ou não `notifications` | Grupo, validar com o cliente | 80 | proposta: não migrar |
 | 7 | Nome do schema definitivo no projeto separado (`novo` é provisório) e quem cria esse projeto | Grupo + coordenação | todos | aberta |
 | 8 | Grade de horários reconstruída das regras do app (horários por serviço e unidade, capacidade 10 no sábado 08:00, fisio/nutri/psico compartilhadas entre as unidades) | Coordenação (via Rafael, 2.5) | 40 | aberta (14/10) |
 | 9 | Planos: `plan_monthly_fisio` é mensal, mas o comentário fala em sessões por semana; quantidade de créditos do PKZ (`monthly_credits`); `one_power_legacy` ainda é vendido? | Comercial / direção | 10, 30 | aberta (14/10) |
 | 10 | Admins que aparecem como professor/avaliador (46 agendamentos, 62 relatórios, 2 testes, 2 avaliações de fisio): são profissionais de fato ou o registro foi feito em nome de alguém? | Coordenação | 20, 40, 50, 60, 70 | aberta (14/10); entram como `profissional` com pendência |
-| 11 | Auditoria: tirar nome, telefone e login (`username`) do `payload` (proposta do mapeamento) ou guardar com acesso restrito | Frente 3 (Iago, 3.2) | 80 | aberta (14/10) |
+| 11 | Auditoria: tirar nome, telefone e login (`username`) do `payload` (proposta do mapeamento) ou guardar com acesso restrito | Frente 3 (Iago, 3.2) | 80 | aberta (14/10); até a decisão, a auditoria não é legível pela API (012) |
 | 12 | Agendamentos de especialista: 69/69 sem profissional na origem (15 recuperáveis pela evolução) e 11 com presença sem registro de atendimento — é assim mesmo? | Coordenação (via Rafael, 2.5) | 40, 70 | aberta (15/10); os 11 entram marcados 'realizado sem registro de atendimento' (16/10) |
 | 13 | Saldo de créditos: 3 alunos com saldo guardado diferente do calculado pelo extrato (2 em fisio, 1 em nutri). A carga não corrige: marca 'ajuste de saldo pendente' na matrícula. Qual vale? (são 3 dos 318 pares aluno × serviço, todos sem renovação identificável pelo texto; comparação com a conferência da 2.1 em `mapeamento/README.md`) | Comercial / coordenação | 30 | aberta (15/10) |
 | 14 | 2 agendamentos acima da capacidade do horário (pico no intervalo) e 19 relatórios de treino duplicados para o mesmo agendamento: manter os dois, ou um deles deve ser descartado? | Coordenação (via Rafael, 2.5) | 40, 50 | aberta (15/10); entram com pendência |
@@ -32,6 +32,8 @@ Dúvidas de regra de negócio não são decididas pelo grupo: o registro entra c
 | Arquivo segue o conceitual: `arquivo` com FKs reais (`aluno_id` + no máximo um entre `relatorio_id`, `avaliacao_id`, `atendimento_id`). Sem `arquivo_vinculo` | Micael | 13/10/2026 |
 | As 4 tabelas criadas fora das migrations em `novo` (unidade, servico, plano, plano_beneficio, id bigint) foram renomeadas para `avulsa_*` (não apagadas) e recriadas no padrão pelo 002/003; os dados voltam pelo script 10. **Falta apagar as `avulsa_*`** quando o grupo confirmar (desde 16/10 estão dentro de `novo_pre_ensaio_geral`) | Micael | 13/10/2026 |
 | Ensaio geral sem apagar nada: o `novo` antigo foi renomeado para `novo_pre_ensaio_geral` e o novo foi recriado do zero pelas migrations. **Falta apagar `novo_pre_ensaio_geral`** pelo SQL Editor quando o grupo confirmar | Micael | 16/10/2026 |
+| Revisão jurídica da pendência 5 dispensada: as decisões sobre dado sensível são de gestão ([`../seguranca/decisoes-dado-sensivel.md`](../seguranca/decisoes-dado-sensivel.md)) | Micael (grupo) | 23/10/2026 |
+| Políticas de acesso (migration 012, Frente 3): só leitura; versão mais fechada para as pendências 5 e 11 até a direção decidir; especialista só vê o clínico do próprio serviço. Aplicada no ensaio | Micael (aprovação do PR #10) | 26/10/2026 |
 
 ## Escolhas do DDL para a Frente 2 revisar (2.2)
 

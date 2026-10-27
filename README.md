@@ -101,11 +101,11 @@ Cada grupo trabalha na sua branch e nas suas pastas, e o código chega à `main`
 
 - **Kickoff:** 26/08/2026 · **Fase atual:** Fase 1 — Fundação
 - `ENT-001` Modelo de dados documentado — primeira versão completa, **aguardando homologação (marco M2)**
-- `ENT-002` Base reestruturada — não iniciado, por decisão, até o M2 (pré-requisito das Fases 3 a 5)
+- `ENT-002` Base reestruturada — construída, carregada e conferida no ensaio (grupo de Dados); políticas de acesso aplicadas no ensaio em 26/10. A execução no projeto definitivo segue o plano da tarefa 3.6 (`dados/plano-projeto-definitivo.md`)
 
 | Frente | Situação |
 |---|---|
-| Modelagem & Banco | Diagnóstico concluído · proposta de modelo a validar |
+| Modelagem & Banco | Banco reestruturado no ensaio: 43 tabelas, carga conferida (19/19, 0 rejeitados) · políticas de acesso por papel aplicadas (migration 012) · projeto definitivo pendente (3.6) |
 | Back-end | Validado localmente (PostgreSQL 16, dados sintéticos) · implantação pendente |
 | Relatórios | Layouts definidos · implementação planejada |
 | Front-end | Comparativo e protótipo concluídos · validação com o cliente |
