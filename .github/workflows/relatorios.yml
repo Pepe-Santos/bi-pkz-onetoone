@@ -1,0 +1,61 @@
+# Envio automático dos relatórios por e-mail (relatorios/enviar_lote.py), do Grupo de
+# Desenvolvimento. Horários em UTC: 11h UTC = 8h em Brasília.
+# O GitHub só roda os agendamentos e mostra o disparo manual quando este arquivo está na
+# branch padrão (main). As chaves vêm dos segredos do repositório (Settings → Secrets and
+# variables → Actions); veja relatorios/README.md.
+name: Relatórios por e-mail
+
+on:
+  schedule:
+    - cron: "0 11 * * 1"  # semanal: toda segunda, semana anterior
+    - cron: "0 11 1 * *"  # mensal: todo dia 1º, mês anterior
+    - cron: "0 11 1 1 *"  # anual: 1º de janeiro, ano anterior
+  workflow_dispatch:
+    inputs:
+      periodo:
+        description: Período
+        type: choice
+        options: [semanal, mensal, anual]
+        default: mensal
+      referencia:
+        description: "Data de referência AAAA-MM-DD, qualquer dia do período (vazio: ontem)"
+        required: false
+        default: ""
+
+# Uma execução por período de cada vez, para o mesmo relatório não sair duas vezes.
+concurrency:
+  group: relatorios-${{ github.event.inputs.periodo || github.event.schedule }}
+
+jobs:
+  enviar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install -r relatorios/requirements.txt -r gerador_pkz/requirements.txt
+
+      - name: Enviar relatórios
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          EMAIL_USUARIO: ${{ secrets.EMAIL_USUARIO }}
+          EMAIL_SENHA_APP: ${{ secrets.EMAIL_SENHA_APP }}
+          EMAILS_TESTE: ${{ secrets.EMAILS_TESTE }}
+          EMAIL_LOTE_TESTE: ${{ secrets.EMAIL_LOTE_TESTE }}
+          AGENDAMENTO: ${{ github.event.schedule }}
+          PERIODO: ${{ github.event.inputs.periodo }}
+          REFERENCIA: ${{ github.event.inputs.referencia }}
+        run: |
+          case "$AGENDAMENTO" in
+            "0 11 * * 1") PERIODO=semanal ;;
+            "0 11 1 * *") PERIODO=mensal ;;
+            "0 11 1 1 *") PERIODO=anual ;;
+          esac
+          python relatorios/enviar_lote.py --periodo "$PERIODO" ${REFERENCIA:+--referencia "$REFERENCIA"}

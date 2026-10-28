@@ -41,7 +41,8 @@ backend/
 │   ├── 03_storage.sql                  bucket privado relatorios para os PDFs
 │   ├── 04_trat_parametros_catalogo.sql parâmetros de negócio e catálogo de regras por teste
 │   ├── 05_trat_medidas.sql             medidas padronizadas, revisão de dados e resultado por teste
-│   └── 06_api_avaliacoes.sql           views da API: atleta, evolucao, comparacao, reavaliacao
+│   ├── 06_api_avaliacoes.sql           views da API: atleta, evolucao, comparacao, reavaliacao
+│   └── 07_trat_envio_relatorio.sql     registro dos relatórios já enviados por e-mail
 ├── scripts/
 │   ├── testar_acesso.py                os 3 testes de acesso à API (sem login, com login, secret key)
 │   └── criar_usuario.py                cria um usuário da API já confirmado e com a unidade
@@ -76,6 +77,7 @@ psql "$SUPABASE_DB_URL" -f backend/sql/03_storage.sql
 psql "$SUPABASE_DB_URL" -f backend/sql/04_trat_parametros_catalogo.sql
 psql "$SUPABASE_DB_URL" -f backend/sql/05_trat_medidas.sql
 psql "$SUPABASE_DB_URL" -f backend/sql/06_api_avaliacoes.sql
+psql "$SUPABASE_DB_URL" -f backend/sql/07_trat_envio_relatorio.sql
 ```
 
 Windows (PowerShell), na raiz do repositório:
@@ -87,6 +89,7 @@ psql "$env:SUPABASE_DB_URL" -f .\backend\sql\03_storage.sql
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\04_trat_parametros_catalogo.sql
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\05_trat_medidas.sql
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\06_api_avaliacoes.sql
+psql "$env:SUPABASE_DB_URL" -f .\backend\sql\07_trat_envio_relatorio.sql
 ```
 
 A string de conexão fica em **Connect**, no painel do Supabase.

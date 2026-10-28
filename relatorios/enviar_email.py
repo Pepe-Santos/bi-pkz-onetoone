@@ -33,13 +33,14 @@ SMTP_SERVIDOR = "smtp.gmail.com"
 SMTP_PORTA = 465
 
 # Textos dos e-mails: um para os pais (PKZ) e um para o aluno (One to One).
-# {nome} é o primeiro nome do atleta/aluno; {periodo} é semanal, mensal ou anual.
+# {nome} é o primeiro nome do atleta/aluno; {periodo} é semanal, mensal ou anual;
+# {rotulo} é o período por extenso (ex.: "agosto de 2026").
 TEXTOS = {
     "PKZ": {
-        "assunto": "Relatório {periodo} de {nome} — Playmakerz Lab",
+        "assunto": "Relatório {periodo} de {nome} ({rotulo}) — Playmakerz Lab",
         "corpo": (
             "Olá, família de {nome}!\n\n"
-            "Segue em anexo o relatório {periodo} com a evolução de {nome} "
+            "Segue em anexo o relatório {periodo} ({rotulo}) com a evolução de {nome} "
             "nos testes físicos da Playmakerz Lab.\n\n"
             "Os resultados ainda em validação aparecem marcados no relatório "
             "e não entram nos gráficos.\n\n"
@@ -48,10 +49,10 @@ TEXTOS = {
         ),
     },
     "ONE_TO_ONE": {
-        "assunto": "Seu relatório {periodo} de treinos — One to One Studio",
+        "assunto": "Seu relatório {periodo} de treinos ({rotulo}) — One to One Studio",
         "corpo": (
             "Olá, {nome}!\n\n"
-            "Segue em anexo o seu relatório {periodo} de treinos no One to One Studio, "
+            "Segue em anexo o seu relatório {periodo} ({rotulo}) de treinos no One to One Studio, "
             "com o histórico, as cargas e a sua progressão no período.\n\n"
             "Se quiser conversar sobre os resultados, fale com o seu personal "
             "na próxima sessão.\n\n"
@@ -61,13 +62,11 @@ TEXTOS = {
 }
 
 
-def montar_texto(unidade, nome, periodo):
+def montar_texto(unidade, nome, periodo, rotulo):
     """Devolve (assunto, corpo) do e-mail da unidade (PKZ ou ONE_TO_ONE)."""
     texto = TEXTOS[unidade]
-    return (
-        texto["assunto"].format(nome=nome, periodo=periodo),
-        texto["corpo"].format(nome=nome, periodo=periodo),
-    )
+    campos = {"nome": nome, "periodo": periodo, "rotulo": rotulo}
+    return texto["assunto"].format(**campos), texto["corpo"].format(**campos)
 
 
 def emails_teste():
@@ -127,7 +126,7 @@ def main():
     if not destinatarios:
         sys.exit("EMAILS_TESTE está vazio no backend/.env.")
 
-    assunto, corpo = montar_texto("PKZ", "Atleta Exemplo", "mensal")
+    assunto, corpo = montar_texto("PKZ", "Atleta Exemplo", "mensal", "agosto de 2026")
     assunto = f"[TESTE] {assunto}"
     enviados = sum(enviar_email(email, assunto, corpo, caminho_pdf) for email in destinatarios)
     print(f"{enviados} de {len(destinatarios)} e-mail(s) enviados.")
