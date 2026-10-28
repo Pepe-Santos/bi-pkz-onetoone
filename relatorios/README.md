@@ -43,7 +43,7 @@ python relatorios/enviar_lote.py --periodo mensal --referencia 2026-08-26 --limi
 - `--simular`: só lista quem receberia, sem guardar, enviar nem registrar.
 - `--limite N`: para depois de N envios.
 
-Para cada aluno das duas unidades (`novo.vw_aluno`):
+Para cada aluno das duas unidades (`api.atleta`):
 
 1. pula quem já recebeu este período (`trat.envio_relatorio`);
 2. gera o PDF; aluno sem dados no período é pulado;

@@ -6,7 +6,7 @@
 -- Só o enviar_lote.py escreve aqui, pela conexão direta ao banco (SUPABASE_DB_URL). A tabela
 -- não fica na API: o schema trat não está em Exposed schemas.
 CREATE TABLE IF NOT EXISTS trat.envio_relatorio (
-  aluno_id       uuid        NOT NULL,                  -- = novo.vw_aluno.aluno_id
+  aluno_id       uuid        NOT NULL,                  -- = api.atleta.atleta_id
   unidade        text        NOT NULL CHECK (unidade IN ('PKZ', 'ONE_TO_ONE')),
   periodo        text        NOT NULL CHECK (periodo IN ('semanal', 'mensal', 'anual')),
   inicio_periodo date        NOT NULL,

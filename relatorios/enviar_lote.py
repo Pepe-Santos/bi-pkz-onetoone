@@ -2,7 +2,7 @@
 
     python relatorios/enviar_lote.py --periodo mensal [--referencia 2026-08-26] [--limite 5] [--simular]
 
-Para cada aluno das duas unidades (novo.vw_aluno): gera o PDF do período, guarda no bucket
+Para cada aluno das duas unidades (api.atleta): gera o PDF do período, guarda no bucket
 privado relatorios do Supabase e envia com a enviar_email(). Aluno sem dados no período (o
 gerador devolve None) é pulado. O que já foi enviado fica em trat.envio_relatorio
 (backend/sql/07_trat_envio_relatorio.sql) e não é reenviado. Erro em um aluno é registrado
@@ -62,11 +62,14 @@ def calcular_periodo(periodo, referencia):
 
 
 def buscar_alunos(conexao):
-    """Alunos das duas unidades, pela matrícula vigente (novo.vw_aluno do grupo de Dados)."""
+    """Alunos das duas unidades, pela api.atleta (contrato em backend/docs/api.md).
+
+    Pela conexão direta (sem token), a view mostra as duas unidades.
+    """
     with conexao.cursor(row_factory=dict_row) as cursor:
         cursor.execute(
-            "SELECT aluno_id::text, upper(unidade) AS unidade, nome FROM novo.vw_aluno "
-            "WHERE upper(unidade) IN ('PKZ', 'ONE_TO_ONE') ORDER BY unidade, nome"
+            "SELECT atleta_id::text AS aluno_id, unidade, nome FROM api.atleta "
+            "WHERE unidade IN ('PKZ', 'ONE_TO_ONE') ORDER BY unidade, nome"
         )
         return cursor.fetchall()
 
