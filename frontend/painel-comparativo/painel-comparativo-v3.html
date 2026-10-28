@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel comparativo · PKZ &amp; One to One</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef0f4;--surface:#fff;--chip:#f3f5fd;--line:#dbe0f0;--line2:#eef1f6;
+    --ink:#0f172a;--ink2:#334155;--muted:#475569;--accent:#12228E;--brand-line:#12228E;
+    --alert:#be123c;--lime-ink:#4d6b0f;--foto-bg:#dbe0f0;--foto-fg:#6b7590;--dash:#c3cad8;
+    color-scheme:light;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0b1024;--surface:#141a36;--chip:#1c2448;--line:#2a3360;--line2:#222a52;
+      --ink:#e8ebf7;--ink2:#c7cde6;--muted:#9aa3c4;--accent:#a9b8ff;--brand-line:#3a4ba8;
+      --alert:#fb7185;--lime-ink:#b5e04a;--foto-bg:#2a3360;--foto-fg:#9aa3c4;--dash:#3a4478;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b1024;--surface:#141a36;--chip:#1c2448;--line:#2a3360;--line2:#222a52;
+    --ink:#e8ebf7;--ink2:#c7cde6;--muted:#9aa3c4;--accent:#a9b8ff;--brand-line:#3a4ba8;
+    --alert:#fb7185;--lime-ink:#b5e04a;--foto-bg:#2a3360;--foto-fg:#9aa3c4;--dash:#3a4478;
+    color-scheme:dark;
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg);height:100%}
+  body{height:100%}
+  #app{min-height:100%;display:flex;flex-direction:column}
+  #app>div{flex:1}
+  @media (prefers-reduced-motion:no-preference){.entrar{animation:sobe .45s ease-out both}}
+  @keyframes sobe{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  body{margin:0;background:var(--bg);font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--ink)}
+  a{color:var(--accent)}
+  *,*::before,*::after{box-sizing:border-box}
+  [data-act]{user-select:none;-webkit-tap-highlight-color:transparent}
+  [data-act]:focus-visible{outline:2px solid #c2f24a;outline-offset:2px}
+  .foto{display:grid;place-items:center;background:var(--foto-bg);color:var(--foto-fg);font-size:10.5px;font-weight:600}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============================================================================
+   Painel comparativo — porte do componente "Painel Comparativo" do Claude Design.
+   A base de alunos é gerada com semente fixa e espalhada de bronze a preto; os números
+   não batem mais com o canvas. Dados de demonstração.
+
+   v3 (28/10/2026), a partir dos pedidos do cliente na apresentação:
+   ranking explícito com medalhas, resumo do dia para o professor e consultas de
+   nutrição e fisioterapia nos alunos do One to One.
+   ========================================================================== */
+
+/* ---------- base de dados (semente fixa) ---------- */
+const dados = (() => {
+  let s = 554;
+  const rnd = () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const nrm = () => { let u = 0, v = 0; while (!u) u = rnd(); while (!v) v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  const ATTR = { PKZ: ['Velocidade','Salto','Direção','Força','Flexibilidade'], OTO: ['Força inf.','Resistência','Potência','Força sup.','Core','Mobilidade'] };
+  const MOD = { PKZ: ['Futebol de campo','Futsal','Basquete','Vôlei'], OTO: ['Força','Corrida','Condicionamento'] };
+  const PKZ_ATTR = {
+    'Futebol de campo': ['Velocidade','Salto','Direção','Força','Flexibilidade','Equilíbrio'],
+    'Futsal': ['Direção','Arranque','Salto','Força','Flexibilidade','Equilíbrio'],
+    'Basquete': ['Arranque','Salto','Direção','Força de tronco','Flexibilidade','Equilíbrio'],
+    'Vôlei': ['Alcance','Salto de ataque','Deslocamento','Força de ombro','Flexibilidade','Equilíbrio'],
+  };
+  const ABBR = {
+    'Futebol de campo': ['VEL','POT','AGI','FOR','MOB','SIM'],
+    'Futsal': ['DIR','ARR','SAL','FOR','MOB','SIM'],
+    'Basquete': ['ARR','SAL','DIR','TRO','MOB','SIM'],
+    'Vôlei': ['BLQ','ATQ','DES','OMB','MOB','SIM'],
+    OTO: ['FIN','RES','POT','FSU','COR','MOB'],
+  };
+  const POS = { 'Futebol de campo': ['Meio-campo','Atacante','Zagueiro','Lateral'], 'Futsal': ['Ala','Fixo','Pivô'], 'Basquete': ['Armador','Ala','Pivô'], 'Vôlei': ['Ponteiro','Levantador','Central','Oposto'], 'Força': ['Força'], 'Corrida': ['Força · 10 km'], 'Condicionamento': ['Condicionamento'] };
+  const pkz = [['Igor Nunes Andrade','M',14],['Larissa Correia Ferreira','F',14],['Heitor Cardoso Rodrigues','M',15],['Gabriel Ramos Pinheiro','M',15],['Camila Costa Correia','F',16],['Bruno Pereira Batista','M',16],['Vicente Gomes Lima','M',17],['Fernanda Machado Oliveira','F',12],['Helena Prado Souza','F',12],['João Correia Rodrigues','M',13],['Nicolas Pereira Monteiro','M',13],['Renata Soares Ferreira','F',13],['Natália Rodrigues Moreira','F',11],['Diego Salles Araújo','M',11],['Sofia Ramos Teixeira','F',10],['Lucas Meireles Costa','M',17],['Beatriz Lima Duarte','F',15],['Rafael Nunes Barros','M',12],['Júlia Freitas Moura','F',17],['Thiago Farias Pinto','M',10]];
+  const oto = [['Marina Duarte Alencar','F',32],['Davi Pinto Reis','M',28],['Otávio Freitas Nascimento','M',35],['Fernanda Santos Rodrigues','F',41],['Breno Teixeira Correia','M',24],['Gustavo Dias Batista','M',45],['Lívia Freitas Nascimento','F',34],['Paula Mendes Rocha','F',27],['Ricardo Alves Moreira','M',52],['Carla Nogueira Lima','F',38]];
+  const months = ['2024-03','2024-08','2025-02','2025-06','2025-09','2025-11','2026-02','2026-04','2026-06','2026-08'];
+  // consultas do One to One, em dias a partir de hoje; fixas por aluno para não mexer na semente
+  const CONSULTAS = [
+    [{ tipo:'Fisioterapia', dia:0, hora:'09:30' }],
+    [{ tipo:'Nutrição', dia:1, hora:'10:00' }],
+    [],
+    [{ tipo:'Nutrição', dia:0, hora:'11:00' }, { tipo:'Fisioterapia', dia:3, hora:'08:30' }],
+    [{ tipo:'Fisioterapia', dia:2, hora:'17:00' }],
+  ];
+  const mk = (area, [nome, sex, age], i) => {
+    const mod = MOD[area][i % MOD[area].length];
+    // cada aluno tem um nível geral próprio, então os cards se espalham de bronze a preto
+    const nivel = nrm() * 10;
+    const attrs = (area === 'PKZ' ? PKZ_ATTR[mod] : ATTR.OTO).map(n => {
+      let b = (area === 'PKZ' ? 71 : 72) + nivel + nrm() * 8;
+      if (n === 'Flexibilidade' || n === 'Mobilidade') b += sex === 'F' ? 8 : -3;
+      if (n.startsWith('Força')) b += sex === 'M' ? 5 : -2;
+      return Math.round(Math.max(8, Math.min(97, b)));
+    });
+    const hoje = area === 'PKZ' ? (i % 3 !== 2 ? `Hoje · ${i % 2 ? '16:00' : '07:00'}` : null) : (i % 2 ? 'Hoje · 08:00' : null);
+    return { id: area + i, nome, sex, age, area, mod, pos: POS[mod][i % POS[mod].length], entrada: months[Math.floor(rnd() * months.length)], attrs, freq: Math.round(Math.max(55, Math.min(100, 86 + nrm() * 9))), hoje, consultas: area === 'OTO' ? CONSULTAS[i % CONSULTAS.length] : [] };
+  };
+  return { ATTR, MOD, PKZ_ATTR, ABBR, alunos: [...pkz.map((x, i) => mk('PKZ', x, i)), ...oto.map((x, i) => mk('OTO', x, i))] };
+})();
+
+/* ---------- corte dos últimos 6 meses, calculado a partir de hoje ---------- */
+const corte6m = (() => { const d = new Date(); d.setMonth(d.getMonth() - 6); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; })();
+
+/* ---------- dia da consulta, por extenso ---------- */
+const diaConsulta = d => {
+  if (d === 0) return 'hoje';
+  if (d === 1) return 'amanhã';
+  const x = new Date(); x.setDate(x.getDate() + d);
+  return x.toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'2-digit' }).replace('.', '');
+};
+
+/* ---------- estado ---------- */
+// área fixa de cada perfil; o admin (null) escolhe a área nas abas
+const AREA_DO_PERFIL = { admin: null, prof: 'PKZ', 'prof-oto': 'OTO' };
+const perfilSalvo = (() => { try { const r = localStorage.getItem('pkz-perfil'); return r in AREA_DO_PERFIL ? r : 'admin'; } catch { return 'admin'; } })();
+const estado = { tela:'inicio', role:perfilSalvo, area:'PKZ', gender:'todos', cat:'todas', entrada:'todas', mod:'Futebol de campo', attr:'card', sel:[], pres:{}, filtersOpen:false, vista:'cards' };
+const ehMobile = () => window.innerWidth < 1100;
+
+/* ---------- cálculo da tela ---------- */
+function calcular() {
+  const st = estado, { ATTR, MOD, PKZ_ATTR, ABBR, alunos } = dados;
+  const area = AREA_DO_PERFIL[st.role] || st.area;
+  const mod = area === 'PKZ' ? (MOD.PKZ.includes(st.mod) ? st.mod : MOD.PKZ[0]) : (MOD.OTO.includes(st.mod) ? st.mod : 'todas');
+  const attrs = area === 'PKZ' ? PKZ_ATTR[mod] : ATTR.OTO;
+  const fmt = n => String(Math.round(n));
+  const tab = on => ({ bg: on ? '#12228E' : 'transparent', fg: on ? '#fff' : 'var(--accent)', fw: on ? 600 : 500, on });
+  const chip = on => ({ bg: on ? '#12228E' : 'var(--chip)', fg: on ? '#fff' : 'var(--accent)', fw: on ? 600 : 500, bd: on ? '#12228E' : 'var(--line)', on });
+  const heroTab = on => ({ bg: on ? '#c2f24a' : 'rgba(255,255,255,.1)', fg: on ? '#0e1a6b' : '#e7eaf7', fw: on ? 700 : 500, on });
+
+  const entradaOk = e => st.entrada === 'todas' || (st.entrada === '6m' && e >= corte6m) || (st.entrada === '2026' && e.startsWith('2026')) || (st.entrada === '2025' && e.startsWith('2025')) || (st.entrada === 'antes' && e < '2025');
+  const subOf = a => a <= 10 ? 'Sub 10' : a <= 12 ? 'Sub 12' : a <= 15 ? 'Sub 14/15' : 'Sub 17';
+  const cat = area === 'PKZ' ? st.cat : 'todas';
+  const list = alunos.filter(x => x.area === area && (st.gender === 'todos' || x.sex === st.gender) && (cat === 'todas' || subOf(x.age) === cat) && entradaOk(x.entrada) && (mod === 'todas' || x.mod === mod));
+  const naLista = new Set(list.map(x => x.id));
+
+  const capsOf = x => x.area === 'PKZ' ? x.attrs.slice(0, 5) : x.attrs;
+  const cardVal = x => { const c = capsOf(x); return c.reduce((a, b) => a + b, 0) / c.length; };
+  const level = v => v > 85 ? 'A' : v >= 80 ? 'B' : v >= 70 ? 'C' : v >= 60 ? 'D' : 'E';
+  const METAL = {
+    bronze:{ bg:'linear-gradient(145deg,#d8a97c,#a06a3a)', fg:'#3a1f0b', sh:'inset 0 1px 0 rgba(255,255,255,.55)' },
+    prata:{ bg:'linear-gradient(145deg,#c8ced6,#8d97a3)', fg:'#2b3138', sh:'inset 0 1px 0 rgba(255,255,255,.7)' },
+    ouro:{ bg:'linear-gradient(145deg,#e8c96a,#bd9426)', fg:'#3d2f05', sh:'inset 0 1px 0 rgba(255,255,255,.6)' },
+    preto:{ bg:'linear-gradient(145deg,#2c2f38,#0b0c10)', fg:'#e8c96a', sh:'inset 0 1px 0 rgba(255,255,255,.18),0 0 0 1px rgba(232,201,106,.55)' },
+  };
+  const metalOf = l => l === 'A' ? 'preto' : l === 'B' ? 'ouro' : l === 'C' ? 'prata' : 'bronze';
+  const abbr = area === 'PKZ' ? ABBR[mod] : ABBR.OTO;
+  const valOf = (x, k) => k === 'card' ? cardVal(x) : x.attrs[k];
+  const mean = k => list.length ? list.reduce((a, x) => a + valOf(x, k), 0) / list.length : 0;
+  const means = attrs.map((_, k) => mean(k));
+  const cardMean = mean('card');
+  const status = (v, m) => v - m > 5 ? 'acima' : m - v > 5 ? 'abaixo' : 'media';
+  const ST = { acima:{ bg:'#dcf3e2', fg:'#0d5132', tag:'▲ acima', txt:'acima da média' }, media:{ bg:'#f1f4f9', fg:'#475569', tag:'● média', txt:'na média' }, abaixo:{ bg:'#fdeccb', fg:'#7a4708', tag:'▼ abaixo', txt:'abaixo da média' } };
+  const selK = st.attr === 'card' ? 'card' : Number(st.attr);
+  const selMean = selK === 'card' ? cardMean : means[selK];
+  const selName = selK === 'card' ? 'nota do card' : attrs[selK].toLowerCase();
+
+  const counts = { acima:0, media:0, abaixo:0 };
+  list.forEach(x => counts[status(valOf(x, selK), selMean)]++);
+  const sorted = [...list].sort((a, b) => valOf(b, selK) - valOf(a, selK));
+  // posição no ranking: quem empata no valor arredondado divide a posição
+  let anterior = null, posAnterior = 0;
+  const posicoes = sorted.map((x, i) => { const v = Math.round(valOf(x, selK)); const p = v === anterior ? posAnterior : i + 1; anterior = v; posAnterior = p; return p; });
+  const MEDALHA = { 1: METAL.ouro, 2: METAL.prata, 3: METAL.bronze };
+
+  const cards = sorted.map((x, i) => {
+    const s0 = ST[status(valOf(x, selK), selMean)];
+    const p = st.pres[x.id];
+    const isSel = st.sel.includes(x.id);
+    const cv = Math.round(cardVal(x)), lv = level(cv), mt = metalOf(lv);
+    const rank = posicoes[i], medalha = MEDALHA[rank];
+    const valSel = valOf(x, selK);
+    return {
+      id: x.id, nome: x.nome, num: String(cv), pos: x.pos, lvl: lv, metal: mt, p, isSel,
+      rank, rankBg: medalha ? medalha.bg : 'var(--chip)', rankFg: medalha ? medalha.fg : 'var(--accent)', rankSh: medalha ? medalha.sh : 'none',
+      valSel: fmt(valSel), barW: Math.max(2, valSel / 99 * 100), stTag: s0.tag,
+      consultas: x.consultas.map(c => `${c.tipo} · ${diaConsulta(c.dia)} ${c.hora}`),
+      lvlBg: METAL[mt].bg, lvlFg: METAL[mt].fg, lvlSh: METAL[mt].sh,
+      meta: x.area === 'PKZ' ? `${x.mod.replace('de campo','de Campo')} · ${subOf(x.age)} · ${x.age} anos` : `One to One · ${x.age} anos · 3 sessões/semana`,
+      cardAttrs: x.attrs.map((v, k) => ({ abbr: abbr[k], val: v, color: (x.area === 'PKZ' ? k === 5 : v < 45) ? 'var(--alert)' : 'var(--accent)' })),
+      stBg: s0.bg, stFg: s0.fg, stTxt: `${fmt(valOf(x, selK))} · ${s0.txt}`,
+      border: isSel ? 'var(--accent)' : 'var(--line)',
+      attrs: attrs.map((n, k) => { const s1 = ST[status(x.attrs[k], means[k])]; return { abbr: abbr[k], nome: n, txt: s1.txt, bg: s1.bg, fg: s1.fg, tag: s1.tag.split(' ')[0], ring: selK === k ? '2px solid var(--accent)' : 'none' }; }),
+      hasHoje: !!x.hoje,
+      hojeLabel: x.hoje ? `${x.hoje} · ${p === 'P' ? 'presença confirmada' : p === 'F' ? 'falta registrada' : 'aguardando chamada'}` : 'Sem sessão hoje',
+      freq: `${x.freq}% de presença em 30 dias`,
+      pBg: p === 'P' ? '#12228E' : 'var(--chip)', pFg: p === 'P' ? '#fff' : 'var(--accent)', pBd: p === 'P' ? '#12228E' : 'var(--line)',
+      fBg: p === 'F' ? '#9f1239' : 'var(--chip)', fFg: p === 'F' ? '#fff' : 'var(--accent)', fBd: p === 'F' ? '#9f1239' : 'var(--line)',
+      cmpBg: isSel ? '#12228E' : 'var(--surface)', cmpFg: isSel ? '#fff' : 'var(--accent)', cmpLabel: isSel ? '✓ Na comparação' : 'Comparar',
+    };
+  });
+
+  // só entram na comparação alunos que continuam visíveis no recorte atual
+  const selAl = st.sel.filter(id => naLista.has(id)).map(id => alunos.find(x => x.id === id));
+  const hasCompare = selAl.length === 2;
+  let cmpRows = [], cmpText = '', cmpA = '', cmpB = '';
+  if (hasCompare) {
+    const [A, B] = selAl;
+    cmpA = A.nome; cmpB = B.nome;
+    cmpRows = attrs.map((n, k) => { const d = A.attrs[k] - B.attrs[k]; return { label:n, aV:A.attrs[k], bV:B.attrs[k], aW:A.attrs[k]/99*100, bW:B.attrs[k]/99*100, meanL:means[k]/99*100, diffTxt: d === 0 ? 'iguais' : `${d > 0 ? A.nome.split(' ')[0] : B.nome.split(' ')[0]} +${Math.abs(d)}`, diffColor: d === 0 ? 'var(--muted)' : d > 0 ? 'var(--accent)' : 'var(--lime-ink)' }; });
+    const winA = attrs.filter((_, k) => A.attrs[k] > B.attrs[k]).length, winB = attrs.filter((_, k) => B.attrs[k] > A.attrs[k]).length;
+    cmpText = `${area === 'PKZ' ? `Dois atletas de ${mod.toLowerCase()}. ` : ''}${A.nome.split(' ')[0]} está à frente em ${winA} de ${attrs.length} atributos e ${B.nome.split(' ')[0]} em ${winB}. Na média do card: ${fmt(cardVal(A))} contra ${fmt(cardVal(B))}, com o grupo em ${fmt(cardMean)}.`;
+  }
+
+  const areaTxt = area === 'PKZ' ? 'PKZ' : 'One to One';
+  const gTxt = st.gender === 'todos' ? '' : st.gender === 'M' ? ' · masculino' : ' · feminino';
+  const ageTxt = cat === 'todas' ? '' : ` · ${cat}`;
+  const entTxt = { todas:'', '6m':' · entrou nos últimos 6 meses', '2026':' · entrou em 2026', '2025':' · entrou em 2025', antes:' · entrou antes de 2025' }[st.entrada];
+  const modTxt = mod === 'todas' ? '' : ` · ${mod}`;
+  const n = list.length;
+  const heroText = n
+    ? `${counts.acima} ${counts.acima === 1 ? 'aluno está' : 'alunos estão'} acima da média em ${selName}, ${counts.media} na média e ${counts.abaixo} abaixo.`
+    : 'Nenhum aluno no recorte.';
+
+  // resumo do dia, para o professor: a chamada e as consultas do recorte
+  const comHoje = list.filter(x => x.hoje);
+  const presentes = comHoje.filter(x => st.pres[x.id] === 'P').length;
+  const faltas = comHoje.filter(x => st.pres[x.id] === 'F').length;
+  const consultasHoje = list.flatMap(x => x.consultas.filter(c => c.dia === 0).map(c => `${c.tipo} · ${c.hora} · ${x.nome}`));
+  const resumo = {
+    itens: [
+      { valor: comHoje.length, rotulo: 'sessões hoje', cor: 'var(--accent)' },
+      { valor: presentes, rotulo: 'presentes', cor: 'var(--lime-ink)' },
+      { valor: faltas, rotulo: faltas === 1 ? 'falta' : 'faltas', cor: 'var(--alert)' },
+      { valor: comHoje.length - presentes - faltas, rotulo: 'aguardando chamada', cor: 'var(--muted)' },
+    ],
+    consultas: consultasHoje,
+    isOto: area === 'OTO',
+  };
+
+  const isMobile = ehMobile();
+  const layout = !isMobile
+    ? { mainMax:'1440px', mainDir:'row', mainAlign:'flex-start', mainGap:'20px', asideW:'300px', asidePos:'sticky' }
+    : { mainMax:'1240px', mainDir:'column', mainAlign:'stretch', mainGap:'16px', asideW:'100%', asidePos:'static' };
+  const nAct = [st.gender !== 'todos', cat !== 'todas', st.entrada !== 'todas', area !== 'PKZ' && mod !== 'todas'].filter(Boolean).length;
+  const nSel = selAl.length;
+
+  return {
+    ...layout, isMobile, showFilters: !isMobile || st.filtersOpen, filtersOpen: st.filtersOpen,
+    filterBadge: `${area === 'PKZ' ? 'PKZ · ' + mod : 'One to One'}${nAct ? ` · ${nAct} ${nAct === 1 ? 'filtro' : 'filtros'}` : ''} · ${st.filtersOpen ? 'fechar' : 'abrir'}`,
+    roleTabs: [['admin','Admin'],['prof','Professor PKZ'],['prof-oto','Professor One to One']].map(([k, l]) => ({ label:l, ...tab(st.role === k), act:'role', v:k })),
+    areaTabs: [['PKZ','PKZ'],['OTO','One to One']].map(([k, l]) => { const lock = !!AREA_DO_PERFIL[st.role] && k !== area; return { label:l, ...tab(area === k), op: lock ? 0.4 : 1, act: lock ? '' : 'area', v:k }; }),
+    genderTabs: [['todos','Todos'],['M','Masculino'],['F','Feminino']].map(([k, l]) => ({ label:l, ...tab(st.gender === k), act:'gender', v:k })),
+    entradaTabs: [['todas','Qualquer data'],['6m','Últimos 6 meses'],['2026','2026'],['2025','2025'],['antes','Antes de 2025']].map(([k, l]) => ({ label:l, ...chip(st.entrada === k), act:'entrada', v:k })),
+    modTabs: [...(area === 'PKZ' ? [] : [['todas','Todas']]), ...dados.MOD[area].map(m => [m, m])].map(([k, l]) => ({ label:l, ...chip(mod === k), act:'mod', v:k })),
+    modNote: area === 'PKZ'
+      ? 'Cada esporte tem atributos próprios, então o PKZ compara sempre dentro de uma modalidade: a média, a lista e a comparação entre dois atletas.'
+      : 'No One to One os seis atributos são os mesmos para todos os objetivos, então dá para comparar entre modalidades.',
+    attrTabs: [['card','Nota do card'], ...attrs.map((a, k) => [String(k), a])].map(([k, l]) => ({ label:l, ...heroTab(String(st.attr) === k), act:'attr', v:k })),
+    catTabs: [['todas', area === 'PKZ' ? 'Todas' : 'Sem categoria no One to One'], ...(area === 'PKZ' ? ['Sub 10','Sub 12','Sub 14/15','Sub 17'].map(c => [c, c]) : [])].map(([k, l]) => ({ label:l, ...chip(cat === k), op: area === 'PKZ' ? 1 : 0.5, act: area === 'PKZ' ? 'cat' : '', v:k })),
+    filterSummary: `${areaTxt}${gTxt}${ageTxt}${entTxt}${modTxt} · ${n} ${n === 1 ? 'aluno' : 'alunos'}${AREA_DO_PERFIL[st.role] ? ' · o professor vê só a própria área' : ''}`,
+    heroText,
+    statCards: [
+      { value: fmt(selMean), label:'Média do grupo', sub:selName, color:'#fff' },
+      { value: String(counts.acima), label:'Acima da média', sub:'mais de 5 pontos acima', color:'#c2f24a' },
+      { value: String(counts.media), label:'Na média', sub:'até 5 pontos de diferença', color:'#fff' },
+      { value: String(counts.abaixo), label:'Abaixo da média', sub:'mais de 5 pontos abaixo', color:'#f5c77e' },
+    ],
+    hasCompare, cmpRows, cmpText, cmpA, cmpB,
+    listTitle: st.vista === 'ranking'
+      ? `Ranking de ${selName} · ${area === 'PKZ' ? mod : 'One to One'}`
+      : `${area === 'PKZ' ? mod : 'Alunos'} · ordenados por ${selName}`,
+    vista: st.vista, resumo, meanBar: selMean / 99 * 100,
+    vistaTabs: [['cards','Cards'],['ranking','Ranking']].map(([k, l]) => ({ label:l, ...tab(st.vista === k), act:'vista', v:k })),
+    compareHint: st.vista === 'ranking'
+      ? 'Quem empata no valor divide a posição'
+      : nSel === 1 ? 'Escolha mais um aluno para comparar' : 'Toque em Comparar em dois alunos',
+    isEmpty: n === 0, cards,
+  };
+}
+
+/* ---------- desenho da tela ---------- */
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+// todo controle clicável vira botão acessível: foco pelo teclado e estado anunciado
+const acao = (act, v, id, pressed) => act
+  ? ` data-act="${act}" role="button" tabindex="0"${pressed !== undefined ? ` aria-pressed="${!!pressed}"` : ''}${v !== undefined ? ` data-v="${esc(v)}"` : ''}${id ? ` data-id="${esc(id)}"` : ''}`
+  : ' aria-disabled="true"';
+
+function aba(t, pad) {
+  return `<span${acao(t.act, t.v, undefined, t.on)} style="display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 ${pad}px;border-radius:8px;cursor:${t.act ? 'pointer' : 'not-allowed'};font-size:12.5px;font-weight:${t.fw};background:${t.bg};color:${t.fg};opacity:${t.op ?? 1}">${esc(t.label)}</span>`;
+}
+function pilula(t) {
+  return `<span${acao(t.act, t.v, undefined, t.on)} style="display:inline-flex;align-items:center;min-height:40px;padding:0 12px;border-radius:9px;cursor:${t.act ? 'pointer' : 'default'};font-size:12px;font-weight:${t.fw};background:${t.bg};color:${t.fg};border:1px solid ${t.bd};opacity:${t.op ?? 1}">${esc(t.label)}</span>`;
+}
+const grupoAbas = itens => `<div style="display:flex;flex-wrap:wrap;gap:4px;padding:3px;border-radius:11px;background:var(--chip);border:1px solid var(--line)">${itens}</div>`;
+const rotulo = t => `<span style="font-size:11.5px;font-weight:600;color:var(--ink)">${t}</span>`;
+
+/* ---------- tela de entrada ---------- */
+function desenharInicio() {
+  const { alunos } = dados;
+  const pkz = alunos.filter(x => x.area === 'PKZ'), oto = alunos.filter(x => x.area === 'OTO');
+  const hojePkz = pkz.filter(x => x.hoje).length, hojeOto = oto.filter(x => x.hoje).length;
+  const manha = pkz.filter(x => x.hoje && x.hoje.includes('07:00')).length, tarde = pkz.filter(x => x.hoje && x.hoje.includes('16:00')).length;
+  const hoje = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' });
+  const perfis = [
+    { k:'admin', nome:'Admin', desc:`Vê PKZ e One to One: ${alunos.length} alunos, os dois grupos e todas as modalidades.`, hoje:`${hojePkz + hojeOto} sessões hoje` },
+    { k:'prof', nome:'Professor PKZ', desc:`Vê só o PKZ: ${pkz.length} atletas de futebol de campo, futsal, basquete e vôlei.`, hoje:`${hojePkz} sessões hoje` },
+    { k:'prof-oto', nome:'Professor One to One', desc:`Vê só o One to One: ${oto.length} alunos de força, corrida e condicionamento, com as consultas de nutrição e fisio.`, hoje:`${hojeOto} sessões hoje` },
+  ];
+  const escolhido = perfis.find(p => p.k === estado.role);
+  document.getElementById('app').innerHTML = `
+<div style="display:flex;flex-direction:column;background:var(--surface)">
+  <main class="entrar" style="flex:1;width:100%;max-width:520px;margin:0 auto;padding:28px 18px 32px;display:flex;flex-direction:column;justify-content:center;gap:22px">
+    <div style="display:flex;align-items:center;gap:11px">
+      <span aria-hidden="true" style="display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#12228E;color:#c2f24a;font-size:16px;font-weight:800">PK</span>
+      <span style="font-size:13px;font-weight:600;color:var(--muted)">PKZ &amp; One to One</span>
+    </div>
+
+    <div>
+      <h1 style="margin:0;font-size:clamp(30px,8vw,40px);font-weight:800;line-height:1.05;letter-spacing:-.02em;color:var(--ink)">Painel comparativo</h1>
+      <p style="margin:10px 0 0;font-size:15px;line-height:1.5;color:var(--muted);text-wrap:pretty">Veja o ranking do grupo em cada atributo, compare dois atletas e faça a chamada de hoje.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+      <div><div style="font-size:26px;font-weight:700;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums">${manha}</div><div style="margin-top:4px;font-size:11.5px;color:var(--muted)">PKZ às 07:00</div></div>
+      <div><div style="font-size:26px;font-weight:700;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums">${tarde}</div><div style="margin-top:4px;font-size:11.5px;color:var(--muted)">PKZ às 16:00</div></div>
+      <div><div style="font-size:26px;font-weight:700;line-height:1;color:var(--lime-ink);font-variant-numeric:tabular-nums">${hojeOto}</div><div style="margin-top:4px;font-size:11.5px;color:var(--muted)">One to One às 08:00</div></div>
+    </div>
+    <p style="margin:-12px 0 0;font-size:11.5px;color:var(--muted)">Sessões de ${esc(hoje)}</p>
+
+    <div role="group" aria-label="Entrar como" style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:12.5px;font-weight:600;color:var(--ink)">Entrar como</span>
+      ${perfis.map(p => { const on = estado.role === p.k; return `
+      <span${acao('role', p.k, undefined, on)} style="display:flex;align-items:flex-start;gap:12px;padding:14px 15px;border-radius:14px;cursor:pointer;background:${on ? 'var(--chip)' : 'var(--surface)'};border:1px solid ${on ? 'var(--accent)' : 'var(--line)'};box-shadow:${on ? '0 0 0 1px var(--accent)' : 'none'}">
+        <span aria-hidden="true" style="display:grid;place-items:center;width:22px;height:22px;margin-top:1px;flex-shrink:0;border-radius:50%;border:2px solid ${on ? 'var(--accent)' : 'var(--line)'}">${on ? '<span style="width:10px;height:10px;border-radius:50%;background:var(--accent)"></span>' : ''}</span>
+        <span style="min-width:0">
+          <span style="display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 10px">
+            <span style="font-size:15px;font-weight:700;color:var(--ink)">${esc(p.nome)}</span>
+            <span style="font-size:11.5px;font-weight:600;color:var(--lime-ink)">${esc(p.hoje)}</span>
+          </span>
+          <span style="display:block;margin-top:3px;font-size:12.5px;line-height:1.45;color:var(--muted)">${esc(p.desc)}</span>
+        </span>
+      </span>`; }).join('')}
+    </div>
+
+    <span data-act="entrar" role="button" tabindex="0" style="display:flex;align-items:center;justify-content:center;gap:9px;min-height:54px;border-radius:14px;cursor:pointer;background:#12228E;color:#fff;font-size:16px;font-weight:700">
+      Abrir painel como ${esc(escolhido.nome)}
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#c2f24a" stroke-width="2.4" style="width:18px;height:18px"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </span>
+  </main>
+
+  <footer style="width:100%;max-width:520px;margin:0 auto;padding:0 18px 20px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 14px;font-size:11.5px;color:var(--muted)">
+    <span>(21) 97265-7566 · @playmakerz_pkz</span>
+    <span>Av. Armando Lombardi 949 — Loja G</span>
+  </footer>
+</div>`;
+}
+
+function desenhar() {
+  if (estado.tela === 'inicio') return desenharInicio();
+  const v = calcular();
+  document.getElementById('app').innerHTML = `
+<div style="background:var(--bg)">
+  <header style="background:var(--surface);border-bottom:1px solid var(--brand-line)">
+    <div style="max-width:${v.mainMax};margin:0 auto;padding:14px 16px 12px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+        <span aria-hidden="true" style="display:grid;place-items:center;width:34px;height:34px;flex-shrink:0;border-radius:9px;background:#12228E;color:#c2f24a;font-size:13px;font-weight:800">PK</span>
+        <div style="min-width:0">
+          <div style="font-size:9.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)">PKZ &amp; One to One</div>
+          <h1 style="margin:1px 0 0;font-size:19px;font-weight:600;line-height:1.2;color:var(--ink)">Painel comparativo</h1>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+        <span data-act="inicio" role="button" tabindex="0" style="display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border-radius:9px;border:1px solid var(--line);cursor:pointer;font-size:12.5px;font-weight:600;color:var(--accent)"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"></path></svg>Início</span>
+        ${grupoAbas(v.roleTabs.map(t => aba(t, 14)).join(''))}
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width:${v.mainMax};margin:0 auto;padding:18px 16px 28px;display:flex;flex-direction:${v.mainDir};align-items:${v.mainAlign};gap:${v.mainGap}">
+    <aside aria-label="Filtros" style="width:${v.asideW};flex-shrink:0;display:flex;flex-direction:column;gap:12px;position:${v.asidePos};top:calc(16px + env(safe-area-inset-top,0px))">
+      ${v.isMobile ? `
+      <div style="display:flex;gap:8px">
+        <span data-act="filtros" role="button" tabindex="0" aria-expanded="${v.filtersOpen}" style="flex:1;display:inline-flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:9px;min-height:46px;padding:6px 14px;border-radius:12px;border:1px solid var(--brand-line);background:var(--surface);cursor:pointer">
+          <span style="display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;color:var(--accent)">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#8fbb18" stroke-width="1.9" style="width:18px;height:18px;flex-shrink:0"><path d="M4 6h16M7 12h10M10 18h4" stroke-linecap="round"></path></svg>Filtros</span>
+          <span style="font-size:11.5px;color:var(--muted)">${esc(v.filterBadge)}</span>
+        </span>
+      </div>` : ''}
+
+      ${v.showFilters ? `
+      <section style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 15px;display:flex;flex-direction:column;gap:13px">
+        <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:6px">${rotulo('Área')}${grupoAbas(v.areaTabs.map(t => aba(t, 14)).join(''))}</div>
+          <div style="display:flex;flex-direction:column;gap:6px">${rotulo('Gênero')}${grupoAbas(v.genderTabs.map(t => aba(t, 13)).join(''))}</div>
+          <div style="display:flex;flex-direction:column;gap:6px">${rotulo('Categoria')}
+            <div style="display:flex;flex-wrap:wrap;gap:6px">${v.catTabs.map(pilula).join('')}</div></div>
+          <div style="display:flex;flex-direction:column;gap:6px">${rotulo('Quando entrou')}
+            <div style="display:flex;flex-wrap:wrap;gap:6px">${v.entradaTabs.map(pilula).join('')}</div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">${rotulo('Modalidade')}
+          <div style="display:flex;flex-wrap:wrap;gap:6px">${v.modTabs.map(pilula).join('')}</div>
+          <span style="font-size:11.5px;line-height:1.5;color:var(--muted);text-wrap:pretty">${esc(v.modNote)}</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding-top:11px;border-top:1px solid var(--line2)">
+          <span aria-live="polite" style="font-size:12px;color:var(--muted)">${esc(v.filterSummary)}</span>
+          <span data-act="limpar" role="button" tabindex="0" style="display:inline-flex;align-items:center;min-height:40px;padding:0 12px;border-radius:9px;border:1px solid var(--brand-line);cursor:pointer;font-size:12px;font-weight:600;color:var(--accent)">Limpar filtros</span>
+        </div>
+      </section>` : ''}
+    </aside>
+
+    <div style="flex:1;min-width:0;width:100%;display:flex;flex-direction:column;gap:16px">
+      <section aria-label="Resumo do dia" style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 15px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 12px">
+          <h2 style="margin:0;font-size:13.5px;font-weight:700;color:var(--ink)">Resumo do dia</h2>
+          <span style="font-size:11.5px;color:var(--muted)">${esc(new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' }))}</span>
+        </div>
+        <div aria-live="polite" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px">
+          ${v.resumo.itens.map(r => `
+          <div style="padding:8px 10px;border-radius:10px;background:var(--chip)">
+            <div style="font-size:22px;font-weight:700;line-height:1;color:${r.cor};font-variant-numeric:tabular-nums">${r.valor}</div>
+            <div style="margin-top:4px;font-size:11.5px;color:var(--muted)">${esc(r.rotulo)}</div>
+          </div>`).join('')}
+        </div>
+        ${v.resumo.isOto ? `
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-top:9px;border-top:1px solid var(--line2)">
+          <span style="font-size:11.5px;font-weight:600;color:var(--ink)">Consultas hoje</span>
+          ${v.resumo.consultas.length
+            ? v.resumo.consultas.map(c => `<span style="display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:999px;background:var(--chip);border:1px solid var(--line);font-size:11.5px;color:var(--ink2)">${esc(c)}</span>`).join('')
+            : '<span style="font-size:11.5px;color:var(--muted)">nenhuma consulta de nutrição ou fisioterapia hoje</span>'}
+        </div>` : ''}
+      </section>
+
+      <section style="border-radius:14px;background:#0e1a6b;padding:16px 18px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px">
+          <span style="font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#c2f24a">Comparar pelo atributo</span>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            ${v.attrTabs.map(t => `<span${acao(t.act, t.v, undefined, t.on)} style="display:inline-flex;align-items:center;min-height:36px;padding:0 11px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:${t.fw};background:${t.bg};color:${t.fg}">${esc(t.label)}</span>`).join('')}
+          </div>
+        </div>
+        <p aria-live="polite" style="margin:0;font-size:16px;line-height:1.45;font-weight:600;color:#fff;text-wrap:pretty">${esc(v.heroText)}</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px">
+          ${v.statCards.map(c => `
+          <div style="border-radius:11px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);padding:11px 13px">
+            <div style="font-size:24px;font-weight:700;line-height:1;color:${c.color};font-variant-numeric:tabular-nums">${esc(c.value)}</div>
+            <div style="margin-top:5px;font-size:12px;font-weight:600;color:#fff">${esc(c.label)}</div>
+            <div style="margin-top:1px;font-size:11px;color:#c9d3e8">${esc(c.sub)}</div>
+          </div>`).join('')}
+        </div>
+        <p style="margin:0;font-size:11.5px;line-height:1.5;color:#c9d3e8;text-wrap:pretty">A média é a do grupo filtrado, com os dados do último relatório de cada aluno. Até 5 pontos de diferença conta como na média. A nota do card segue o relatório: no PKZ é a média das cinco capacidades, e a simetria fica fora, como alerta.</p>
+      </section>
+
+      ${v.hasCompare ? `
+      <section style="background:var(--surface);border:1px solid var(--brand-line);border-radius:14px;padding:14px 15px">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:3px">
+          <h3 style="margin:0;font-size:14px;font-weight:700;color:var(--ink)">Comparação entre dois alunos</h3>
+          <span data-act="fechar-cmp" role="button" tabindex="0" style="display:inline-flex;align-items:center;min-height:36px;padding:0 11px;border-radius:8px;border:1px solid var(--line);cursor:pointer;font-size:11.5px;font-weight:600;color:var(--accent)">Fechar</span>
+        </div>
+        <p style="margin:0 0 12px;font-size:11.5px;line-height:1.5;color:var(--muted)">Atributo por atributo. O risco escuro em cada barra é a média do grupo filtrado.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px 18px;margin-bottom:12px">
+          <span style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--ink)"><span style="width:12px;height:12px;border-radius:3px;background:#3a52e0"></span>${esc(v.cmpA)}</span>
+          <span style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--ink)"><span style="width:12px;height:12px;border-radius:3px;background:#8fbb18"></span>${esc(v.cmpB)}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:10px 22px">
+          ${v.cmpRows.map(r => `
+          <div style="display:flex;flex-direction:column;gap:5px;padding:8px 0;border-top:1px solid var(--line2)">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
+              <span style="font-size:12.5px;font-weight:600;color:var(--ink)">${esc(r.label)}</span>
+              <span style="font-size:11px;font-weight:700;color:${r.diffColor};font-variant-numeric:tabular-nums">${esc(r.diffTxt)}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="position:relative;flex:1;height:10px;border-radius:5px;background:var(--line2)"><span style="position:absolute;left:0;top:0;bottom:0;width:${r.aW}%;border-radius:5px;background:#3a52e0"></span><span style="position:absolute;left:${r.meanL}%;top:-3px;bottom:-3px;width:2px;background:var(--ink)"></span></span>
+              <span style="width:28px;text-align:right;font-size:12px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums">${r.aV}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="position:relative;flex:1;height:10px;border-radius:5px;background:var(--line2)"><span style="position:absolute;left:0;top:0;bottom:0;width:${r.bW}%;border-radius:5px;background:#8fbb18"></span><span style="position:absolute;left:${r.meanL}%;top:-3px;bottom:-3px;width:2px;background:var(--ink)"></span></span>
+              <span style="width:28px;text-align:right;font-size:12px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums">${r.bV}</span>
+            </div>
+          </div>`).join('')}
+        </div>
+        <p style="margin:12px 0 0;padding-top:11px;border-top:1px solid var(--line2);font-size:12px;line-height:1.55;color:var(--ink2);text-wrap:pretty">${esc(v.cmpText)}</p>
+      </section>` : ''}
+
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px">
+        <div style="min-width:0">
+          <h2 style="margin:0;font-size:16px;font-weight:700;color:var(--ink)">${esc(v.listTitle)}</h2>
+          <span style="font-size:12px;color:var(--muted)">${esc(v.compareHint)}</span>
+        </div>
+        ${grupoAbas(v.vistaTabs.map(t => aba(t, 14)).join(''))}
+      </div>
+
+      ${v.isEmpty ? `<div style="background:var(--surface);border:1px dashed var(--dash);border-radius:14px;padding:28px 16px;text-align:center;font-size:13px;color:var(--muted)">Nenhum aluno com esses filtros. Amplie a idade ou limpe os filtros.</div>` : ''}
+
+      ${v.vista === 'ranking' && !v.isEmpty ? `
+      <section aria-label="Ranking" style="background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden">
+        ${v.cards.map(a => `
+        <article aria-label="${a.rank}º · ${esc(a.nome)}" style="display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:12px;padding:11px 14px;border-top:1px solid var(--line2)">
+          <span style="display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:${a.rankBg};color:${a.rankFg};box-shadow:${a.rankSh};font-size:14px;font-weight:800;font-variant-numeric:tabular-nums">${a.rank}º</span>
+          <span style="min-width:0;display:flex;flex-direction:column;gap:5px">
+            <span style="display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px">
+              <span style="font-size:13.5px;font-weight:600;color:var(--ink)">${esc(a.nome)}</span>
+              <span style="font-size:11px;color:var(--muted)">${esc(a.pos)} · nível ${esc(a.lvl)}</span>
+            </span>
+            <span style="position:relative;display:block;height:8px;border-radius:4px;background:var(--line2)">
+              <span style="position:absolute;left:0;top:0;bottom:0;width:${a.barW}%;border-radius:4px;background:${a.rank <= 3 ? '#c2a33a' : '#3a52e0'}"></span>
+              <span title="média do grupo" style="position:absolute;left:${v.meanBar}%;top:-3px;bottom:-3px;width:2px;background:var(--ink)"></span>
+            </span>
+          </span>
+          <span style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+            <span style="font-size:20px;font-weight:700;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums">${esc(a.valSel)}</span>
+            <span style="padding:2px 7px;border-radius:6px;background:${a.stBg};color:${a.stFg};font-size:10px;font-weight:700;white-space:nowrap">${esc(a.stTag)}</span>
+          </span>
+        </article>`).join('')}
+        <p style="margin:0;padding:10px 14px;border-top:1px solid var(--line2);font-size:11.5px;color:var(--muted)">O risco escuro em cada barra é a média do grupo filtrado. Para comparar dois atletas ou fazer a chamada, volte para Cards.</p>
+      </section>` : ''}
+
+      ${v.vista !== 'ranking' ? `
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));gap:14px">
+        ${v.cards.map(a => `
+        <article aria-label="${esc(a.nome)}" style="display:flex;flex-direction:column;gap:8px">
+          <div style="border:1px solid var(--brand-line);border-radius:16px;overflow:hidden;background:var(--surface)">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:15px;background:radial-gradient(circle at 50% 122%,transparent 0 54px,rgba(255,255,255,.13) 54px 56px,transparent 56px),linear-gradient(90deg,transparent 0 49.2%,rgba(255,255,255,.13) 49.2% 50.6%,transparent 50.6%),linear-gradient(160deg,#1b30b4,#0e1a6b)">
+              <span style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
+                <span class="foto" style="width:78px;height:78px;flex-shrink:0;border-radius:50%;box-shadow:0 0 0 2px #c2f24a">Foto</span>
+                <span style="min-width:0">
+                  <span style="display:block;font-size:38px;font-weight:700;line-height:1;color:#fff;font-variant-numeric:tabular-nums" aria-label="Nota do card ${esc(a.num)}">${esc(a.num)}</span>
+                  <span style="display:block;margin-top:3px;font-size:${a.pos.length > 12 ? '8.5px' : '10px'};font-weight:600;letter-spacing:${a.pos.length > 10 ? '.02em' : '.12em'};line-height:1.25;text-transform:uppercase;color:#c2f24a;overflow-wrap:anywhere">${esc(a.pos)}</span>
+                </span>
+              </span>
+              <span style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0">
+                <span style="display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:${a.lvlBg};color:${a.lvlFg};font-size:20px;font-weight:800;box-shadow:${a.lvlSh}" aria-label="Nível ${esc(a.lvl)}">${esc(a.lvl)}</span>
+                <span style="font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#c2f24a">${esc(a.metal)}</span>
+              </span>
+            </div>
+            <div style="padding:12px 15px 10px;border-bottom:1px solid var(--line2)">
+              <p style="margin:0;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;line-height:1.2;color:var(--ink)"><span aria-label="${a.rank}º no ranking" style="display:inline-grid;place-items:center;min-width:30px;height:24px;padding:0 6px;border-radius:7px;background:${a.rankBg};color:${a.rankFg};box-shadow:${a.rankSh};font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums">${a.rank}º</span>${esc(a.nome)}</p>
+              <p style="margin:3px 0 0;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums">${esc(a.meta)}</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px 4px;padding:12px 12px 14px">
+              ${a.cardAttrs.map(t => `<span style="display:flex;flex-direction:column;align-items:center"><span style="font-size:10px;font-weight:600;color:var(--muted)">${esc(t.abbr)}</span><span style="font-size:16px;font-weight:700;color:${t.color};font-variant-numeric:tabular-nums">${t.val}</span></span>`).join('')}
+            </div>
+          </div>
+          <div style="background:var(--surface);border:1px solid ${a.border};border-radius:14px;padding:12px 13px;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+              <span style="font-size:11.5px;font-weight:600;color:var(--ink)">Contra a média do grupo</span>
+              <span style="flex-shrink:0;padding:3px 8px;border-radius:6px;background:${a.stBg};color:${a.stFg};font-size:10.5px;font-weight:700;white-space:nowrap">${esc(a.stTxt)}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px">
+              ${a.attrs.map(t => `<span title="${esc(t.nome)}: ${esc(t.txt)}" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 2px;border-radius:7px;background:${t.bg};outline:${t.ring};outline-offset:1px"><span style="font-size:9.5px;font-weight:600;color:#475569">${esc(t.abbr)}</span><span style="font-size:10.5px;font-weight:700;color:${t.fg}" aria-label="${esc(t.txt)}">${esc(t.tag)}</span></span>`).join('')}
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;padding-top:10px;border-top:1px solid var(--line2)">
+              <div style="display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 8px">
+                <span style="font-size:11.5px;font-weight:600;color:var(--ink)">${esc(a.hojeLabel)}</span>
+                <span style="font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums">${esc(a.freq)}</span>
+              </div>
+              ${a.consultas.length ? `
+              <div style="display:flex;flex-wrap:wrap;gap:5px">
+                ${a.consultas.map(c => `<span style="display:inline-flex;align-items:center;min-height:26px;padding:0 9px;border-radius:999px;background:var(--chip);border:1px solid var(--line);font-size:11px;color:var(--ink2)">${esc(c)}</span>`).join('')}
+              </div>` : ''}
+              ${a.hasHoje ? `
+              <div style="display:flex;gap:6px">
+                <span${acao('presente', undefined, a.id, a.p === 'P')} style="flex:1;display:inline-flex;align-items:center;justify-content:center;min-height:44px;border-radius:9px;cursor:pointer;font-size:12.5px;font-weight:600;background:${a.pBg};color:${a.pFg};border:1px solid ${a.pBd}">Presente</span>
+                <span${acao('faltou', undefined, a.id, a.p === 'F')} style="flex:1;display:inline-flex;align-items:center;justify-content:center;min-height:44px;border-radius:9px;cursor:pointer;font-size:12.5px;font-weight:600;background:${a.fBg};color:${a.fFg};border:1px solid ${a.fBd}">Faltou</span>
+              </div>` : ''}
+              <span${acao('comparar', undefined, a.id, a.isSel)} style="display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;border-radius:9px;cursor:pointer;font-size:12.5px;font-weight:600;background:${a.cmpBg};color:${a.cmpFg};border:1px solid var(--brand-line)">${esc(a.cmpLabel)}</span>
+            </div>
+          </div>
+        </article>`).join('')}
+      </div>` : ''}
+
+      <p style="margin:0;font-size:11.5px;line-height:1.55;color:var(--muted);text-wrap:pretty">Confirmar presença gera a cobrança do relatório de treino da sessão. Os atributos vêm do último relatório de avaliação de cada aluno, em percentil de 0 a 99.</p>
+    </div>
+  </main>
+
+  <footer style="background:#0e1a6b">
+    <div style="max-width:${v.mainMax};margin:0 auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:14px">
+      <div style="min-width:0">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#c2f24a">PKZ &amp; One to One</div>
+        <div style="margin-top:4px;font-size:11.5px;color:#e7eaf7">(21) 97265-7566 · @playmakerz_pkz</div>
+        <div style="margin-top:1px;font-size:11px;color:#aab4e8">Av. Armando Lombardi 949 — Loja G</div>
+      </div>
+      <span aria-hidden="true" style="display:grid;place-items:center;width:40px;height:40px;flex-shrink:0;border-radius:50%;background:#12228E;color:#c2f24a;font-size:13px;font-weight:800">PK</span>
+    </div>
+  </footer>
+</div>`;
+}
+
+/* ---------- redesenho sem perder o foco do teclado ---------- */
+function redesenhar() {
+  const f = document.activeElement;
+  const chave = f && f.dataset && f.dataset.act ? [f.dataset.act, f.dataset.v ?? '', f.dataset.id ?? ''] : null;
+  desenhar();
+  if (!chave) return;
+  const alvo = [...document.querySelectorAll('[data-act]')].find(el => el.dataset.act === chave[0] && (el.dataset.v ?? '') === chave[1] && (el.dataset.id ?? '') === chave[2]);
+  if (alvo) alvo.focus({ preventScroll: true });
+}
+
+/* ---------- interação ---------- */
+function agir(alvo) {
+  const act = alvo.dataset.act, v = alvo.dataset.v, id = alvo.dataset.id;
+  const st = estado;
+  if (act === 'role') {
+    st.role = v; st.sel = []; st.attr = 'card';
+    if (AREA_DO_PERFIL[v]) { st.area = AREA_DO_PERFIL[v]; st.mod = v === 'prof' ? dados.MOD.PKZ[0] : 'todas'; }
+    try { localStorage.setItem('pkz-perfil', v); } catch {}
+  }
+  else if (act === 'entrar') { st.tela = 'painel'; redesenhar(); window.scrollTo(0, 0); const b = document.querySelector('[data-act="inicio"]'); if (b) b.focus({ preventScroll: true }); return; }
+  else if (act === 'inicio') { st.tela = 'inicio'; redesenhar(); window.scrollTo(0, 0); const b = document.querySelector('[data-act="entrar"]'); if (b) b.focus({ preventScroll: true }); return; }
+  else if (act === 'area') { st.area = v; st.mod = v === 'PKZ' ? dados.MOD.PKZ[0] : 'todas'; st.attr = 'card'; st.sel = []; }
+  else if (act === 'gender') st.gender = v;
+  else if (act === 'cat') { st.cat = v; st.sel = []; }
+  else if (act === 'entrada') st.entrada = v;
+  else if (act === 'mod') { st.mod = v; st.attr = 'card'; st.sel = []; }
+  else if (act === 'attr') st.attr = v;
+  else if (act === 'vista') st.vista = v;
+  else if (act === 'filtros') st.filtersOpen = !st.filtersOpen;
+  else if (act === 'limpar') { st.gender = 'todos'; st.cat = 'todas'; st.entrada = 'todas'; st.mod = (AREA_DO_PERFIL[st.role] || st.area) === 'PKZ' ? dados.MOD.PKZ[0] : 'todas'; }
+  else if (act === 'fechar-cmp') st.sel = [];
+  else if (act === 'comparar') st.sel = st.sel.includes(id) ? st.sel.filter(x => x !== id) : [...st.sel, id].slice(-2);
+  else if (act === 'presente') st.pres[id] = st.pres[id] === 'P' ? undefined : 'P';
+  else if (act === 'faltou') st.pres[id] = st.pres[id] === 'F' ? undefined : 'F';
+  else return;
+  redesenhar();
+}
+
+document.addEventListener('click', evento => {
+  const alvo = evento.target.closest('[data-act]');
+  if (alvo) agir(alvo);
+});
+document.addEventListener('keydown', evento => {
+  if (evento.key !== 'Enter' && evento.key !== ' ') return;
+  const alvo = evento.target.closest && evento.target.closest('[data-act]');
+  if (!alvo) return;
+  evento.preventDefault();
+  agir(alvo);
+});
+
+let largura = window.innerWidth;
+window.addEventListener('resize', () => {
+  if ((largura < 1100) !== (window.innerWidth < 1100)) { largura = window.innerWidth; redesenhar(); }
+  largura = window.innerWidth;
+});
+
+desenhar();
+</script>
+</body>
+</html>
