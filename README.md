@@ -7,7 +7,7 @@ Camada de dados e indicadores para as duas unidades do cliente, construída **so
 | **Playmakerz Lab (PKZ)** — Loja G | Treino funcional infantil (ex.: Sub 12, Sub 14/15; futebol e futsal) | Evolução nos testes físicos, para **pais e responsáveis** |
 | **One to One Studio (OTO)** — Loja I | Personal para jovens adultos e adultos | Histórico de treinos, carga e progressão, para o **aluno** |
 
-> **Repositório privado**, de uso exclusivo da equipe do projeto. Mesmo assim, credenciais, dados pessoais do cliente e a documentação confidencial ficam fora — veja [Regras do repositório](#regras-do-repositório) antes do primeiro commit.
+> **Repositório público.** Tudo o que for enviado aqui fica visível para qualquer pessoa. Credenciais, dados pessoais do cliente e a documentação confidencial ficam fora — veja [Regras do repositório](#regras-do-repositório) antes do primeiro commit.
 
 ---
 
@@ -38,7 +38,7 @@ origem            cópia congelada das tabelas do app        │ grupo de Dados
         │  carga + conferência origem × destino             │ (dados/migracoes/)
         ▼                                                   │
 novo              banco reestruturado: 43 tabelas e 5 views ┘
-        │  lido direto (o Desenvolvimento só lê)            ┐
+        │  views vw_* do grupo de Dados (só leitura)        ┐
         ▼                                                   │
 trat              regras de tratamento: parâmetros,         │ grupo de Desenvolvimento
         │         catálogo de testes, medidas padronizadas  │ (backend/sql/)
@@ -52,7 +52,7 @@ Consumidores      relatórios em PDF e envio por e-mail · telas e dashboards
 - **Um projeto Supabase só.** Hoje é o projeto de ensaio do Lucas; o projeto definitivo vem depois (tarefa 3.6 do grupo de Dados) e os scripts dos dois grupos recriam tudo nele.
 - **Quem escreve onde:** o grupo de Dados controla `origem` e `novo` pelo histórico de migrações do Supabase. O Desenvolvimento só cria objetos em `trat`, em `api` e no bucket privado `relatorios`, e nunca escreve em `origem`, `novo` ou `public`.
 - **Carga:** script mestre com cargas por domínio; o que não passa nas regras vai para uma tabela de rejeitados, e a conferência compara origem e destino tabela a tabela. Detalhes em [`dados/migracoes/`](dados/migracoes/).
-- **Leitura direta (combinado em 20/10):** as views do `trat` leem as tabelas do `novo` sem uma camada de views intermediária. Em troca, o grupo de Dados avisa antes de mudar a estrutura de uma tabela usada pelo Desenvolvimento.
+- **Views de consumo (combinado em 24/10):** o Desenvolvimento lê o `novo` pelas views `vw_aluno`, `vw_avaliacao_medida`, `vw_relatorio_treino` e `vw_agendamento`, feitas pelo grupo de Dados sem cálculo e sem dado sensível (CPF, telefone, foto e dor ficam de fora). O grupo de Dados avisa antes de mudar a estrutura de uma view ou tabela usada pelo Desenvolvimento.
 - **Catálogo de testes:** os códigos da `novo.metrica` são o padrão. O `trat` guarda só o que falta lá (faixa plausível e conversão).
 - **Views da API:** contrato em [`backend/docs/api.md`](backend/docs/api.md). Primeiro as de avaliação (`atleta`, `evolucao`, `comparacao`, `reavaliacao`); as de treino do One to One (`ultimo_treino`, `treino_mes`) vêm em seguida.
 
@@ -92,7 +92,7 @@ Cada grupo trabalha na sua branch e nas suas pastas, e o código chega à `main`
 ¹ Rafael e Gian participam de dois grupos.
 
 **Contratos entre grupos:**
-- **Tabelas do `novo` usadas pelo Desenvolvimento** — mudança de estrutura é avisada antes pelo grupo de Dados.
+- **Views `vw_*` do `novo` usadas pelo Desenvolvimento** — mudança de estrutura é avisada antes pelo grupo de Dados.
 - **Views do schema `api`** — contrato com relatórios, telas e QA. Mudança em view = PR revisado também por QA.
 
 ---
@@ -134,7 +134,7 @@ As tasks estão no **ClickUp**. A meta é produzir **~33% do projeto por semana*
 
 Decisões já tomadas:
 - **AQ-002** evoluir o app em fases (sem migração de uma vez) · **AQ-001** unidade vira entidade própria no banco.
-- **Pipeline (15/10 e 20/10):** o grupo de Dados carrega o banco novo e o Desenvolvimento lê direto dele, no mesmo projeto Supabase. A conexão remota por `postgres_fdw` e a extração em Python saíram do plano.
+- **Pipeline (15/10, 20/10 e 24/10):** o grupo de Dados carrega o banco novo e publica as views de consumo; o Desenvolvimento lê por elas, no mesmo projeto Supabase. A conexão remota por `postgres_fdw` e a extração em Python saíram do plano.
 
 ---
 
@@ -153,13 +153,13 @@ main                          ← só entra por Pull Request aprovado
 2. Commits pequenos e descritivos, em português.
 3. Para levar à `main`, abra um **Pull Request** para a `main`. Ele precisa de **1 aprovação** de outra pessoa. Se mexer em views da `api`, peça revisão também de QA.
 4. Antes de abrir o PR, traga a `main` para a sua branch (`git pull origin main`) e resolva os conflitos.
-5. Ninguém faz push direto na `main`. **Atenção:** no plano atual do GitHub, repositório privado não tem proteção de branch, então o GitHub não bloqueia o push — a regra vale pelo combinado da equipe.
+5. Ninguém faz push direto na `main`. A `main` é protegida: o GitHub exige PR com 1 aprovação e os comentários resolvidos.
 
 ## Regras do repositório
 
 - **Nunca** versionar credenciais (`.env`, chaves do Supabase, service role). Use `.env.example` com valores vazios.
 - **Nunca** versionar dados da produção ou da cópia: CPF, nomes, contatos, fotos, dados de saúde, dumps ou CSVs com registros. Para testes, use dados sintéticos.
-- Pode entrar: estrutura (DDL, mapeamentos de coluna em CSV), contagens e IDs técnicos (UUID) usados em conferências.
+- Pode entrar: estrutura (DDL, mapeamentos de coluna em CSV), contagens e IDs técnicos (UUID) usados em conferências — eles não identificam ninguém fora do banco.
 - Os layouts com atleta real (Anexo A da documentação) **não** entram aqui — só versões com dados fictícios.
 - A documentação geral (`DOC-PKZ-OTO-001`) é confidencial e fica na pasta compartilhada da equipe; em `docs/` vão apenas resumos, decisões e diagramas sem dados do cliente.
 - Achados de segurança do banco do cliente são tratados só nos canais internos — nunca em issues, PRs ou commits.
