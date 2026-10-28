@@ -2,7 +2,7 @@
 
 Contrato das views que o Grupo de Desenvolvimento expõe pela API REST do Supabase para o gerador de relatórios e para os outros consumidores internos da empresa.
 
-**Estado:** provisório. As views são criadas pelo `sql/06_api_avaliacoes.sql` (24/10). Os nomes das colunas não mudam sem aviso no grupo. Os valores de exemplo são fictícios (`exemplos/api/`). As regras por teste (unidade, direção, faixa plausível) ficam marcadas como **não confirmadas** até a PKZ validar o catálogo.
+**Estado:** provisório. As views são criadas pelo `sql/06_api_avaliacoes.sql` (24/10) e, as de treino, pelo `sql/08_api_treinos.sql` (28/10). Os nomes das colunas não mudam sem aviso no grupo. Os valores de exemplo são fictícios (`exemplos/api/`). As regras por teste (unidade, direção, faixa plausível) ficam marcadas como **não confirmadas** até a PKZ validar o catálogo.
 
 ## Como chamar
 
@@ -191,6 +191,39 @@ Uma linha por atleta com pelo menos uma avaliação. Ainda sem arquivo de exempl
 | `dias_para_vencer` | int | negativo quando vencida |
 | `situacao` | text | `vencida`, `a_vencer` (dentro de `reavaliacao_aviso_dias`, 30 provisório) ou `em_dia` |
 
+### `presenca`: agendamentos de treino
+
+Uma linha por agendamento de **treino** (só o serviço `treino`; fisioterapia, nutrição e os outros serviços não entram), até a data de hoje em São Paulo. Sem agregação: o gerador filtra o período por `data` (ex.: `?data=gte.2026-10-01&data=lte.2026-10-31`). A unidade é a do próprio agendamento. Criada pelo `sql/08_api_treinos.sql`; ainda sem arquivo de exemplo.
+
+| Coluna | Tipo | Descrição |
+|---|---|---|
+| `agendamento_id` | uuid | id do agendamento no banco novo |
+| `atleta_id` | uuid | como em `atleta` |
+| `unidade` | text | `PKZ` ou `ONE_TO_ONE` |
+| `data` | date | dia do treino |
+| `hora_inicio` | time | |
+| `status` | text | `agendado`, `presente`, `falta` ou `cancelado` |
+
+O `aguardando_confirmacao` do banco novo aparece como `agendado`.
+
+### `treino`: relatórios de treino
+
+Uma linha por relatório de treino com status `final` (rascunhos não entram), até a data de hoje em São Paulo: relatórios com data no futuro só aparecem quando o dia chega. A unidade é a do próprio relatório. Criada pelo `sql/08_api_treinos.sql`; ainda sem arquivo de exemplo.
+
+| Coluna | Tipo | Descrição |
+|---|---|---|
+| `relatorio_id` | uuid | id do relatório no banco novo |
+| `atleta_id` | uuid | como em `atleta` |
+| `unidade` | text | `PKZ` ou `ONE_TO_ONE` |
+| `data` | date | dia do treino |
+| `tipo_treino` | text | |
+| `intensidade` | | como no banco novo |
+| `objetivos` | text | texto livre do treinador |
+| `desempenho` | text | idem |
+| `observacoes` | text | idem |
+
+Os campos de dor (`dor`, `dor_local`, `dor_intensidade`, `dor_movimento`) são dado de saúde e não são expostos.
+
 ## Parâmetros
 
 Os números das regras ficam em `trat.parametro` (`04_trat_parametros_catalogo.sql`), para a PKZ ajustar sem mexer em código:
@@ -208,4 +241,4 @@ As regras por teste (unidade padrão, direção, faixa plausível, conversão, c
 - Confirmar com a PKZ a unidade, a direção e a faixa plausível de cada teste, e se algum teste usa média em vez da melhor tentativa.
 - Origem dos dados (24/10, a pedido do Lucas): as views leem o banco novo por views de leitura que o grupo de Dados cria no `novo` (o Rafael passa a lista ao Micael), sem cálculo: `vw_aluno`, `vw_avaliacao_medida`, `vw_relatorio_treino` (sem os campos de dor) e `vw_agendamento`. Criadas pelo Iago em 27/10 (`013_views_consumo.sql` do grupo de Dados); as views desta API leem a `vw_avaliacao_medida` e a `vw_aluno`. A unidade (PKZ ou One to One) é a da matrícula vigente, como na `vw_aluno`: aluno sem matrícula vigente só aparece para quem vê `TODAS`. Campos de dor não entram nas views, na API nem nos relatórios.
 - Códigos dos testes: decidido em 20/10 que o contrato usa os códigos do banco novo (`novo.metrica.codigo`). Em 24/10 o catálogo e os exemplos em `backend/exemplos/api/` passaram a usar esses códigos, ganharam a coluna `lado` e os testes que faltavam (Banco de Wells, Blazepod, os 3 saltos verticais, o restante do VO2 e o peso). A cópia em `exemplos/api/` na raiz, usada pelo gerador de relatórios, ainda está no formato antigo.
-- Views de treino (`ultimo_treino`, `treino_mes`) para o relatório One to One: tarefa separada.
+- Views de treino: `presenca` e `treino` (`sql/08_api_treinos.sql`) leem direto de `novo.agendamento` e `novo.relatorio_treino`. Trocar para `novo.vw_agendamento` e `novo.vw_relatorio_treino` quando estiverem disponíveis.

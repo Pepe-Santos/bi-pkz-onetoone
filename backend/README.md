@@ -42,7 +42,8 @@ backend/
 │   ├── 04_trat_parametros_catalogo.sql parâmetros de negócio e catálogo de regras por teste
 │   ├── 05_trat_medidas.sql             medidas padronizadas, revisão de dados e resultado por teste
 │   ├── 06_api_avaliacoes.sql           views da API: atleta, evolucao, comparacao, reavaliacao
-│   └── 07_trat_envio_relatorio.sql     registro dos relatórios já enviados por e-mail
+│   ├── 07_trat_envio_relatorio.sql     registro dos relatórios já enviados por e-mail
+│   └── 08_api_treinos.sql              views da API: presenca, treino
 ├── scripts/
 │   ├── testar_acesso.py                os 3 testes de acesso à API (sem login, com login, secret key)
 │   └── criar_usuario.py                cria um usuário da API já confirmado e com a unidade
@@ -78,6 +79,7 @@ psql "$SUPABASE_DB_URL" -f backend/sql/04_trat_parametros_catalogo.sql
 psql "$SUPABASE_DB_URL" -f backend/sql/05_trat_medidas.sql
 psql "$SUPABASE_DB_URL" -f backend/sql/06_api_avaliacoes.sql
 psql "$SUPABASE_DB_URL" -f backend/sql/07_trat_envio_relatorio.sql
+psql "$SUPABASE_DB_URL" -f backend/sql/08_api_treinos.sql
 ```
 
 Windows (PowerShell), na raiz do repositório:
@@ -90,6 +92,7 @@ psql "$env:SUPABASE_DB_URL" -f .\backend\sql\04_trat_parametros_catalogo.sql
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\05_trat_medidas.sql
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\06_api_avaliacoes.sql
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\07_trat_envio_relatorio.sql
+psql "$env:SUPABASE_DB_URL" -f .\backend\sql\08_api_treinos.sql
 ```
 
 A string de conexão fica em **Connect**, no painel do Supabase.
@@ -109,7 +112,7 @@ A string de conexão fica em **Connect**, no painel do Supabase.
 - Só recebem resposta o usuário logado (`authenticated`) e o gerador de relatórios (`service_role`, pela secret key). O papel `anon` não tem acesso ao schema. Como fazer login: seção "Login" do [`docs/api.md`](docs/api.md).
 - **Usuários:** o cadastro público está desligado (*Authentication → Sign In / Providers → Allow new users to sign up*). Qualquer membro do grupo cria usuários pelo `scripts/criar_usuario.py` (já com a unidade) ou pelo painel: passo a passo em "Criar um usuário", no [`docs/api.md`](docs/api.md).
 - **Separação por unidade:** cada usuário só vê os atletas da unidade gravada em `app_metadata.unidade` (`PKZ`, `ONE_TO_ONE` ou `TODAS`), gravada pelo `criar_usuario.py` ou pelo passo 4 de "Criar um usuário". Usuário sem unidade não vê nada; o gerador de relatórios vê tudo. O filtro fica em `trat.unidade_permitida`, no `06_api_avaliacoes.sql`.
-- **Teste de acesso:** com o `backend/.env` preenchido, `python backend/scripts/testar_acesso.py` confere os 3 casos (sem login não devolve dados; com o usuário de teste e com a secret key, devolve) e mostra quantos atletas de cada unidade cada acesso vê.
+- **Teste de acesso:** com o `backend/.env` preenchido, `python backend/scripts/testar_acesso.py` confere os 3 casos (sem login não devolve dados; com o usuário de teste e com a secret key, devolve) nas views `atleta`, `presenca` e `treino`, e mostra quantas linhas de cada unidade cada acesso vê.
 
 ## Storage
 
