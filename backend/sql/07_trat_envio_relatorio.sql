@@ -17,5 +17,9 @@ CREATE TABLE IF NOT EXISTS trat.envio_relatorio (
   PRIMARY KEY (aluno_id, periodo, inicio_periodo, teste)
 );
 
+-- RLS ligado e sem policy: anon e authenticated não acessam nada, mesmo se o trat for
+-- exposto um dia. O enviar_lote.py conecta como postgres (dono da tabela), que não é barrado.
+ALTER TABLE trat.envio_relatorio ENABLE ROW LEVEL SECURITY;
+
 COMMENT ON TABLE trat.envio_relatorio IS
   'Um registro por relatório enviado por e-mail (aluno, período e modo). O envio de teste não impede o envio real do mesmo período. Sem e-mail nem nome do aluno: só o UUID.';
