@@ -28,7 +28,7 @@ Tudo fica no **mesmo projeto Supabase**: o de ensaio do Lucas (`jhspjkelmnbvrnle
 
 - O Grupo de Desenvolvimento só cria objetos nos schemas `trat` e `api` e no bucket `relatorios`.
 - Nunca escreve em `novo`, `origem` ou `public`.
-- Lê o `novo` por views feitas pelo grupo de Dados, a pedido do Lucas (24/10). O Rafael passa ao Micael a lista, sem cálculo: `vw_aluno`, `vw_avaliacao_medida`, `vw_relatorio_treino` (sem os campos de dor) e `vw_agendamento`. O Iago criou as quatro no `013_views_consumo.sql` do grupo de Dados (27/10), e o `05` e o `06` leem a `vw_avaliacao_medida` e a `vw_aluno`. O grupo de Dados avisa no grupo se mudar a estrutura de uma tabela ou view que usamos.
+- Lê o `novo` por views feitas pelo grupo de Dados, a pedido do Lucas (24/10). O Rafael passa ao Micael a lista, sem cálculo: `vw_aluno`, `vw_avaliacao_medida`, `vw_relatorio_treino` (sem os campos de dor) e `vw_agendamento`. O Iago criou as quatro no `013_views_consumo.sql` do grupo de Dados (27/10; ajustes na `014`, aplicadas no ensaio em 28/10). O `05` e o `06` leem a `vw_avaliacao_medida` e a `vw_aluno`; o `08`, a `vw_agendamento` e a `vw_relatorio_treino`. O grupo de Dados avisa no grupo se mudar a estrutura de uma tabela ou view que usamos.
 - O grupo de Dados controla o banco pelo histórico de migrações do Supabase (`pkzbi_...`). Os scripts daqui **não** entram nesse histórico: rodam direto, pelo `psql` ou pelo SQL Editor.
 - Quando existir o projeto Supabase definitivo (tarefa 3.6 do grupo de Dados), os mesmos scripts recriam tudo.
 
