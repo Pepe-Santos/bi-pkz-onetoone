@@ -106,6 +106,12 @@ Nada muda no DDL nem nos scripts de carga.
 - Testada em 25/10 numa transação desfeita no fim e aplicada no ensaio em 26/10 (migration `pkzbi_012_politicas_rls`, idêntica ao arquivo). Teste por papel: admin vê tudo; recepção, professores e responsável não veem dado clínico; o especialista só vê o clínico do próprio serviço e dos alunos que atende; `anon` não tem acesso ao schema.
 - Não muda dado: a carga roda com papel privilegiado e passa por cima do RLS. As pendências 5 e 11 ficam na versão mais fechada até a direção decidir.
 
+### 27/10 — Views de consumo (migrations 013 e 014, Frente 3)
+
+- `migrations/013_views_consumo.sql` (Iago, tarefa 3.4): as 4 views que o Grupo de Desenvolvimento lê, `vw_aluno`, `vw_avaliacao_medida`, `vw_relatorio_treino` e `vw_agendamento`, coluna por coluna como no card do Ewerton de 24/10. Sem cálculo, com `security_invoker = true` (valem as políticas da 012) e com grant próprio para `authenticated`. Ficam fora: cpf, telefone e foto em `vw_aluno`; os campos de dor em `vw_relatorio_treino`.
+- `migrations/014_ajuste_views_consumo.sql` (revisão da Frente 1): em `vw_avaliacao_medida`, a correção só esconde a avaliação original depois de consolidada, e a fisioterapia sai (dado clínico; o Desenvolvimento só usa `teste_fisico`). Em `vw_aluno`, no máximo uma unidade por aluno, a da matrícula vigente sem fim ou a mais recente. As colunas não mudam.
+- O backend lê a `vw_avaliacao_medida` e a `vw_aluno` (`backend/sql/05` e `06`); se mudar a estrutura de uma delas, avise o Grupo de Desenvolvimento.
+
 ### Rodar pelo Claude (conector do Supabase)
 
 Os scripts rodam pelo `execute_sql` sem a linha `\set ON_ERROR_STOP on`. Não colocar `delete`, `drop table` nem `truncate` em script de carga: o conector segura o comando e ele nunca roda. DDL vai por `apply_migration`.
@@ -136,7 +142,7 @@ Duas formas:
 **Ensaio geral** (antes de entregar; refeito sempre que uma migration mudar):
 
 1. Tirar o `novo` atual do caminho. Pelo SQL Editor ou psql: `drop schema novo cascade;`. Pelo Claude (o conector trava em `drop`): `alter schema novo rename to novo_pre_ensaio_<data>;` e apagar esse schema depois, pelo SQL Editor: `drop schema novo_pre_ensaio_<data> cascade;`.
-2. Aplicar as migrations **001 a 012**, em ordem (os scripts de carga dependem da 009, 010 e 011; a 012, de políticas, não muda dado).
+2. Aplicar as migrations **001 a 014**, em ordem (os scripts de carga dependem da 009, 010 e 011; a 012, de políticas, e a 013 e a 014, de views, não mudam dado).
 3. Registrar o gabarito de novo: `select novo.registrar_gabarito('congelamento-2026-10-12');` (`origem` não muda).
 4. Rodar `conferencia/00_estrutura_ddl.sql`: as 4 primeiras consultas voltam vazias.
 5. Rodar o mestre (`psql $env:ENSAIO_URL -f carga/99_carga_mestre.sql`, de dentro de `dados/migracoes`). A conferência no fim precisa ter `ok` em todas as linhas.

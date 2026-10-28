@@ -15,7 +15,7 @@ pelo Dev Lucas. Nele:
 |---|---|
 | `public` | o app em uso, que continua mudando (rotinas automáticas às 00:00 e 00:15) |
 | `origem` | foto congelada das 28 tabelas, de 12/10 |
-| `novo` | o banco construído: 43 tabelas, 5 views, 12 migrations (a 012 é a das políticas de acesso, aplicada em 26/10) |
+| `novo` | o banco construído: 43 tabelas, 9 views, 14 migrations (a 012 é a das políticas de acesso, aplicada em 26/10; a 013 e a 014, das views de consumo) |
 
 A decisão de 12/10 é que o destino definitivo é **um projeto Supabase separado do app**. Lá o arranjo é o
 mesmo, então os scripts rodam sem mudança: é por isso que a virada é um roteiro, e não uma reescrita.
@@ -24,7 +24,7 @@ mesmo, então os scripts rodam sem mudança: é por isso que a virada é um rote
 
 | # | Decisão | Opções | Recomendação da Frente 3 |
 |---|---|---|---|
-| 7.1 | **Nome do schema definitivo** | manter `novo`; ou `core`; ou `pkz` | **Manter `novo`.** Trocar o nome obriga a mexer em 12 migrations (inclusive a política 012), 8 cargas e 5 conferências. O nome não aparece para quem consome: o consumo é pelo schema `api` |
+| 7.1 | **Nome do schema definitivo** | manter `novo`; ou `core`; ou `pkz` | **Manter `novo`.** Trocar o nome obriga a mexer em 14 migrations (inclusive a política 012), 8 cargas e 5 conferências. O nome não aparece para quem consome: o consumo é pelo schema `api` |
 | 7.2 | **Quem cria o projeto** | gerência (Pedro/Lucas); o cliente; o Dev Lucas | **A gerência**, numa conta do projeto e não numa conta pessoal. Hoje o ensaio depende da conta do Dev Lucas |
 | 7.3 | **Quem administra** | uma pessoa; a gerência + a Frente 1 | **Dois donos**, para ninguém ficar bloqueado. Papel de administrador só para esses dois |
 | 7.4 | **Plano do Supabase** | gratuito; pago | **Precisa de resposta antes da virada.** O gratuito pausa projeto sem uso e não tem backup automático — e o banco definitivo guarda dado real de 105 menores |
@@ -55,7 +55,7 @@ tabelas, liga RLS, tira acesso de `anon` e `authenticated` e registra o gabarito
 API.
 
 ### Passo 3 — Migrations
-**Quem:** Frente 1 · **Arquivos:** `migrations/001` a `012`, em ordem
+**Quem:** Frente 1 · **Arquivos:** `migrations/001` a `014`, em ordem
 
 A 012 é a das políticas de acesso. Ela entra aqui, junto das outras, e não depois: tabela nova nasce
 fechada, e assim a política nasce com ela.
