@@ -1,4 +1,4 @@
-"""Testa quem consegue ler a API de avaliações (schema api).
+"""Testa quem consegue ler a API (schema api): atleta, presenca e treino.
 
 Roda os 3 testes do card "Proteger a API":
   1. sem login            -> não pode devolver dados
@@ -6,8 +6,9 @@ Roda os 3 testes do card "Proteger a API":
   3. com a secret key      -> devolve
 
 Só usa a biblioteca padrão. Lê as variáveis do backend/.env (veja backend/env.example).
-Não imprime dados dos atletas: só o status HTTP e quantos atletas de cada unidade vieram
-(o usuário só vê a unidade de app_metadata.unidade; veja 06_api_avaliacoes.sql).
+Não imprime dados dos atletas: só o status HTTP e quantas linhas de cada unidade vieram
+(o usuário só vê a unidade de app_metadata.unidade; veja 06_api_avaliacoes.sql). Cada
+chamada traz no máximo 1.000 linhas, então a contagem por unidade pode ser parcial.
 
     python backend/scripts/testar_acesso.py
 """
@@ -20,7 +21,7 @@ import urllib.request
 from pathlib import Path
 
 ENV_PATH = Path(__file__).resolve().parents[1] / ".env"
-VIEW = "atleta"
+VIEWS = ("atleta", "presenca", "treino")
 
 
 def carregar_env(caminho):
@@ -63,11 +64,11 @@ def login(base, publishable, email, senha):
     return resp["access_token"]
 
 
-def ler_view(base, apikey, token=None):
+def ler_view(base, view, apikey, token=None):
     cabecalhos = {"apikey": apikey, "Accept-Profile": "api"}
     if token:
         cabecalhos["Authorization"] = f"Bearer {token}"
-    return requisicao("GET", f"{base}/rest/v1/{VIEW}?select=unidade", cabecalhos)
+    return requisicao("GET", f"{base}/rest/v1/{view}?select=unidade", cabecalhos)
 
 
 def descrever(status, resp):
@@ -76,7 +77,7 @@ def descrever(status, resp):
         for linha in resp:
             unidades[linha.get("unidade")] = unidades.get(linha.get("unidade"), 0) + 1
         por_unidade = ", ".join(f"{u}={n}" for u, n in sorted(unidades.items(), key=str))
-        return f"{status}, {len(resp)} atleta(s) ({por_unidade or 'nenhum'})"
+        return f"{status}, {len(resp)} linha(s) ({por_unidade or 'nenhum'})"
     if isinstance(resp, dict):
         if resp.get("code") == "PGRST106":
             return f"{status}, o schema api não está em Exposed schemas"
@@ -103,25 +104,28 @@ def main():
     resultados = []
 
     print("1. Sem login (só a publishable key)")
-    status, resp = ler_view(base, publishable)
-    ok = not (status == 200 and isinstance(resp, list) and resp)
-    print(f"  {descrever(status, resp)}")
-    resultados.append(("sem login não devolve dados", ok))
+    for view in VIEWS:
+        status, resp = ler_view(base, view, publishable)
+        ok = not (status == 200 and isinstance(resp, list) and resp)
+        print(f"  {view}: {descrever(status, resp)}")
+        resultados.append((f"{view}: sem login não devolve dados", ok))
 
     print("2. Com o usuário de teste")
     token = login(base, publishable, os.environ["API_TESTE_EMAIL"], os.environ["API_TESTE_SENHA"])
-    ok = False
-    if token:
-        status, resp = ler_view(base, publishable, token)
-        ok = status == 200 and isinstance(resp, list) and len(resp) > 0
-        print(f"  {descrever(status, resp)}")
-    resultados.append(("com login devolve dados", ok))
+    for view in VIEWS:
+        ok = False
+        if token:
+            status, resp = ler_view(base, view, publishable, token)
+            ok = status == 200 and isinstance(resp, list) and len(resp) > 0
+            print(f"  {view}: {descrever(status, resp)}")
+        resultados.append((f"{view}: com login devolve dados", ok))
 
     print("3. Com a secret key (gerador de relatórios)")
-    status, resp = ler_view(base, secret, secret)
-    ok = status == 200 and isinstance(resp, list) and len(resp) > 0
-    print(f"  {descrever(status, resp)}")
-    resultados.append(("com a secret key devolve dados", ok))
+    for view in VIEWS:
+        status, resp = ler_view(base, view, secret, secret)
+        ok = status == 200 and isinstance(resp, list) and len(resp) > 0
+        print(f"  {view}: {descrever(status, resp)}")
+        resultados.append((f"{view}: com a secret key devolve dados", ok))
 
     print()
     for nome, ok in resultados:
