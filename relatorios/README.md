@@ -14,18 +14,18 @@ A `enviar_email()` só envia para os e-mails de `EMAILS_TESTE` (os do grupo). Qu
    - `EMAIL_USUARIO`: o endereço da conta do projeto
    - `EMAIL_SENHA_APP`: a senha de app (com ou sem espaços)
    - `EMAILS_TESTE`: os e-mails do grupo que podem receber, separados por vírgula
-   - para o lote: `EMAIL_LOTE_TESTE` (quem recebe tudo no modo teste; precisa estar em `EMAILS_TESTE`), `SUPABASE_DB_URL`, `SUPABASE_URL` e `SUPABASE_SECRET_KEY`
+   - para o lote: `EMAIL_LOTE_TESTE` (quem recebe tudo no modo teste; precisa estar em `EMAILS_TESTE`), `SUPABASE_URL` e `SUPABASE_SECRET_KEY`. O lote não usa a senha do banco: tudo passa pela API do Supabase
 3. Instale as dependências: `pip install -r relatorios/requirements.txt -r gerador_pkz/requirements.txt`
-4. Uma vez por projeto Supabase, crie a tabela de envios: `backend/sql/07_trat_envio_relatorio.sql`.
+4. Uma vez por projeto Supabase, rode `backend/sql/07_trat_envio_relatorio.sql` (tabela de envios) e depois `backend/sql/09_api_envio_relatorio.sql` (funções da API que leem e gravam essa tabela, só com a secret key).
 
 O e-mail, a senha de app e as chaves ficam só no `.env` e nos segredos do GitHub, nunca no código.
 
 ## Testar o envio de um PDF
 
-Na raiz do repositório, gere o PDF de exemplo (dados fictícios) e mande para todos os e-mails de `EMAILS_TESTE`:
+Na raiz do repositório, gere o PDF de um atleta da PKZ (o `atleta_id` vem da view `api.atleta`) e mande para todos os e-mails de `EMAILS_TESTE`:
 
 ```bash
-python gerador_pkz/gerar_pdf.py
+python gerador_pkz/gerar_pdf.py <atleta_id> --periodo mensal --referencia 2026-08-20
 python relatorios/enviar_email.py
 ```
 
@@ -45,22 +45,21 @@ python relatorios/enviar_lote.py --periodo mensal --referencia 2026-08-26 --limi
 
 Para cada aluno das duas unidades (`api.atleta`):
 
-1. pula quem já recebeu este período (`trat.envio_relatorio`);
-2. gera o PDF; aluno sem dados no período é pulado;
+1. pula quem já recebeu este período (`trat.envio_relatorio`, pela função `api.relatorios_enviados`);
+2. gera o PDF com o `gerador_pkz/gerar_pdf.py`; aluno sem dados no período é pulado;
 3. guarda o PDF no bucket privado `relatorios`, em `teste/<unidade>/<periodo>/<inicio>/<aluno_id>.pdf`;
-4. envia por e-mail e registra o envio.
+4. envia por e-mail e registra o envio (`api.registrar_envio_relatorio`).
 
 Erro em um aluno não para os outros: o lote mostra o erro, segue e termina com código 1. Quem não foi registrado é tentado de novo na próxima execução. O envio de teste é registrado separado (`teste = true`), então não impede o envio real do mesmo período.
 
-**Gerador provisório:** até o gerador do Henrique aceitar período e unidade (31/10), aluno da PKZ com avaliação no período recebe o PDF de exemplo, e o One to One é pulado (ainda não tem gerador). A troca é só na função `gerar_relatorio()` do `enviar_lote.py`.
+**One to One:** ainda não tem gerador, então os alunos do One to One são pulados. Quando o relatório One to One existir, a ligação é só na função `gerar_relatorio()` do `enviar_lote.py`.
 
 ### Agendamento (GitHub Actions)
 
 `.github/workflows/relatorios.yml` roda às 8h de Brasília: semanal toda segunda, mensal todo dia 1º e anual em 1º de janeiro. Também tem disparo manual (*Actions → Relatórios por e-mail → Run workflow*), em que se escolhe o período e a data de referência.
 
 - O GitHub só agenda e mostra o disparo manual com o workflow na branch padrão (`main`).
-- Segredos do repositório (*Settings → Secrets and variables → Actions*, quem cadastra é o Pedro): `SUPABASE_DB_URL`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `EMAIL_USUARIO`, `EMAIL_SENHA_APP`, `EMAILS_TESTE` e `EMAIL_LOTE_TESTE`.
-- Em `SUPABASE_DB_URL`, use a string do **Session pooler** (*Connect* no painel do Supabase). A conexão direta (`db.<ref>.supabase.co`) só tem IPv6, que o GitHub Actions não alcança.
+- Segredos do repositório (*Settings → Secrets and variables → Actions*, quem cadastra é o Pedro): `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `EMAIL_USUARIO`, `EMAIL_SENHA_APP`, `EMAILS_TESTE` e `EMAIL_LOTE_TESTE`.
 
 ## Textos dos e-mails
 
