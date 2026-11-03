@@ -155,6 +155,10 @@ main                          ← só entra por Pull Request aprovado
 4. Antes de abrir o PR, traga a `main` para a sua branch (`git pull origin main`) e resolva os conflitos.
 5. Ninguém faz push direto na `main`. A `main` é protegida: o GitHub exige PR com 1 aprovação e os comentários resolvidos.
 
+## Documentação técnica (Google Docs)
+
+https://docs.google.com/document/d/1bhXLv_qJ-myUOXBukbLWkh-tvEfrdPJxkpD0bQw8Cpo/edit?usp=sharing
+
 ## Regras do repositório
 
 - **Nunca** versionar credenciais (`.env`, chaves do Supabase, service role). Use `.env.example` com valores vazios.
