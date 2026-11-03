@@ -42,7 +42,6 @@ jobs:
 
       - name: Enviar relatórios
         env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           EMAIL_USUARIO: ${{ secrets.EMAIL_USUARIO }}

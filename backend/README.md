@@ -43,7 +43,8 @@ backend/
 │   ├── 05_trat_medidas.sql             medidas padronizadas, revisão de dados e resultado por teste
 │   ├── 06_api_avaliacoes.sql           views da API: atleta, evolucao, comparacao, reavaliacao
 │   ├── 07_trat_envio_relatorio.sql     registro dos relatórios já enviados por e-mail
-│   └── 08_api_treinos.sql              views da API: presenca, treino
+│   ├── 08_api_treinos.sql              views da API: presenca, treino
+│   └── 09_api_envio_relatorio.sql      funções da API do envio automático (só a secret key)
 ├── scripts/
 │   ├── testar_acesso.py                os 3 testes de acesso à API (sem login, com login, secret key)
 │   └── criar_usuario.py                cria um usuário da API já confirmado e com a unidade
@@ -80,6 +81,7 @@ psql "$SUPABASE_DB_URL" -f backend/sql/05_trat_medidas.sql
 psql "$SUPABASE_DB_URL" -f backend/sql/06_api_avaliacoes.sql
 psql "$SUPABASE_DB_URL" -f backend/sql/07_trat_envio_relatorio.sql
 psql "$SUPABASE_DB_URL" -f backend/sql/08_api_treinos.sql
+psql "$SUPABASE_DB_URL" -f backend/sql/09_api_envio_relatorio.sql
 ```
 
 Windows (PowerShell), na raiz do repositório:
@@ -93,6 +95,7 @@ psql "$env:SUPABASE_DB_URL" -f .\backend\sql\05_trat_medidas.sql
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\06_api_avaliacoes.sql
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\07_trat_envio_relatorio.sql
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\08_api_treinos.sql
+psql "$env:SUPABASE_DB_URL" -f .\backend\sql\09_api_envio_relatorio.sql
 ```
 
 A string de conexão fica em **Connect**, no painel do Supabase.
