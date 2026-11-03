@@ -5,6 +5,7 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 from io import BytesIO
 from pathlib import Path
+from xml.sax.saxutils import escape
 
 import matplotlib
 matplotlib.use("Agg")
@@ -17,6 +18,8 @@ from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
     Image, KeepTogether,
@@ -381,18 +384,351 @@ def gerar_relatorio(atleta_id, periodo, referencia):
     return destino
 
 
+
+
+def carregar_dados_one_to_one(atleta_id, inicio, fim):
+    filtros_atleta = {
+        "unidade": "eq.ONE_TO_ONE",
+        "atleta_id": f"eq.{atleta_id}",
+        "select": "atleta_id,unidade,nome,idade,ativo"
+    }
+
+    atletas = buscar_api("atleta", filtros_atleta)
+
+    if not atletas:
+        raise ValueError(
+            f"Atleta ONE_TO_ONE não encontrado: {atleta_id}"
+        )
+
+    atleta = atletas[0]
+
+    presencas = buscar_api(
+        "presenca",
+        {
+            "atleta_id": f"eq.{atleta_id}",
+            "unidade": "eq.ONE_TO_ONE",
+            "data": [
+                f"gte.{inicio.isoformat()}",
+                f"lte.{fim.isoformat()}"
+            ],
+            "select": "atleta_id,unidade,data,status"
+        },
+        order="data.asc"
+    )
+
+    treinos = buscar_api(
+        "treino",
+        {
+            "atleta_id": f"eq.{atleta_id}",
+            "unidade": "eq.ONE_TO_ONE",
+            "data": [
+                f"gte.{inicio.isoformat()}",
+                f"lte.{fim.isoformat()}"
+            ],
+            "select": (
+                "atleta_id,unidade,data,tipo_treino,"
+                "intensidade,objetivos,desempenho"
+            )
+        },
+        order="data.asc"
+    )
+
+    return atleta, presencas, treinos
+
+
+def gerar_relatorio_one_to_one(atleta_id, periodo, referencia):
+    inicio, fim = periodo_datas(periodo, referencia)
+
+    atleta, presencas, treinos = carregar_dados_one_to_one(
+        atleta_id, inicio, fim
+    )
+
+    if not presencas and not treinos:
+        print(
+            "Nenhum agendamento ou treino encontrado "
+            "no período informado. PDF não gerado."
+        )
+        return None
+
+    presentes = sum(
+        1 for item in presencas
+        if normalizar(item.get("status")) == "presente"
+    )
+
+    faltas = sum(
+        1 for item in presencas
+        if normalizar(item.get("status")) == "falta"
+    )
+
+    cancelados = sum(
+        1 for item in presencas
+        if normalizar(item.get("status")) == "cancelado"
+    )
+
+    agendados = sum(
+        1 for item in presencas
+        if normalizar(item.get("status")) in (
+            "agendado", "aguardando_confirmacao"
+        )
+    )
+
+    total_considerado = presentes + faltas
+
+    percentual = (
+        presentes / total_considerado * 100
+        if total_considerado else 0
+    )
+
+    SAIDA_DIR.mkdir(parents=True, exist_ok=True)
+
+    nome_arquivo = (
+        f"relatorio_one_to_one_{periodo}_"
+        f"{atleta_id}_{referencia.isoformat()}.pdf"
+    )
+
+    destino = SAIDA_DIR / nome_arquivo
+
+    fonte_dir = Path(matplotlib.get_data_path()) / "fonts" / "ttf"
+
+    pdfmetrics.registerFont(
+        TTFont("DejaVu", str(fonte_dir / "DejaVuSans.ttf"))
+    )
+    pdfmetrics.registerFont(
+        TTFont("DejaVu-Bold", str(fonte_dir / "DejaVuSans-Bold.ttf"))
+    )
+
+    estilos = getSampleStyleSheet()
+
+    for estilo in estilos.byName.values():
+        estilo.fontName = "DejaVu"
+
+    titulo = ParagraphStyle(
+        "TituloOneToOne",
+        parent=estilos["Title"],
+        fontSize=20,
+        leading=24,
+        alignment=TA_CENTER,
+        textColor=colors.HexColor("#17365D"),
+        spaceAfter=15
+    )
+
+    subtitulo = ParagraphStyle(
+        "SubtituloOneToOne",
+        parent=estilos["Heading2"],
+        fontSize=13,
+        leading=16,
+        textColor=colors.HexColor("#17365D"),
+        spaceBefore=12,
+        spaceAfter=8
+    )
+
+    texto_pdf = ParagraphStyle(
+        "TextoOneToOne",
+        parent=estilos["BodyText"],
+        fontSize=9,
+        leading=13
+    )
+
+    texto_tabela = ParagraphStyle(
+        "TabelaOneToOne",
+        parent=estilos["BodyText"],
+        fontSize=8,
+        leading=10
+    )
+
+    elementos = [
+        Paragraph("RELATÓRIO ONE TO ONE", titulo),
+        Paragraph(
+            f"Aluno: {escape(str(atleta.get('nome') or 'Aluno'))}",
+            texto_pdf
+        ),
+        Paragraph(f"Período: {periodo.capitalize()}", texto_pdf),
+        Paragraph(
+            f"Referência: {referencia.strftime('%d/%m/%Y')}",
+            texto_pdf
+        ),
+        Paragraph(
+            f"Intervalo: {inicio.strftime('%d/%m/%Y')} "
+            f"até {fim.strftime('%d/%m/%Y')}",
+            texto_pdf
+        ),
+        Spacer(1, 15),
+        Paragraph("Resumo de presença", subtitulo)
+    ]
+
+    dados_presenca = [
+        ["Indicador", "Quantidade"],
+        ["Presenças", str(presentes)],
+        ["Faltas", str(faltas)],
+        ["Cancelamentos", str(cancelados)],
+        ["Agendamentos", str(agendados)],
+        ["Percentual de presença", f"{percentual:.2f}%"]
+    ]
+
+    tabela_presenca = Table(
+        dados_presenca,
+        colWidths=[9 * cm, 5 * cm]
+    )
+
+    tabela_presenca.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#17365D")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+        ("FONTNAME", (0, 0), (-1, -1), "DejaVu"),
+        ("FONTNAME", (0, 0), (-1, 0), "DejaVu-Bold"),
+        ("BACKGROUND", (0, 1), (-1, -1), colors.HexColor("#F4F6F8")),
+        ("ALIGN", (1, 1), (1, -1), "CENTER"),
+        ("PADDING", (0, 0), (-1, -1), 7)
+    ]))
+
+    elementos.extend([
+        tabela_presenca,
+        Spacer(1, 12),
+        Paragraph(
+            "O percentual de presença considera apenas presenças "
+            "e faltas. Cancelamentos e agendamentos não entram "
+            "no cálculo.",
+            texto_pdf
+        ),
+        Spacer(1, 15),
+        Paragraph("Treinos realizados", subtitulo),
+        Paragraph(
+            f"Total de treinos no período: {len(treinos)}",
+            texto_pdf
+        ),
+        Spacer(1, 12)
+    ])
+
+    treinos_ordenados = sorted(
+        treinos,
+        key=lambda item: str(item.get("data") or "")
+    )
+
+    treinos_exibidos = (
+        treinos_ordenados[-10:]
+        if periodo == "anual"
+        else treinos_ordenados
+    )
+
+    dados_treinos = [[
+        "Data", "Objetivos", "Tipo", "Intensidade", "Desempenho"
+    ]]
+
+    def valor_tabela(valor):
+        if not valor:
+            return "-"
+
+        valor = str(valor)
+
+        if "dado ficticio de demonstracao" in normalizar(valor):
+            return "-"
+
+        return escape(valor)
+
+    for treino in treinos_exibidos:
+        dados_treinos.append([
+            Paragraph(formatar_data(treino.get("data")), texto_tabela),
+            Paragraph(valor_tabela(treino.get("objetivos")), texto_tabela),
+            Paragraph(valor_tabela(treino.get("tipo_treino")), texto_tabela),
+            Paragraph(valor_tabela(treino.get("intensidade")), texto_tabela),
+            Paragraph(valor_tabela(treino.get("desempenho")), texto_tabela)
+        ])
+
+    if not treinos_exibidos:
+        dados_treinos.append([
+            "-", Paragraph("Nenhum treino registrado.", texto_tabela),
+            "-", "-", "-"
+        ])
+
+    tabela_treinos = Table(
+        dados_treinos,
+        colWidths=[
+            2.1 * cm, 3.8 * cm, 3.3 * cm, 2.5 * cm, 4.3 * cm
+        ],
+        repeatRows=1
+    )
+
+    tabela_treinos.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#17365D")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("GRID", (0, 0), (-1, -1), 0.4, colors.grey),
+        ("FONTNAME", (0, 0), (-1, -1), "DejaVu"),
+        ("FONTNAME", (0, 0), (-1, 0), "DejaVu-Bold"),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("BACKGROUND", (0, 1), (-1, -1), colors.HexColor("#F4F6F8")),
+        ("PADDING", (0, 0), (-1, -1), 5)
+    ]))
+
+    elementos.append(tabela_treinos)
+
+    if periodo == "anual" and len(treinos) > 10:
+        elementos.extend([
+            Spacer(1, 8),
+            Paragraph(
+                "Este relatório apresenta os 10 treinos mais recentes. "
+                "O total acima considera todos os treinos do período.",
+                texto_pdf
+            )
+        ])
+
+    documento = SimpleDocTemplate(
+        str(destino),
+        pagesize=A4,
+        rightMargin=1.5 * cm,
+        leftMargin=1.5 * cm,
+        topMargin=1.5 * cm,
+        bottomMargin=1.5 * cm
+    )
+
+    documento.build(elementos)
+
+    print(f"PDF One to One gerado: {destino}")
+    return destino
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Gera relatório de evolução PKZ usando a API do Supabase.")
-    parser.add_argument("atleta_id", help="ID do atleta na API do Supabase")
-    parser.add_argument("--periodo", choices=["semanal", "mensal", "anual"], default="mensal")
-    parser.add_argument("--referencia", default=(date.today() - timedelta(days=1)).isoformat(),
-                        help="Data de referência no formato YYYY-MM-DD (padrão: ontem)")
+    parser = argparse.ArgumentParser(
+        description="Gerador de relatérios PKZ e One to One."
+    )
+
+    parser.add_argument(
+        "atleta_id",
+        help="ID do atleta na API do Supabase"
+    )
+
+    parser.add_argument(
+        "--one-to-one",
+        action="store_true"
+    )
+
+    parser.add_argument(
+        "--periodo",
+        choices=["semanal", "mensal", "anual"],
+        default="mensal"
+    )
+
+    parser.add_argument(
+        "--referencia",
+        default=(date.today() - timedelta(days=1)).isoformat()
+    )
+
     args = parser.parse_args()
+
     try:
         referencia = date.fromisoformat(args.referencia)
-    except ValueError as exc:
+    except ValueError:
         parser.error("--referencia deve estar no formato YYYY-MM-DD")
-    gerar_relatorio(args.atleta_id, args.periodo, referencia)
+
+    if args.one_to_one:
+        gerar_relatorio_one_to_one(
+            args.atleta_id,
+            args.periodo,
+            referencia
+        )
+    else:
+        gerar_relatorio(args.atleta_id, args.periodo, referencia)
 
 
 if __name__ == "__main__":
