@@ -34,6 +34,17 @@ SAIDA_DIR = BASE_DIR / "gerador_pkz" / "relatorios"
 load_dotenv(ENV_PATH)
 
 
+def registrar_fontes():
+    fonte_dir = Path(matplotlib.get_data_path()) / "fonts" / "ttf"
+    fonte_normal = fonte_dir / "DejaVuSans.ttf"
+    fonte_negrito = fonte_dir / "DejaVuSans-Bold.ttf"
+
+    if "DejaVu" not in pdfmetrics.getRegisteredFontNames():
+        pdfmetrics.registerFont(TTFont("DejaVu", str(fonte_normal)))
+    if "DejaVu-Bold" not in pdfmetrics.getRegisteredFontNames():
+        pdfmetrics.registerFont(TTFont("DejaVu-Bold", str(fonte_negrito)))
+
+
 def normalizar(texto):
     texto = str(texto or "").lower()
     return "".join(
@@ -54,10 +65,24 @@ def formatar_data(valor):
 def formatar_valor(valor, unidade=""):
     if valor is None:
         return "—"
+
+    if isinstance(valor, str):
+        valor = valor.strip()
+
+        if valor in ("â€”", "â€“", ""):
+            return "—"
+
+    unidades_exibicao = {
+        "desequilibrios": "desequilíbrios"
+    }
+
+    unidade_exibicao = unidades_exibicao.get(unidade, unidade)
+
     if isinstance(valor, (int, float)):
         numero = f"{valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        return f"{numero} {unidade or ''}".strip()
-    return str(valor)
+        return f"{numero} {unidade_exibicao or ''}".strip()
+
+    return f"{valor} {unidade_exibicao or ''}".strip()
 
 
 def formatar_percentual(valor):
@@ -92,10 +117,10 @@ def periodo_datas(periodo, referencia):
 
 def titulo_periodo(periodo, inicio, fim):
     if periodo == "semanal":
-        return f"Relatório semanal · {inicio:%d/%m} a {fim:%d/%m/%Y}"
+        return f"Relatório semanal — {inicio:%d/%m} a {fim:%d/%m/%Y}"
     if periodo == "mensal":
-        return f"Relatório mensal · {inicio:%m/%Y}"
-    return f"Relatório anual · {inicio:%Y}"
+        return f"Relatório mensal — {inicio:%m/%Y}"
+    return f"Relatório anual — {inicio:%Y}"
 
 
 def carregar_json(nome):
@@ -210,7 +235,7 @@ def criar_tabela(dados, larguras, tamanho=8):
     estilo_primeira_coluna = ParagraphStyle(
         name=f"CelulaTabelaPKZ{tamanho}",
         parent=estilos_celula["Normal"],
-        fontName="Helvetica",
+        fontName="DejaVu",
         fontSize=tamanho,
         leading=tamanho + 2,
         wordWrap="CJK",
@@ -227,7 +252,8 @@ def criar_tabela(dados, larguras, tamanho=8):
     tabela.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#176B55")),
         ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTNAME", (0, 0), (-1, -1), "DejaVu"),
+        ("FONTNAME", (0, 0), (-1, 0), "DejaVu-Bold"),
         ("FONTSIZE", (0, 0), (-1, -1), tamanho),
         ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#C8D8D1")),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
@@ -269,7 +295,10 @@ def gerar_relatorio(atleta_id, periodo, referencia):
     SAIDA_DIR.mkdir(parents=True, exist_ok=True)
     destino = SAIDA_DIR / f"relatorio_pkz_{aid}_{periodo}_{referencia:%Y-%m-%d}.pdf"
 
+    registrar_fontes()
     estilos = getSampleStyleSheet()
+    for estilo in estilos.byName.values():
+        estilo.fontName = "DejaVu"
     estilos.add(ParagraphStyle(name="TituloPKZ", parent=estilos["Title"], alignment=TA_CENTER,
                                textColor=colors.HexColor("#176B55"), fontSize=22, spaceAfter=8))
     estilos.add(ParagraphStyle(name="SubtituloPKZ", parent=estilos["Heading2"],
@@ -303,7 +332,8 @@ def gerar_relatorio(atleta_id, periodo, referencia):
     tabela_identificacao.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#176B55")),
         ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTNAME", (0, 0), (-1, -1), "DejaVu"),
+        ("FONTNAME", (0, 0), (-1, 0), "DejaVu-Bold"),
         ("BACKGROUND", (0, 1), (0, -1), colors.HexColor("#E8F4EF")),
         ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#C8D8D1")),
         ("VALIGN", (0, 0), (-1, -1), "TOP"),
@@ -344,8 +374,15 @@ def gerar_relatorio(atleta_id, periodo, referencia):
             situacao = "Sem comparação"
         else:
             situacao = item.get("situacao", "—") or "—"
+        nome_teste = item.get("teste_nome", item.get("teste", "—"))
+        if item.get("teste") in ("single_hop", "cross_hop"):
+            if item.get("lado") == "dir":
+                nome_teste += " — Direita"
+            elif item.get("lado") == "esq":
+                nome_teste += " — Esquerda"
+
         linhas.append([
-            item.get("teste_nome", item.get("teste", "—")),
+            nome_teste,
             formatar_valor(item.get("valor_anterior"), unidade),
             formatar_valor(item.get("valor_atual"), unidade),
             formatar_percentual(item.get("variacao_pct")),
@@ -359,9 +396,20 @@ def gerar_relatorio(atleta_id, periodo, referencia):
     grupos = defaultdict(list)
     for registro in evolucoes:
         codigo = registro.get("teste", "outro")
-        grupos[codigo].append(registro)
-    for codigo, registros in grupos.items():
+        if codigo in ("single_hop", "cross_hop"):
+            chave = (codigo, registro.get("lado"))
+        else:
+            chave = (codigo, None)
+        grupos[chave].append(registro)
+
+    for (codigo, lado), registros in grupos.items():
         nome = registros[0].get("teste_nome", codigo)
+        if codigo in ("single_hop", "cross_hop"):
+            if lado == "dir":
+                nome += " — Direita"
+            elif lado == "esq":
+                nome += " — Esquerda"
+
         grafico = criar_grafico(registros, nome)
         if grafico:
             elementos = [Paragraph(nome, estilos["Heading3"]), Image(grafico, width=15 * cm, height=6.4 * cm)]
@@ -488,14 +536,7 @@ def gerar_relatorio_one_to_one(atleta_id, periodo, referencia):
 
     destino = SAIDA_DIR / nome_arquivo
 
-    fonte_dir = Path(matplotlib.get_data_path()) / "fonts" / "ttf"
-
-    pdfmetrics.registerFont(
-        TTFont("DejaVu", str(fonte_dir / "DejaVuSans.ttf"))
-    )
-    pdfmetrics.registerFont(
-        TTFont("DejaVu-Bold", str(fonte_dir / "DejaVuSans-Bold.ttf"))
-    )
+    registrar_fontes()
 
     estilos = getSampleStyleSheet()
 
