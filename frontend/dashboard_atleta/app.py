@@ -68,6 +68,16 @@ def variacao(linha: dict) -> str:
     return texto
 
 
+def a_confirmar(linha: dict) -> bool:
+    """Classificação de um teste cuja regra a PKZ ainda não confirmou."""
+    return not linha["confirmado"] and linha["situacao"] in ("melhorou", "piorou", "estavel")
+
+
+def altura_da_tabela(linhas: int) -> int:
+    """Altura para mostrar todas as linhas, sem rolagem dentro da tabela."""
+    return (linhas + 1) * 35 + 3
+
+
 def direcao(maior_melhor) -> str:
     return {True: "Maior é melhor", False: "Menor é melhor"}.get(maior_melhor, "Direção a definir")
 
@@ -117,11 +127,11 @@ def bloco_comparacao(linhas: list[dict]) -> None:
 
     tabela = pd.DataFrame([{
         "Teste": nome_do_teste(l),
+        "Situação": SITUACOES[l["situacao"]][0] + (" *" if a_confirmar(l) else ""),
         "Anterior": (f"{com_unidade(l['valor_anterior'], l['unidade_medida'])} em {data_br(l['data_anterior'])}"
                      if l["data_anterior"] else "—"),
         "Atual": f"{com_unidade(l['valor_atual'], l['unidade_medida'])} em {data_br(l['data_atual'])}",
         "Variação": variacao(l),
-        "Situação": SITUACOES[l["situacao"]][0] + ("" if l["confirmado"] else " *"),
     } for l in linhas])
 
     def colorir(texto: str) -> str:
@@ -130,8 +140,14 @@ def bloco_comparacao(linhas: list[dict]) -> None:
                 return f"background-color: {fundo}; color: {tinta}; font-weight: 600"
         return f"color: {TINTA_FRACA}"
 
-    st.dataframe(tabela.style.map(colorir, subset=["Situação"]), hide_index=True, width="stretch")
-    if not all(l["confirmado"] for l in linhas):
+    st.dataframe(
+        tabela.style.map(colorir, subset=["Situação"]),
+        hide_index=True,
+        width="stretch",
+        height=altura_da_tabela(len(tabela)),
+        column_config={"Teste": st.column_config.TextColumn(width="large")},
+    )
+    if any(a_confirmar(l) for l in linhas):
         st.caption("\\* A PKZ ainda não confirmou a regra deste teste. Não use essa classificação "
                    "no relatório dos pais: lá, o teste não confirmado aparece só com os valores.")
 
@@ -143,7 +159,7 @@ def grafico(linhas: list[dict]) -> alt.LayerChart:
         "lado": LADOS.get(l["lado"], "Resultado"),
         "Data": data_br(l["data_avaliacao"]),
         "Valor": com_unidade(l["valor"], l["unidade_medida"]),
-        "rotulo": num(l["valor"]),
+        "rotulo": f"{LADOS[l['lado']][:3]}. {num(l['valor'])}" if l["lado"] else num(l["valor"]),
     } for l in linhas])
     tem_lados = any(l["lado"] for l in linhas)
     if tem_lados:
@@ -164,16 +180,16 @@ def grafico(linhas: list[dict]) -> alt.LayerChart:
         color=cor,
     )
     dicas = ["Data:N", "lado:N", "Valor:N"] if tem_lados else ["Data:N", "Valor:N"]
-    ultimos = tabela[tabela["data"] == tabela["data"].max()]
+    ultimos = tabela[tabela["data"] == tabela["data"].max()].sort_values("valor", ascending=False)
     camadas = [
         base.mark_line(strokeWidth=2),
         base.mark_point(filled=True, size=70, opacity=1, stroke=SUPERFICIE, strokeWidth=2),
         base.mark_point(size=600, opacity=0).encode(tooltip=dicas),  # área maior para o mouse
     ]
-    for lado, deslocamento in (("Direita", -13), ("Esquerda", 15)) if tem_lados else (("Resultado", -13),):
+    for posicao in range(len(ultimos)):  # o valor mais alto leva o rótulo por cima, o outro por baixo
         camadas.append(
-            alt.Chart(ultimos[ultimos["lado"] == lado])
-            .mark_text(dy=deslocamento, fontSize=12, fontWeight=600, color="#0F172A")
+            alt.Chart(ultimos.iloc[[posicao]])
+            .mark_text(dy=-13 if posicao == 0 else 15, fontSize=12, fontWeight=600, color="#0F172A")
             .encode(x="data:T", y="valor:Q", text="rotulo:N")
         )
     return alt.layer(*camadas).properties(height=190).configure_view(stroke=None).configure_legend(
@@ -204,9 +220,10 @@ def bloco_evolucao(linhas: list[dict]) -> None:
             "Data": l["data_avaliacao"],
             "Valor": com_unidade(l["valor"], l["unidade_medida"]),
         } for l in linhas])
-        tabela = tabela.pivot(index="Teste", columns="Data", values="Valor").fillna("—")
+        # aggfunc: duas avaliações no mesmo dia não derrubam a tabela; fica a última
+        tabela = tabela.pivot_table(index="Teste", columns="Data", values="Valor", aggfunc="last").fillna("—")
         tabela.columns = [data_br(iso) for iso in tabela.columns]
-        st.dataframe(tabela, width="stretch")
+        st.dataframe(tabela, width="stretch", height=altura_da_tabela(len(tabela)))
 
 
 def tela_atleta(atletas: list[dict], reavaliacoes: list[dict]) -> None:
@@ -275,7 +292,8 @@ def tela_reavaliacoes(atletas: list[dict], reavaliacoes: list[dict]) -> None:
             return "background-color: #fbebeb; color: #a12424; font-weight: 600"
         return "background-color: #f9eeda; color: #7a4d00; font-weight: 600"
 
-    st.dataframe(tabela.style.map(colorir, subset=["Situação"]), hide_index=True, width="stretch")
+    st.dataframe(tabela.style.map(colorir, subset=["Situação"]), hide_index=True, width="stretch",
+                 height=altura_da_tabela(len(tabela)))
 
 
 # ---------------------------------------------------------------- página
