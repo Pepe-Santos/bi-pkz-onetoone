@@ -24,6 +24,10 @@ docs/
 └── arquitetura/
 ```
 
+## Documentação técnica (Google Docs)
+
+📄 (https://docs.google.com/document/d/1bhXLv_qJ-myUOXBukbLWkh-tvEfrdPJxkpD0bQw8Cpo)
+
 ## Regras
 
 - A documentação geral (`DOC-PKZ-OTO-001`) é confidencial e **não** entra aqui — só resumos sem dados do cliente.
