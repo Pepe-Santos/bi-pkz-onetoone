@@ -2,6 +2,7 @@
 
 O contrato das views está em backend/docs/api.md.
 """
+import csv
 import json
 import os
 from datetime import date, timedelta
@@ -19,6 +20,10 @@ TEMPO_MAXIMO = 30
 # Só para os exemplos, que não têm reavaliacao.json. Na API, as regras ficam em trat.parametro.
 REAVALIACAO_DIAS = 90
 REAVALIACAO_AVISO_DIAS = 30
+
+# A API ainda não tem modalidade. Até ter, vale esta lista local, fora do GitHub, preenchida pela escola.
+ARQUIVO_MODALIDADES = PASTA / "modalidades_atletas.csv"
+MODALIDADE_NA_CATEGORIA = {"natacao": "Natação", "hipismo": "Hipismo"}
 
 load_dotenv(PASTA / ".env")
 
@@ -125,12 +130,32 @@ def _do_atleta(linhas: list[dict], atleta_id: str) -> list[dict]:
     return [linha for linha in linhas if linha["atleta_id"] == atleta_id]
 
 
+# ---------------------------------------------------------------- modalidade
+def _modalidades_do_arquivo() -> dict[str, str]:
+    if not ARQUIVO_MODALIDADES.exists():
+        return {}
+    with ARQUIVO_MODALIDADES.open(encoding="utf-8-sig", newline="") as arquivo:
+        primeira = arquivo.readline()
+        arquivo.seek(0)
+        leitor = csv.DictReader(arquivo, delimiter=";" if ";" in primeira else ",")
+        return {l["atleta_id"]: l["modalidade"].strip() for l in leitor if (l.get("modalidade") or "").strip()}
+
+
+def _com_modalidade(atletas: list[dict]) -> list[dict]:
+    """Primeiro a API; depois a lista local; por fim, a categoria que já traz o esporte. Sem isso, fica vazia."""
+    do_arquivo = _modalidades_do_arquivo()
+    for atleta in atletas:
+        atleta["modalidade"] = (atleta.get("modalidade") or do_arquivo.get(atleta["atleta_id"])
+                                or MODALIDADE_NA_CATEGORIA.get(atleta["categoria"]))
+    return atletas
+
+
 # ---------------------------------------------------------------- o que a tela usa
 def atletas_pkz() -> list[dict]:
     if usando_exemplos():
         linhas = [a for a in _ler_exemplo("atleta") if a["unidade"] == "PKZ"]
-        return sorted(linhas, key=lambda a: a["nome"])
-    return _ler_api("atleta", unidade="eq.PKZ", order="nome.asc,atleta_id.asc")
+        return _com_modalidade(sorted(linhas, key=lambda a: a["nome"]))
+    return _com_modalidade(_ler_api("atleta", unidade="eq.PKZ", order="nome.asc,atleta_id.asc"))
 
 
 def evolucao(atleta_id: str) -> list[dict]:
@@ -138,6 +163,27 @@ def evolucao(atleta_id: str) -> list[dict]:
         return sorted(_do_atleta(_ler_exemplo("evolucao"), atleta_id), key=lambda l: l["data_avaliacao"])
     return _ler_api("evolucao", atleta_id=f"eq.{atleta_id}",
                     order="data_avaliacao.asc,teste.asc,lado.asc")
+
+
+def medidas_do_grupo() -> list[dict]:
+    """Histórico de todos os testes, de todos os atletas, para o cartão e para comparar colegas sem nomes."""
+    if usando_exemplos():
+        return _ler_exemplo("evolucao")
+    return _ler_api("evolucao", select="atleta_id,teste,lado,data_avaliacao,valor",
+                    order="data_avaliacao.asc,atleta_id.asc,teste.asc,lado.asc")
+
+
+def presenca(atleta_id: str) -> list[dict]:
+    if usando_exemplos():
+        return []  # sem arquivo de exemplo
+    return _ler_api("presenca", atleta_id=f"eq.{atleta_id}", select="data,status", order="data.asc")
+
+
+def treinos(atleta_id: str) -> list[dict]:
+    if usando_exemplos():
+        return []  # sem arquivo de exemplo
+    return _ler_api("treino", atleta_id=f"eq.{atleta_id}", select="relatorio_id,data,observacoes",
+                    order="data.asc,relatorio_id.asc")
 
 
 def comparacao(atleta_id: str) -> list[dict]:

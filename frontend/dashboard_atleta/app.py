@@ -2,52 +2,84 @@
 
 Para rodar: streamlit run app.py (veja o README).
 """
+import base64
 from datetime import date
+from html import escape
+from pathlib import Path
 
-import altair as alt
-import pandas as pd
 import streamlit as st
 
+import cartao
 import dados
+import graficos
+import leitura
+import relato
 
-# Cores validadas para duas séries, inclusive para daltonismo.
-AZUL, LARANJA = "#2a78d6", "#eb6834"
-GRADE, EIXO, TINTA_FRACA, SUPERFICIE = "#e1e0d9", "#c3c2b7", "#52514e", "#ffffff"
-LADOS = {"dir": "Direita", "esq": "Esquerda"}
-
-SITUACOES = {
-    "piorou": ("Piorou", "#fbebeb", "#a12424"),
-    "melhorou": ("Melhorou", "#e5f4e4", "#006300"),
-    "estavel": ("Estável", "#f0efec", "#52514e"),
-    "sem_classificacao": ("Mudou, sem direção definida", None, None),
-    "sem_comparacao": ("Primeira avaliação", None, None),
-}
+MARINHO = "#0e1a6b"
 REAVALIACAO = {
-    "vencida": ("Vencida", "red", ":material/error:"),
-    "a_vencer": ("Vence em breve", "orange", ":material/schedule:"),
-    "em_dia": ("Em dia", "green", ":material/check_circle:"),
+    "vencida": ("Vencida", "#f5c77e", "#fbe9ec", "#9f1239"),
+    "a_vencer": ("Vence em breve", "#c2f24a", "#fdeccb", "#7a4708"),
+    "em_dia": ("Em dia", "#ffffff", "#dcf3e2", "#0d5132"),
 }
+TELA_ATLETA, TELA_REAVALIACOES = "Atleta", "Reavaliações"
+TODAS_AS_MODALIDADES = "Todas as modalidades"
 
-st.set_page_config(page_title="Dashboard do atleta · PKZ", layout="wide")
+ARQUIVO_LOGO = Path(__file__).resolve().parent.parent / "logo_pkz_one_to_one.png"
+LOGO = base64.b64encode(ARQUIVO_LOGO.read_bytes()).decode()
+
+st.set_page_config(page_title="Dashboard do atleta · PKZ", page_icon=str(ARQUIVO_LOGO), layout="wide")
+st.html("""
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  .stApp, .stApp button, .stApp input, .stApp p, .stApp label, .stApp div { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  .stApp [data-testid="stIconMaterial"], .stApp .material-symbols-rounded { font-family: 'Material Symbols Rounded' !important; }
+  .stApp { background: #eef0f4; }
+  .block-container { max-width: 1880px; padding: 0 clamp(1rem, 2.4vw, 3rem) 3rem; }
+  [data-testid="stHeader"] { height: 0; background: transparent; }
+
+  /* Barra do topo, de ponta a ponta, igual à do painel comparativo */
+  .st-key-topo { padding: 10px 0; background: #fff; box-shadow: 0 0 0 100vmax #fff; clip-path: inset(0 -100vmax); }
+  .st-key-topo button { min-height: 44px; font-weight: 600; border-radius: 10px; }
+  .st-key-tela button { flex: 1 1 0; background: #f3f5fd; border-color: #dbe0f0; }
+  .st-key-tela button p { color: #12228e; font-weight: 600; font-size: 15px; }
+  .st-key-tela button[aria-checked="true"], .st-key-tela button[aria-checked="true"]:hover { background: #12228e !important; border-color: #12228e !important; }
+  .st-key-tela button[aria-checked="true"] p { color: #fff !important; font-weight: 700; }
+
+  /* Filtros, numa linha só */
+  .st-key-filtros { padding: 12px clamp(14px, 1.2vw, 20px); border: 1px solid #dbe0f0; border-radius: 14px; background: #fff; }
+  .st-key-filtros [data-testid="stWidgetLabel"] p { font-size: 13px; font-weight: 600; color: #475569; }
+  .st-key-anterior button, .st-key-proximo button { min-height: 40px; padding: 0; }
+  .st-key-anterior button p, .st-key-proximo button p { font-size: 22px; font-weight: 700; line-height: 1; }
+  .st-key-inativos { padding-bottom: 8px; }
+  .st-key-inativos p { font-size: 14px; font-weight: 500; color: #0f172a; }
+  .stButton button { background: #fff; border-color: #12228e; color: #12228e; font-weight: 600; border-radius: 10px; }
+  .stButton button:hover { background: #12228e; color: #fff; border-color: #12228e; }
+
+  /* Faixa azul de cada tela */
+  .heroi { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 8fr); gap: 14px clamp(16px, 1.6vw, 28px); align-items: center; padding: clamp(15px, 1.2vw, 22px) clamp(18px, 1.5vw, 26px); border-radius: 14px; background: #0e1a6b; }
+  .heroi-rotulo { font-size: clamp(10px, .75vw, 12.5px); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #c2f24a; }
+  .heroi-frase { margin: 6px 0 0; font-size: clamp(17px, 1.4vw, 25px); line-height: 1.3; font-weight: 700; color: #fff; }
+  .heroi-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: clamp(8px, .7vw, 12px); }
+  .heroi-tile { min-width: 0; padding: clamp(10px, .8vw, 14px) clamp(12px, .9vw, 16px); border: 1px solid rgba(255,255,255,.16); border-radius: 11px; background: rgba(255,255,255,.08); }
+  .heroi-tile b { display: block; font-size: clamp(25px, 2vw, 36px); font-weight: 800; line-height: 1.05; }
+  .heroi-tile b.texto { font-size: clamp(18px, 1.35vw, 24px); line-height: 1.25; }
+  .heroi-tile span { display: block; margin-top: 5px; font-size: clamp(13px, .9vw, 15px); font-weight: 600; color: #fff; }
+  .heroi-tile small { display: block; margin-top: 1px; font-size: clamp(11.5px, .78vw, 13px); line-height: 1.3; color: #c9d3e8; }
+
+  /* Cartão, radar e descrição: colunas sempre da mesma altura */
+  .linha-topo { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 4fr) minmax(0, 5fr); gap: clamp(12px, 1vw, 18px); align-items: stretch; }
+  @media (max-width: 1250px) { .linha-topo { grid-template-columns: repeat(2, minmax(0, 1fr)); } .linha-topo > :last-child { grid-column: 1 / -1; } }
+  @media (max-width: 900px) { .linha-topo { grid-template-columns: minmax(0, 1fr); } .heroi { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 640px) { .st-key-anterior, .st-key-proximo { display: none; } }
+
+  [data-testid="stExpander"] details { border-color: #dbe0f0; border-radius: 14px; background: #fff; }
+  [data-testid="stExpander"] summary p { font-weight: 600; color: #12228e; }
+""" + graficos.CSS + "</style>")
 
 
 # ---------------------------------------------------------------- formatação
-def num(valor) -> str:
-    texto = f"{float(valor):.2f}".rstrip("0").rstrip(".")
-    return texto.replace(".", ",")
-
-
-def com_unidade(valor, unidade) -> str:
-    return "—" if valor is None else f"{num(valor)} {unidade}"
-
-
 def data_br(iso: str | None) -> str:
     return date.fromisoformat(iso).strftime("%d/%m/%Y") if iso else "—"
-
-
-def nome_do_teste(linha: dict) -> str:
-    lado = LADOS.get(linha["lado"])
-    return f"{linha['teste_nome']} · {lado.lower()}" if lado else linha["teste_nome"]
 
 
 def prazo(dias: int) -> str:
@@ -58,28 +90,14 @@ def prazo(dias: int) -> str:
     return f"vence em {dias} {'dia' if dias == 1 else 'dias'}"
 
 
-def variacao(linha: dict) -> str:
-    if linha["variacao_abs"] is None:
-        return "—"
-    absoluta = f"{float(linha['variacao_abs']):+.2f}".rstrip("0").rstrip(".").replace(".", ",")
-    texto = f"{absoluta} {linha['unidade_medida']}"
-    if linha["variacao_pct"] is not None:
-        texto += f" ({float(linha['variacao_pct']):+.1f}%)".replace(".", ",")
-    return texto
+def prazo_da_reavaliacao(reavaliacao: dict | None) -> str | None:
+    if not reavaliacao:
+        return None
+    return f"{prazo(reavaliacao['dias_para_vencer']).capitalize()}, em {data_br(reavaliacao['vence_em'])}."
 
 
-def a_confirmar(linha: dict) -> bool:
-    """Classificação de um teste cuja regra a PKZ ainda não confirmou."""
-    return not linha["confirmado"] and linha["situacao"] in ("melhorou", "piorou", "estavel")
-
-
-def altura_da_tabela(linhas: int) -> int:
-    """Altura para mostrar todas as linhas, sem rolagem dentro da tabela."""
-    return (linhas + 1) * 35 + 3
-
-
-def direcao(maior_melhor) -> str:
-    return {True: "Maior é melhor", False: "Menor é melhor"}.get(maior_melhor, "Direção a definir")
+def categoria_de(atleta: dict) -> str:
+    return (atleta["categoria"] or "Sem categoria").replace("_", " ").capitalize()
 
 
 # ---------------------------------------------------------------- leitura, com cache de 5 minutos
@@ -95,212 +113,252 @@ def ler_reavaliacoes():
 
 @st.cache_data(ttl=300, show_spinner="Lendo as avaliações do atleta…")
 def ler_avaliacoes(atleta_id):
-    return dados.evolucao(atleta_id), dados.comparacao(atleta_id)
+    return dados.evolucao(atleta_id), dados.comparacao(atleta_id), dados.presenca(atleta_id), dados.treinos(atleta_id)
 
 
-# ---------------------------------------------------------------- blocos da tela do atleta
-def bloco_reavaliacao(reavaliacao: dict | None) -> None:
-    with st.container(border=True):
-        st.markdown("**Reavaliação**")
-        if not reavaliacao:
-            st.write("Sem avaliação registrada.")
-            return
-        rotulo, cor, icone = REAVALIACAO[reavaliacao["situacao"]]
-        st.badge(rotulo, icon=icone, color=cor)
-        st.write(f"Data-limite {data_br(reavaliacao['vence_em'])}: {prazo(reavaliacao['dias_para_vencer'])}.")
+@st.cache_data(ttl=300, show_spinner="Lendo os resultados do grupo…")
+def ler_medidas():
+    return dados.medidas_do_grupo()
 
 
-def bloco_comparacao(linhas: list[dict]) -> None:
-    st.subheader("Comparação com a avaliação anterior")
-    if not linhas:
-        st.info("Este atleta não tem testes para comparar.")
-        return
-
-    ordem = list(SITUACOES)
-    linhas = sorted(linhas, key=lambda l: (ordem.index(l["situacao"]), nome_do_teste(l)))
-    contagem = pd.Series([l["situacao"] for l in linhas]).value_counts()
-    resumo = [f"{contagem[s]} {um if contagem[s] == 1 else varios}"
-              for s, um, varios in (("melhorou", "melhorou", "melhoraram"), ("piorou", "piorou", "pioraram"),
-                                    ("estavel", "estável", "estáveis")) if s in contagem]
-    if resumo:
-        st.write(" · ".join(resumo))
-
-    tabela = pd.DataFrame([{
-        "Teste": nome_do_teste(l),
-        "Situação": SITUACOES[l["situacao"]][0] + (" *" if a_confirmar(l) else ""),
-        "Anterior": (f"{com_unidade(l['valor_anterior'], l['unidade_medida'])} em {data_br(l['data_anterior'])}"
-                     if l["data_anterior"] else "—"),
-        "Atual": f"{com_unidade(l['valor_atual'], l['unidade_medida'])} em {data_br(l['data_atual'])}",
-        "Variação": variacao(l),
-    } for l in linhas])
-
-    def colorir(texto: str) -> str:
-        for rotulo, fundo, tinta in SITUACOES.values():
-            if fundo and texto.startswith(rotulo):
-                return f"background-color: {fundo}; color: {tinta}; font-weight: 600"
-        return f"color: {TINTA_FRACA}"
-
-    st.dataframe(
-        tabela.style.map(colorir, subset=["Situação"]),
-        hide_index=True,
-        width="stretch",
-        height=altura_da_tabela(len(tabela)),
-        column_config={"Teste": st.column_config.TextColumn(width="large")},
-    )
-    if any(a_confirmar(l) for l in linhas):
-        st.caption("\\* A PKZ ainda não confirmou a regra deste teste. Não use essa classificação "
-                   "no relatório dos pais: lá, o teste não confirmado aparece só com os valores.")
+# ---------------------------------------------------------------- blocos em HTML
+def faixa_superior() -> str:
+    return f"""
+<div style="display:flex;align-items:center;gap:12px">
+  <img alt="PKZ One to One Studio" src="data:image/png;base64,{LOGO}" style="display:block;width:52px;height:52px;flex-shrink:0;border-radius:50%">
+  <div style="min-width:0">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#12228e">PKZ &amp; One to One</div>
+    <div style="margin-top:1px;font-size:clamp(19px,1.5vw,24px);font-weight:700;line-height:1.15;color:#0f172a">Dashboard do atleta</div>
+  </div>
+</div>"""
 
 
-def grafico(linhas: list[dict]) -> alt.LayerChart:
-    tabela = pd.DataFrame([{
-        "data": f"{l['data_avaliacao']}T12:00:00",  # com hora, para o fuso não voltar a data um dia
-        "valor": float(l["valor"]),
-        "lado": LADOS.get(l["lado"], "Resultado"),
-        "Data": data_br(l["data_avaliacao"]),
-        "Valor": com_unidade(l["valor"], l["unidade_medida"]),
-        "rotulo": f"{LADOS[l['lado']][:3]}. {num(l['valor'])}" if l["lado"] else num(l["valor"]),
-    } for l in linhas])
-    tem_lados = any(l["lado"] for l in linhas)
-    if tem_lados:
-        cor = alt.Color("lado:N", title=None,
-                        scale=alt.Scale(domain=list(LADOS.values()), range=[AZUL, LARANJA]),
-                        legend=alt.Legend(orient="top", symbolType="circle"))
+def tile(valor, rotulo, detalhe, cor="#fff", em_texto=False) -> str:
+    return (f'<div class="heroi-tile"><b class="{"texto" if em_texto else ""}" style="color:{cor}">{valor}</b>'
+            f"<span>{rotulo}</span><small>{detalhe}</small></div>")
+
+
+def heroi(rotulo, frase, tiles) -> str:
+    return (f'<section class="heroi"><div><div class="heroi-rotulo">{rotulo}</div><p class="heroi-frase">{frase}</p></div>'
+            f'<div class="heroi-tiles">{"".join(tiles)}</div></section>')
+
+
+def resumo_do_atleta(atleta, comparacao, presenca, reavaliacao, n_datas) -> str:
+    presentes = sum(l["status"] == "presente" for l in presenca)
+    faltas = sum(l["status"] == "falta" for l in presenca)
+    chamadas = presentes + faltas
+    tiles = [tile(atleta["total_avaliacoes"], "Avaliações",
+                  f"última em {data_br(atleta['ultima_avaliacao_em'])}" if atleta["ultima_avaliacao_em"] else "nenhuma ainda")]
+    if n_datas >= 2:
+        tiles.append(tile(sum(l["situacao"] == "melhorou" for l in comparacao), "Melhoraram", "contra a avaliação anterior", "#c2f24a"))
+        tiles.append(tile(sum(l["situacao"] == "piorou" for l in comparacao), "Pioraram", "contra a avaliação anterior", "#f5c77e"))
     else:
-        cor = alt.value(AZUL)
-
-    base = alt.Chart(tabela).encode(
-        x=alt.X("data:T", title=None, scale=alt.Scale(padding=26),
-                axis=alt.Axis(format="%d/%m/%y", grid=False, labelOverlap="greedy", tickCount=4,
-                              domainColor=EIXO, tickColor=EIXO, labelColor=TINTA_FRACA)),
-        y=alt.Y("valor:Q", title=linhas[0]["unidade_medida"], scale=alt.Scale(zero=False, padding=22),
-                axis=alt.Axis(tickCount=4, domain=False, ticks=False, gridColor=GRADE, labelColor=TINTA_FRACA,
-                              titleColor=TINTA_FRACA, titleFontWeight="normal",
-                              labelExpr="replace(format(datum.value, '~g'), '.', ',')")),
-        color=cor,
-    )
-    dicas = ["Data:N", "lado:N", "Valor:N"] if tem_lados else ["Data:N", "Valor:N"]
-    ultimos = tabela[tabela["data"] == tabela["data"].max()].sort_values("valor", ascending=False)
-    camadas = [
-        base.mark_line(strokeWidth=2),
-        base.mark_point(filled=True, size=70, opacity=1, stroke=SUPERFICIE, strokeWidth=2),
-        base.mark_point(size=600, opacity=0).encode(tooltip=dicas),  # área maior para o mouse
-    ]
-    for posicao in range(len(ultimos)):  # o valor mais alto leva o rótulo por cima, o outro por baixo
-        camadas.append(
-            alt.Chart(ultimos.iloc[[posicao]])
-            .mark_text(dy=-13 if posicao == 0 else 15, fontSize=12, fontWeight=600, color="#0F172A")
-            .encode(x="data:T", y="valor:Q", text="rotulo:N")
-        )
-    return alt.layer(*camadas).properties(height=190).configure_view(stroke=None).configure_legend(
-        labelColor=TINTA_FRACA, labelFontSize=12
-    )
-
-
-def bloco_evolucao(linhas: list[dict]) -> None:
-    st.subheader("Evolução em cada teste")
-    if not linhas:
-        st.info("Este atleta ainda não tem medidas válidas nos testes.")
-        return
-
-    testes: dict[str, list[dict]] = {}
-    for linha in linhas:
-        testes.setdefault(linha["teste_nome"], []).append(linha)
-
-    colunas = st.columns(2)
-    for posicao, nome in enumerate(sorted(testes)):
-        with colunas[posicao % 2].container(border=True):
-            st.markdown(f"**{nome}**")
-            st.caption(direcao(testes[nome][0]["maior_melhor"]))
-            st.altair_chart(grafico(testes[nome]), theme=None, width="stretch")
-
-    with st.expander("Ver os valores em tabela"):
-        tabela = pd.DataFrame([{
-            "Teste": nome_do_teste(l),
-            "Data": l["data_avaliacao"],
-            "Valor": com_unidade(l["valor"], l["unidade_medida"]),
-        } for l in linhas])
-        # aggfunc: duas avaliações no mesmo dia não derrubam a tabela; fica a última
-        tabela = tabela.pivot_table(index="Teste", columns="Data", values="Valor", aggfunc="last").fillna("—")
-        tabela.columns = [data_br(iso) for iso in tabela.columns]
-        st.dataframe(tabela, width="stretch", height=altura_da_tabela(len(tabela)))
-
-
-def tela_atleta(atletas: list[dict], reavaliacoes: list[dict]) -> None:
-    incluir_inativos = st.toggle("Incluir atletas inativos", key="inativos_atleta")
-    visiveis = [a for a in atletas if a["ativo"] or incluir_inativos]
-    if not visiveis:
-        st.info("Nenhum atleta ativo. Ligue a opção acima para ver os inativos.")
-        return
-
-    por_id = {a["atleta_id"]: a for a in visiveis}
-    atleta_id = st.selectbox(
-        "Atleta",
-        list(por_id),
-        format_func=lambda i: f"{por_id[i]['nome']} · {por_id[i]['categoria'] or 'sem categoria'}",
-    )
-    atleta = por_id[atleta_id]
-
-    st.header(atleta["nome"])
-    identificacao, situacao = st.columns([3, 2])
-    with identificacao:
-        for coluna, rotulo, valor in zip(st.columns(3), ("Categoria", "Última avaliação", "Avaliações"), (
-            atleta["categoria"] or "Sem categoria",
-            data_br(atleta["ultima_avaliacao_em"]),
-            atleta["total_avaliacoes"],
-        )):
-            coluna.caption(rotulo)
-            coluna.markdown(f"**{valor}**")
-    with situacao:
-        bloco_reavaliacao(next((r for r in reavaliacoes if r["atleta_id"] == atleta_id), None))
-
+        tiles.append(tile("Sem comparação", "Evolução", "a partir da 2ª avaliação", "#f5c77e", em_texto=True))
+    tiles.append(tile(f"{round(100 * presentes / chamadas)}%" if chamadas else "—", "Presença",
+                      f"{chamadas} {'chamada registrada' if chamadas == 1 else 'chamadas registradas'}" if chamadas else "sem chamada registrada"))
+    if reavaliacao:
+        rotulo, cor, _, _ = REAVALIACAO[reavaliacao["situacao"]]
+        tiles.append(tile(rotulo, "Reavaliação", f"{prazo(reavaliacao['dias_para_vencer'])}, {data_br(reavaliacao['vence_em'])}", cor, em_texto=True))
     if not atleta["total_avaliacoes"]:
-        st.info("Este atleta ainda não fez nenhuma avaliação física.")
+        frase = "Este atleta ainda não fez nenhuma avaliação física."
+    elif n_datas < 2:
+        frase = "Só há 1 avaliação até agora: ainda não dá para comparar a evolução."
+    else:
+        frase = relato.frase_da_comparacao(comparacao) or "As duas últimas avaliações não têm testes em comum para comparar."
+    return heroi("Visão geral", frase, tiles)
+
+
+def tabela_html(cabecalhos, linhas, colunas_fixas="minmax(220px,1.6fr)") -> str:
+    """Tabela com rolagem lateral só nela, para não quebrar a página no celular."""
+    molde = f"{colunas_fixas} " + " ".join(["minmax(130px,1fr)"] * (len(cabecalhos) - 1))
+    celula_topo = "padding:9px 14px;font-size:13.5px;font-weight:600;color:#475569;background:#f3f5fd"
+    corpo = "".join(
+        f'<div style="display:grid;grid-template-columns:{molde};align-items:center;border-top:1px solid #eef1f6">'
+        + "".join(f'<div style="padding:7px 14px;font-size:14px;color:#0f172a">{c}</div>' for c in linha)
+        + "</div>"
+        for linha in linhas
+    )
+    return (
+        '<div style="overflow-x:auto;border:1px solid #dbe0f0;border-radius:14px;background:#fff">'
+        '<div style="min-width:760px">'
+        f'<div style="display:grid;grid-template-columns:{molde}">'
+        + "".join(f'<div style="{celula_topo}">{c}</div>' for c in cabecalhos)
+        + f"</div>{corpo}</div></div>"
+    )
+
+
+def pilula(texto, fundo, tinta) -> str:
+    return (f'<span style="display:inline-block;padding:3px 9px;border-radius:7px;background:{fundo};color:{tinta};'
+            f'font-size:13.5px;font-weight:700">{escape(texto)}</span>')
+
+
+def painel_radar(dados_do_cartao: dict) -> str:
+    return ('<div class="painel">' + graficos.titulo_de_painel("Perfil do atleta", "Comparado com os colegas: quanto mais longe do centro, melhor.")
+            + graficos.radar(dados_do_cartao) + "</div>")
+
+
+def painel_destaques(perfil: list[dict], faixa: str, maximo: int = 3) -> str:
+    return ('<div class="painel">' + graficos.titulo_de_painel("Onde se destaca", f"Posição entre os colegas de {faixa.lower()}, em cada teste.")
+            + graficos.destaques(perfil, maximo) + "</div>")
+
+
+def painel_mudancas(itens: list[dict]) -> str:
+    nota = ('<div class="tst-rodape">Classificação provisória: a PKZ ainda não confirmou as regras desses testes.</div>'
+            if any(not i["confirmado"] for i in itens) else "")
+    return ('<div class="painel">' + graficos.titulo_de_painel("O que mudou", "Valor da avaliação anterior → valor da última.")
+            + graficos.mudancas_em_lista(itens) + nota + "</div>")
+
+
+def aviso_da_evolucao(linhas: list[dict]) -> str:
+    datas = sorted({l["data_avaliacao"] for l in linhas})
+    if len(datas) >= 2:
+        return ""
+    return graficos.aviso(
+        "Sem dados suficientes para comparar a evolução.",
+        f"Este atleta tem só 1 avaliação, em {data_br(datas[0])}. Os gráficos de evolução aparecem a partir da 2ª avaliação. "
+        "Por enquanto, cada gráfico mostra o resultado ao lado da média dos colegas da mesma faixa de idade.")
+
+
+# ---------------------------------------------------------------- filtros
+def _passar_atleta(ids: list[str], passo: int) -> None:
+    atual = st.session_state.get("atleta_id")
+    posicao = ids.index(atual) if atual in ids else 0
+    st.session_state["atleta_id"] = ids[(posicao + passo) % len(ids)]
+
+
+def barra_de_filtros(atletas: list[dict]) -> dict | None:
+    """Modalidade, atleta e inativos numa linha só. A modalidade decide quais atletas aparecem na lista."""
+    ativos = [a for a in atletas if a["ativo"] or st.session_state.get("inativos", False)]
+    extras = sorted({a["modalidade"] for a in ativos if a["modalidade"]} - set(cartao.MODALIDADES_PKZ))
+    opcoes = [TODAS_AS_MODALIDADES, *cartao.MODALIDADES_PKZ, *extras]
+    if st.session_state.get("modalidade") not in opcoes:
+        st.session_state.pop("modalidade", None)
+
+    with st.container(key="filtros"):
+        modalidade, anterior, escolha, proximo, inativos = st.columns([2, .32, 4.4, .32, 1.5], vertical_alignment="bottom", gap="small")
+        escolhida = modalidade.selectbox(
+            "Modalidade", opcoes, key="modalidade",
+            help="Mostra na lista só os atletas dessa modalidade. Todos os atletas de uma modalidade têm os mesmos atributos.",
+        )
+        visiveis = [a for a in ativos if escolhida == TODAS_AS_MODALIDADES or a["modalidade"] == escolhida]
+        por_id = {a["atleta_id"]: a for a in visiveis}
+        ids = list(por_id)
+        if st.session_state.get("atleta_id") not in ids:
+            st.session_state.pop("atleta_id", None)
+
+        anterior.button("‹", key="anterior", on_click=_passar_atleta, args=(ids, -1), width="stretch", disabled=not ids)
+        if ids:
+            atleta_id = escolha.selectbox(
+                "Atleta", ids, key="atleta_id",
+                format_func=lambda i: (f"{por_id[i]['nome']} · {categoria_de(por_id[i])} · {por_id[i]['total_avaliacoes']} "
+                                       f"{'avaliação' if por_id[i]['total_avaliacoes'] == 1 else 'avaliações'}"),
+            )
+        else:
+            escolha.selectbox("Atleta", ["Nenhum atleta nesta modalidade"], key="atleta_vazio", disabled=True)
+        proximo.button("›", key="proximo", on_click=_passar_atleta, args=(ids, 1), width="stretch", disabled=not ids)
+        inativos.toggle("Incluir inativos", key="inativos")
+
+        com_modalidade = sum(bool(a["modalidade"]) for a in ativos)
+        if com_modalidade < len(ativos):
+            st.html(f'<div class="tst-rodape">Modalidade registrada em {com_modalidade} de {len(ativos)} atletas. '
+                    "Os outros aparecem só em Todas as modalidades, com os atributos gerais.</div>")
+
+    if not ids:
+        if escolhida == TODAS_AS_MODALIDADES:
+            st.html(graficos.aviso("Nenhum atleta ativo.", "Ligue a opção Incluir inativos para ver os outros."))
+        else:
+            st.html(graficos.aviso(f"Nenhum atleta com a modalidade {escolhida} registrada.",
+                                   "Escolha Todas as modalidades, ou peça para registrar a modalidade dos atletas."))
+        return None
+    return por_id[atleta_id]
+
+
+# ---------------------------------------------------------------- telas
+def tela_atleta(atletas: list[dict], reavaliacoes: list[dict]) -> None:
+    atleta = barra_de_filtros(atletas)
+    if atleta is None:
+        return
+    atleta_id = atleta["atleta_id"]
+
+    medidas = ler_medidas()
+    linhas_evolucao, linhas_comparacao, linhas_presenca, linhas_treinos = (
+        ler_avaliacoes(atleta_id) if atleta["total_avaliacoes"] else ([], [], [], [])
+    )
+    reavaliacao = next((r for r in reavaliacoes if r["atleta_id"] == atleta_id), None)
+    faixa = cartao.faixa_de_idade(atleta["idade"])
+    ids_do_grupo = [a["atleta_id"] for a in atletas if cartao.faixa_de_idade(a["idade"]) == faixa]
+    ultimos = cartao.ultimos_valores(medidas)
+    perfil = leitura.perfil_do_atleta(linhas_evolucao, ids_do_grupo, ultimos)
+    n_datas = len({l["data_avaliacao"] for l in linhas_evolucao})
+    dados_do_cartao = cartao.calcular_cartoes(atletas, medidas, atleta["modalidade"])[atleta_id]
+
+    # 1. Como o atleta está
+    st.html(resumo_do_atleta(atleta, linhas_comparacao, linhas_presenca, reavaliacao, n_datas))
+    st.html('<div class="linha-topo">'
+            + cartao.html_do_cartao(atleta, dados_do_cartao)
+            + painel_radar(dados_do_cartao)
+            + relato.html_do_relato(atleta, linhas_evolucao, linhas_comparacao, linhas_presenca, linhas_treinos, perfil, prazo_da_reavaliacao(reavaliacao))
+            + "</div>")
+
+    if not linhas_evolucao:
+        st.html(graficos.aviso("Sem dados para comparar.", "Os gráficos aparecem depois da primeira avaliação física deste atleta."))
         return
 
-    linhas_evolucao, linhas_comparacao = ler_avaliacoes(atleta_id)
-    bloco_comparacao(linhas_comparacao)
-    bloco_evolucao(linhas_evolucao)
+    # 2. Onde está forte e o que mudou
+    itens = leitura.mudancas(linhas_comparacao)
+    st.html(f'<div class="dupla">{painel_destaques(perfil, faixa, 5)}{painel_mudancas(itens)}</div>' if itens else painel_destaques(perfil, faixa))
+
+    # 3. Como veio evoluindo
+    st.html('<div class="painel-titulo" style="margin-top:6px">Como veio evoluindo</div>'
+            + (f'<div style="margin-top:9px">{aviso_da_evolucao(linhas_evolucao)}</div>' if n_datas < 2 else ""))
+    st.html(graficos.painel_de_evolucao(linhas_evolucao, ids_do_grupo, ultimos))
+    with st.expander("Ver todos os valores em tabela"):
+        st.html(graficos.tabela_de_valores(linhas_evolucao, linhas_comparacao))
 
 
 def tela_reavaliacoes(atletas: list[dict], reavaliacoes: list[dict]) -> None:
-    incluir_inativos = st.toggle("Incluir atletas inativos", key="inativos_lista")
-    por_id = {a["atleta_id"]: a for a in atletas if a["ativo"] or incluir_inativos}
+    with st.container(key="filtros"):
+        st.toggle("Incluir atletas inativos", key="inativos")
+    por_id = {a["atleta_id"]: a for a in atletas if a["ativo"] or st.session_state.get("inativos", False)}
     linhas = [r for r in reavaliacoes if r["atleta_id"] in por_id]
     pendentes = [r for r in linhas if r["situacao"] != "em_dia"]
+    vencidas = sum(r["situacao"] == "vencida" for r in linhas)
+    a_vencer = sum(r["situacao"] == "a_vencer" for r in linhas)
+    em_dia = sum(r["situacao"] == "em_dia" for r in linhas)
 
-    vencidas, a_vencer, em_dia = st.columns(3)
-    vencidas.metric("Vencidas", sum(r["situacao"] == "vencida" for r in linhas))
-    a_vencer.metric("Vencem em breve", sum(r["situacao"] == "a_vencer" for r in linhas))
-    em_dia.metric("Em dia", sum(r["situacao"] == "em_dia" for r in linhas))
-
+    st.html(heroi(
+        "Reavaliações", f"{vencidas} vencidas e {a_vencer} a vencer, de {len(linhas)} atletas avaliados.",
+        [tile(vencidas, "Vencidas", "precisam de nova avaliação", "#f5c77e"),
+         tile(a_vencer, "Vencem em breve", "nos próximos 30 dias", "#c2f24a"),
+         tile(em_dia, "Em dia", "regra provisória de 90 dias")],
+    ))
     if not pendentes:
         st.success("Nenhuma reavaliação vencida ou a vencer.")
         return
-
-    tabela = pd.DataFrame([{
-        "Atleta": por_id[r["atleta_id"]]["nome"],
-        "Categoria": por_id[r["atleta_id"]]["categoria"] or "Sem categoria",
-        "Última avaliação": data_br(r["ultima_avaliacao_em"]),
-        "Data-limite": data_br(r["vence_em"]),
-        "Prazo": prazo(r["dias_para_vencer"]).capitalize(),
-        "Situação": REAVALIACAO[r["situacao"]][0],
-    } for r in pendentes])
-
-    def colorir(texto: str) -> str:
-        if texto == "Vencida":
-            return "background-color: #fbebeb; color: #a12424; font-weight: 600"
-        return "background-color: #f9eeda; color: #7a4d00; font-weight: 600"
-
-    st.dataframe(tabela.style.map(colorir, subset=["Situação"]), hide_index=True, width="stretch",
-                 height=altura_da_tabela(len(tabela)))
+    tabela = []
+    for r in pendentes:
+        atleta = por_id[r["atleta_id"]]
+        rotulo, _, fundo, tinta = REAVALIACAO[r["situacao"]]
+        tabela.append([f'<strong class="cartao-nome" style="font-weight:600">{escape(atleta["nome"])}</strong>',
+                       pilula(rotulo, fundo, tinta), escape(categoria_de(atleta)),
+                       data_br(r["ultima_avaliacao_em"]), data_br(r["vence_em"]),
+                       prazo(r["dias_para_vencer"]).capitalize()])
+    st.html(tabela_html(["Atleta", "Situação", "Categoria", "Última avaliação", "Data-limite", "Prazo"], tabela))
 
 
 # ---------------------------------------------------------------- página
-titulo, acao = st.columns([5, 1], vertical_alignment="bottom")
-titulo.title("Dashboard do atleta · PKZ")
-if acao.button("Atualizar dados", width="stretch"):
-    st.cache_data.clear()
+# O Streamlit esquece um filtro quando a tela dele sai de cena: isto guarda a escolha ao trocar de tela.
+for chave in ("atleta_id", "modalidade", "inativos"):
+    if chave in st.session_state:
+        st.session_state[chave] = st.session_state[chave]
+
+with st.container(key="topo"):
+    titulo, navegacao, acao = st.columns([5, 2.6, 1.1], vertical_alignment="center", gap="small")
+    titulo.html(faixa_superior())
+    tela = navegacao.segmented_control("Tela", [TELA_ATLETA, TELA_REAVALIACOES], default=TELA_ATLETA, required=True,
+                                       key="tela", label_visibility="collapsed", width="stretch")
+    if acao.button("Atualizar", width="stretch"):
+        st.cache_data.clear()
 
 faltando = dados.variaveis_faltando()
 if dados.usando_exemplos():
@@ -310,15 +368,14 @@ elif faltando:
     st.stop()
 
 try:
-    atletas = ler_atletas()
+    atletas = [{**a, "modalidade": cartao.nome_da_modalidade(a["modalidade"])} for a in ler_atletas()]
     reavaliacoes = ler_reavaliacoes()
     if not atletas:
         st.warning("A API não devolveu nenhum atleta da PKZ. Confira se o usuário do .env tem a unidade definida.")
         st.stop()
-    aba_atleta, aba_reavaliacoes = st.tabs(["Atleta", "Reavaliações"])
-    with aba_atleta:
+    if tela == TELA_ATLETA:
         tela_atleta(atletas, reavaliacoes)
-    with aba_reavaliacoes:
+    else:
         tela_reavaliacoes(atletas, reavaliacoes)
 except dados.ErroDados as erro:
     st.error(str(erro))

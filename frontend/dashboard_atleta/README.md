@@ -2,14 +2,18 @@
 
 Tela em Streamlit em que se escolhe um atleta da PKZ e se vê como ele evolui nos testes físicos.
 
-**Aba Atleta**
+**Tela Atleta**
 
-- nome, categoria e data da última avaliação;
-- situação da reavaliação: em dia, vence em breve ou vencida;
-- comparação com a avaliação anterior: melhorou, piorou ou estável;
-- evolução de cada teste em gráfico de linha, com direita e esquerda separadas nos testes feitos com cada perna.
+- filtros de modalidade, atleta e inativos, com setas para passar de um atleta para o outro;
+- visão geral: avaliações, comparação, presença e reavaliação;
+- cartão do atleta, no desenho do painel comparativo, com nota, nível e os seis atributos da modalidade;
+- radar dos atributos, contra a média do grupo;
+- descrição de como vêm sendo os relatórios: avaliações, saldo da comparação, maior evolução, ponto de atenção, frequência, relatórios de treino e reavaliação;
+- onde o atleta se destaca e o que mudou contra a avaliação anterior;
+- um gráfico para cada teste, com a forma ligada ao número de avaliações, e um aviso quando falta dado para comparar;
+- tabela compacta com todos os valores, fechada por padrão.
 
-**Aba Reavaliações**: lista das reavaliações vencidas e a vencer, para a coordenação.
+**Tela Reavaliações**: lista das reavaliações vencidas e a vencer, para a coordenação.
 
 ## Como rodar
 
@@ -30,13 +34,39 @@ No Mac ou no Linux, ative o ambiente com `source .venv/bin/activate`. A tela abr
 
 **Sem o `.env`, dos exemplos.** A tela usa os JSON fictícios de `backend/exemplos/api/` e avisa no topo que são dados de exemplo. Como não existe `reavaliacao.json`, a situação da reavaliação é calculada pela mesma regra da view: 90 dias para vencer e aviso a 30 dias. Se a API falhar, a tela mostra o erro e não troca para os exemplos.
 
-Contrato das views: [`backend/docs/api.md`](../../backend/docs/api.md). O dashboard usa `atleta`, `evolucao`, `comparacao` e `reavaliacao`, só com `unidade = PKZ`. Os dados ficam em memória por 5 minutos; o botão *Atualizar dados* lê tudo de novo.
+Contrato das views: [`backend/docs/api.md`](../../backend/docs/api.md). O dashboard usa `atleta`, `evolucao`, `comparacao`, `reavaliacao`, `presenca` e `treino`, só com `unidade = PKZ`. Os dados ficam em memória por 5 minutos; o botão *Atualizar* lê tudo de novo.
 
 ## Regras que a tela segue
 
 - Melhorou, piorou, estável e vencimento vêm prontos da API; a tela não recalcula nada.
 - Teste com regra ainda não confirmada pela PKZ (`confirmado = false`) mostra a classificação com um asterisco e um aviso. Pelo `api.md`, no relatório dos pais esse teste aparece só com os valores.
 - Atletas inativos ficam fora, a não ser que se ligue *Incluir atletas inativos*.
+
+## Atributos e nota do cartão (provisória)
+
+A API ainda não entrega nota, nível, metal, modalidade, posição nem foto. O cartão calcula uma nota provisória em `cartao.py` e diz isso na tela. Os atributos de cada modalidade, os testes usados e as regras estão em [`../CATALOGO_ATRIBUTOS.md`](../CATALOGO_ATRIBUTOS.md); a versão lida pelo programa é [`../catalogo_atributos.json`](../catalogo_atributos.json).
+
+O painel comparativo v4 aplica as mesmas regras e dá a mesma nota.
+
+## Filtro de modalidade
+
+O campo *Modalidade* mostra na lista só os atletas daquela modalidade, e começa em *Todas as modalidades*. Cada atleta usa os atributos da própria modalidade. Sem modalidade registrada, usa os atributos gerais e aparece só em *Todas as modalidades*.
+
+A API ainda não informa a modalidade. Até informar, ela vem de uma lista local:
+
+1. Gere a lista: `.venv/Scripts/python gerar_lista_modalidades.py`. Quem já foi preenchido é mantido.
+2. Abra `modalidades_atletas.csv` no Excel e preencha a coluna `modalidade`: Futebol de campo, Futsal, Basquete ou Vôlei. Outra modalidade também funciona, com os atributos gerais.
+3. Salve como CSV e clique em *Atualizar* no dashboard.
+
+**A lista tem nomes de menores.** Ela fica só nesta máquina, fora do GitHub: não mande em grupo. Quando a API trouxer `modalidade`, o valor da API passa a valer e a lista deixa de ser necessária.
+
+## Como a tela é lida
+
+1. **Como está:** frase principal, números, cartão, radar dos atributos e descrição dos relatórios.
+2. **Onde se destaca e o que mudou:** posição entre os colegas e valores de antes e agora.
+3. **Como veio evoluindo:** cada dado na forma que comunica melhor. A análise, dado por dado, está em [`../ANALISE_GRAFICOS.md`](../ANALISE_GRAFICOS.md), e os gráficos, em `graficos.py`.
+
+A descrição (`relato.py`) é montada a partir das views da API, sem IA e sem texto inventado. Quando o relatório de treino tem observação do treinador, a última aparece como foi escrita.
 
 ## Cuidado com os dados
 
