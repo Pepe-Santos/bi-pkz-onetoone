@@ -1,7 +1,11 @@
 -- Views da API de avaliações (schema api). Contrato em backend/docs/api.md.
--- Depende do 04_trat_parametros_catalogo.sql, do 05_trat_medidas.sql e da novo.vw_aluno
--- (view de consumo do grupo de Dados). Pode rodar quantas vezes quiser (CREATE OR
--- REPLACE VIEW); rode sempre depois do 05, que apaga estas views ao recriar o trat.
+-- Depende do 04_trat_parametros_catalogo.sql, do 05_trat_medidas.sql e das tabelas
+-- novo.aluno, novo.pessoa, novo.matricula e novo.unidade (grupo de Dados). Pode rodar
+-- quantas vezes quiser (CREATE OR REPLACE VIEW); rode sempre depois do 05.
+--
+-- Lê as tabelas, e não a novo.vw_aluno: essa view é security_invoker, então aplica o RLS
+-- da 012 a quem chama a API, e o usuário da API não tem papel no app (novo.perfil_usuario).
+-- Por ela, quem entra com login recebe 0 atletas. Veja o 08.
 --
 -- As views são do postgres e rodam com as permissões dele: quem chama a API só precisa
 -- de SELECT no schema api, sem acesso ao trat nem ao novo.
@@ -12,13 +16,16 @@
 -- direto ao banco (SQL Editor, psql: sem token) veem tudo.
 
 -- ---------------------------------------------------------------------------
--- Unidade de cada aluno, da novo.vw_aluno (view de consumo do grupo de Dados): a da
--- matrícula vigente. Aluno sem matrícula vigente fica sem unidade e só aparece para
--- quem vê TODAS.
+-- Unidade de cada aluno: a da matrícula com a vigência mais recente. Aluno sem matrícula
+-- fica sem unidade e só aparece para quem vê TODAS.
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE VIEW trat.aluno_unidade AS
-SELECT aluno_id, upper(unidade) AS unidade
-FROM novo.vw_aluno;
+SELECT DISTINCT ON (mt.aluno_id)
+  mt.aluno_id,
+  upper(u.codigo) AS unidade
+FROM novo.matricula mt
+JOIN novo.unidade u ON u.id = mt.unidade_id
+ORDER BY mt.aluno_id, mt.vigencia_inicio DESC;
 
 -- Quem fez a chamada pode ver atletas desta unidade?
 CREATE OR REPLACE FUNCTION trat.unidade_permitida(unidade text)
@@ -43,17 +50,19 @@ WITH avaliacoes AS (
   GROUP BY aluno_id
 )
 SELECT
-  a.aluno_id                                             AS atleta_id,
-  upper(a.unidade)                                       AS unidade,
-  a.nome,
-  extract(year FROM age(current_date, a.data_nascimento))::int AS idade,
+  a.id                                                   AS atleta_id,
+  ua.unidade,
+  p.nome,
+  extract(year FROM age(current_date, p.data_nascimento))::int AS idade,
   a.categoria,
   (a.status = 'ativo')                                   AS ativo,
   coalesce(av.total_avaliacoes, 0)                       AS total_avaliacoes,
   av.ultima_avaliacao_em
-FROM novo.vw_aluno a
-LEFT JOIN avaliacoes av ON av.aluno_id = a.aluno_id
-WHERE trat.unidade_permitida(upper(a.unidade));
+FROM novo.aluno a
+JOIN novo.pessoa p               ON p.id = a.pessoa_id
+LEFT JOIN trat.aluno_unidade ua  ON ua.aluno_id = a.id
+LEFT JOIN avaliacoes av          ON av.aluno_id = a.id
+WHERE trat.unidade_permitida(ua.unidade);
 
 -- ---------------------------------------------------------------------------
 -- evolucao: histórico de cada teste do atleta, uma linha por avaliação, teste e lado.
@@ -117,7 +126,9 @@ SELECT
   CASE
     WHEN valor_anterior IS NULL THEN 'sem_comparacao'
     WHEN variacao_abs = 0
-      OR abs(variacao_pct) < (SELECT valor FROM trat.parametro WHERE chave = 'variacao_estavel_pct')
+      -- sem arredondar: -1,96% é estável, embora a coluna exibida mostre -2,0
+      OR abs((valor_atual - valor_anterior) / nullif(valor_anterior, 0) * 100)
+         < (SELECT valor FROM trat.parametro WHERE chave = 'variacao_estavel_pct')
       THEN 'estavel'
     WHEN maior_melhor IS NULL THEN 'sem_classificacao'
     WHEN (variacao_abs > 0) = maior_melhor THEN 'melhorou'
@@ -127,6 +138,7 @@ FROM par;
 
 -- ---------------------------------------------------------------------------
 -- reavaliacao: reavaliações vencidas e a vencer, uma linha por atleta já avaliado.
+-- A data de hoje é a de São Paulo: o current_date do Supabase é UTC.
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE VIEW api.reavaliacao AS
 WITH prazo AS (
@@ -144,10 +156,10 @@ SELECT
   unidade,
   ultima_avaliacao_em,
   vence_em,
-  (vence_em - current_date) AS dias_para_vencer,
+  (vence_em - (now() AT TIME ZONE 'America/Sao_Paulo')::date) AS dias_para_vencer,
   CASE
-    WHEN vence_em < current_date THEN 'vencida'
-    WHEN vence_em - current_date
+    WHEN vence_em < (now() AT TIME ZONE 'America/Sao_Paulo')::date THEN 'vencida'
+    WHEN vence_em - (now() AT TIME ZONE 'America/Sao_Paulo')::date
          <= (SELECT valor FROM trat.parametro WHERE chave = 'reavaliacao_aviso_dias') THEN 'a_vencer'
     ELSE 'em_dia'
   END AS situacao

@@ -169,7 +169,7 @@ Uma linha por atleta, teste e lado, comparando a última avaliação com a imedi
 
 Regras de `situacao`:
 
-- `estavel`: `abs(variacao_pct)` abaixo do parâmetro `variacao_estavel_pct` (2% provisório), ou valor igual.
+- `estavel`: variação sem arredondar abaixo do parâmetro `variacao_estavel_pct` (2% provisório), ou valor igual. O arredondamento vale só para a coluna `variacao_pct`: −1,96% aparece como −2,0 e é estável.
 - `sem_classificacao`: mudou além do estável, mas o teste não tem direção (`maior_melhor` nulo: altura, peso e `slalom_wallball`, cuja direção ainda não foi definida).
 - `melhorou` / `piorou`: pela direção do teste (`maior_melhor`). Variação negativa num teste de tempo é melhora.
 - `sem_comparacao`: não há avaliação anterior com valor válido.
@@ -188,7 +188,7 @@ Uma linha por atleta com pelo menos uma avaliação. Ainda sem arquivo de exempl
 | `unidade` | text | |
 | `ultima_avaliacao_em` | date | |
 | `vence_em` | date | `ultima_avaliacao_em + reavaliacao_dias` (90 provisório) |
-| `dias_para_vencer` | int | negativo quando vencida |
+| `dias_para_vencer` | int | em relação à data de hoje em São Paulo; negativo quando vencida |
 | `situacao` | text | `vencida`, `a_vencer` (dentro de `reavaliacao_aviso_dias`, 30 provisório) ou `em_dia` |
 
 ### `presenca`: agendamentos de treino
@@ -239,6 +239,6 @@ As regras por teste (unidade padrão, direção, faixa plausível, conversão, c
 ## O que ainda falta
 
 - Confirmar com a PKZ a unidade, a direção e a faixa plausível de cada teste, e se algum teste usa média em vez da melhor tentativa.
-- Origem dos dados (24/10, a pedido do Lucas): as views leem o banco novo por views de leitura que o grupo de Dados cria no `novo` (o Rafael passa a lista ao Micael), sem cálculo: `vw_aluno`, `vw_avaliacao_medida`, `vw_relatorio_treino` (sem os campos de dor) e `vw_agendamento`. Criadas pelo Iago em 27/10 (`013_views_consumo.sql` do grupo de Dados); as views desta API leem a `vw_avaliacao_medida` e a `vw_aluno`. A unidade (PKZ ou One to One) é a da matrícula vigente, como na `vw_aluno`: aluno sem matrícula vigente só aparece para quem vê `TODAS`. Campos de dor não entram nas views, na API nem nos relatórios.
+- Origem dos dados (24/10, a pedido do Lucas): as views leem o banco novo por views de leitura que o grupo de Dados cria no `novo` (o Rafael passa a lista ao Micael), sem cálculo: `vw_aluno`, `vw_avaliacao_medida`, `vw_relatorio_treino` (sem os campos de dor) e `vw_agendamento`. Criadas pelo Iago em 27/10 (`013_views_consumo.sql` do grupo de Dados); as views desta API leem as tabelas (veja o item de RLS abaixo). A unidade (PKZ ou One to One) é a da matrícula com a vigência mais recente: aluno sem matrícula só aparece para quem vê `TODAS`. Campos de dor não entram nas views, na API nem nos relatórios.
 - Códigos dos testes: decidido em 20/10 que o contrato usa os códigos do banco novo (`novo.metrica.codigo`). Em 24/10 o catálogo e os exemplos em `backend/exemplos/api/` passaram a usar esses códigos, ganharam a coluna `lado` e os testes que faltavam (Banco de Wells, Blazepod, os 3 saltos verticais, o restante do VO2 e o peso). A cópia em `exemplos/api/` na raiz, usada pelo gerador de relatórios, ainda está no formato antigo.
-- Views de consumo e RLS (28/10): a 013 e a 014 do grupo de Dados foram aplicadas no ensaio, mas as `novo.vw_*` são `security_invoker` e aplicam o RLS da 012 a quem chama a API. O usuário da API não tem papel no app (`novo.perfil_usuario`), então, por elas, quem entra com login recebe 0 linhas. Por isso `presenca` e `treino` (`sql/08_api_treinos.sql`) leem direto de `novo.agendamento` e `novo.relatorio_treino`, e o `06` não deve ser rodado de novo enquanto ler a `vw_aluno` e a `vw_avaliacao_medida`: as views de avaliação que estão no banco ainda leem as tabelas. Decidir com o grupo de Dados como a API lê as views.
+- Views de consumo e RLS (28/10): a 013 e a 014 do grupo de Dados foram aplicadas no ensaio, mas as `novo.vw_*` são `security_invoker` e aplicam o RLS da 012 a quem chama a API. O usuário da API não tem papel no app (`novo.perfil_usuario`), então, por elas, quem entra com login recebe 0 linhas. Por isso o `05`, o `06` e o `08` leem direto as tabelas do `novo`. Decidir com o grupo de Dados como a API lê as views.
