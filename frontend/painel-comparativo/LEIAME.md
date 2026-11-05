@@ -1,4 +1,35 @@
-# Painel comparativo — v3
+# Painel comparativo
+
+**A versão que vale é a [`painel-comparativo-v4.html`](painel-comparativo-v4.html): dados reais, lidos da API, com login.** A `v3`, logo abaixo, fica como registro da versão com dados fictícios.
+
+## v4: como abrir
+
+1. Copie `painel-config.example.js` para `painel-config.js` e preencha a URL e a chave pública. Esse arquivo não vai para o GitHub.
+2. Dê dois cliques em `painel-comparativo-v4.html`.
+3. Entre com um usuário da API. O perfil vem da unidade do login: `TODAS` é Admin, `PKZ` é Professor PKZ e `ONE_TO_ONE` é Professor One to One. O token fica só na memória: recarregar a página pede o login de novo.
+
+## v4: o que é real e o que mudou
+
+| Na tela | De onde vem |
+|---|---|
+| Atletas, idade e categoria | `api.atleta`, só os ativos |
+| Atributos e nota provisória | `api.evolucao`, pelas regras de [`../CATALOGO_ATRIBUTOS.md`](../CATALOGO_ATRIBUTOS.md). Dá a mesma nota do dashboard do atleta |
+| Resumo do dia e presença | `api.presenca` |
+
+**O que saiu, porque a API não tem o dado:** filtros de gênero e de data de entrada, posição, foto e consultas de nutrição e fisioterapia.
+
+**O que está limitado:**
+
+- **Modalidade:** a API não informa a do atleta. Aqui, a escolha na tela só troca os atributos usados, e a lista traz todos os atletas ativos da PKZ. O dashboard do atleta já filtra por modalidade; o painel recebe o mesmo filtro quando o dado existir na API.
+- **Dado faltando:** todo atleta da modalidade mostra os mesmos seis atributos. O que falta aparece como "sem dado", com um aviso no cartão, nunca como número inventado.
+- **Chamada:** só leitura, porque a API não grava. Os botões Presente e Faltou saíram.
+- **One to One:** aparece sem nota, porque não há avaliações físicas na API.
+
+O bloqueio entre unidades é da API, não só da tela. A tela apenas acompanha o que o login pode ver.
+
+## v3
+
+— v3
 
 [`painel-comparativo-v3.html`](painel-comparativo-v3.html) é o painel que
 compara os alunos de um grupo atributo por atributo, mostra quem está acima ou
