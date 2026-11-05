@@ -1,0 +1,84 @@
+{
+  "_sobre": "Fonte única dos atributos de cada modalidade. Explicação em CATALOGO_ATRIBUTOS.md. Quem muda aqui atualiza também a cópia em painel-comparativo/painel-comparativo-v4.html (const CATALOGO).",
+  "versao": "2026-11-04",
+  "faixas_de_idade": [
+    { "nome": "Até 10 anos", "ate": 10 },
+    { "nome": "11 e 12 anos", "ate": 12 },
+    { "nome": "13 anos ou mais", "ate": null }
+  ],
+  "regras": {
+    "minimo_no_grupo": 5,
+    "minimo_de_atributos_para_nota": 3,
+    "simetria_minima": 90,
+    "faixa_da_media": 5,
+    "niveis": [
+      { "nivel": "E", "ate": 20, "metal": "Bronze" },
+      { "nivel": "D", "ate": 40, "metal": "Bronze" },
+      { "nivel": "C", "ate": 60, "metal": "Prata" },
+      { "nivel": "B", "ate": 80, "metal": "Ouro" },
+      { "nivel": "A", "ate": 99, "metal": "Preto" }
+    ]
+  },
+  "modalidades": {
+    "PKZ": {
+      "Futebol de campo": [
+        { "sigla": "VEL", "nome": "Velocidade", "tipo": "percentil", "teste": "sprint_20", "maior_melhor": false, "aproximado": false },
+        { "sigla": "POT", "nome": "Salto", "tipo": "percentil", "teste": "saltos_vert_countermovement", "maior_melhor": true, "aproximado": false },
+        { "sigla": "AGI", "nome": "Mudar de direção", "tipo": "percentil", "teste": "illinois", "maior_melhor": false, "aproximado": false },
+        { "sigla": "RES", "nome": "Resistência", "tipo": "percentil", "teste": "teste_vo2_distancia_total", "maior_melhor": true, "aproximado": false },
+        { "sigla": "MOB", "nome": "Flexibilidade", "tipo": "percentil", "teste": "banco_wells", "maior_melhor": true, "aproximado": false },
+        { "sigla": "SIM", "nome": "Equilíbrio das pernas", "tipo": "simetria", "teste": "single_hop", "aproximado": false }
+      ],
+      "Futsal": [
+        { "sigla": "DIR", "nome": "Mudar de direção", "tipo": "percentil", "teste": "illinois", "maior_melhor": false, "aproximado": false },
+        { "sigla": "ARR", "nome": "Arranque curto", "tipo": "percentil", "teste": "sprint_10", "maior_melhor": false, "aproximado": true, "falta": "O relatório fala em 5 m; a bateria mede 10 m" },
+        { "sigla": "SAL", "nome": "Salto", "tipo": "percentil", "teste": "saltos_vert_countermovement", "maior_melhor": true, "aproximado": false },
+        { "sigla": "REA", "nome": "Reação", "tipo": "percentil", "teste": "blazepod_vel_reacao_ms", "maior_melhor": false, "aproximado": false },
+        { "sigla": "MOB", "nome": "Flexibilidade", "tipo": "percentil", "teste": "banco_wells", "maior_melhor": true, "aproximado": false },
+        { "sigla": "SIM", "nome": "Equilíbrio das pernas", "tipo": "simetria", "teste": "single_hop", "aproximado": false }
+      ],
+      "Basquete": [
+        { "sigla": "ARR", "nome": "Arranque curto", "tipo": "percentil", "teste": "sprint_10", "maior_melhor": false, "aproximado": true, "falta": "O relatório fala em arranque curto; a bateria mede 10 m" },
+        { "sigla": "SAL", "nome": "Salto", "tipo": "percentil", "teste": "saltos_vert_countermovement", "maior_melhor": true, "aproximado": false },
+        { "sigla": "DIR", "nome": "Mudar de direção", "tipo": "percentil", "teste": "illinois", "maior_melhor": false, "aproximado": false },
+        { "sigla": "EST", "nome": "Estabilidade", "tipo": "percentil", "teste": "estabilidade_aquabag", "maior_melhor": false, "aproximado": false },
+        { "sigla": "MOB", "nome": "Flexibilidade", "tipo": "percentil", "teste": "banco_wells", "maior_melhor": true, "aproximado": false },
+        { "sigla": "SIM", "nome": "Equilíbrio das pernas", "tipo": "simetria", "teste": "single_hop", "aproximado": false }
+      ],
+      "Vôlei": [
+        { "sigla": "BLQ", "nome": "Salto de bloqueio", "tipo": "percentil", "teste": "saltos_vert_countermovement", "maior_melhor": true, "aproximado": true, "falta": "Mede a altura do salto parado, não o alcance das mãos" },
+        { "sigla": "ATQ", "nome": "Salto de ataque", "tipo": "percentil", "teste": "saltos_vert_abalakov", "maior_melhor": true, "aproximado": true, "falta": "O Abalakov é um salto parado, sem a passada do ataque" },
+        { "sigla": "DES", "nome": "Deslocamento", "tipo": "percentil", "teste": "illinois", "maior_melhor": false, "aproximado": true, "falta": "Illinois mede mudança de direção; não há teste de deslocamento de vôlei" },
+        { "sigla": "REA", "nome": "Reação", "tipo": "percentil", "teste": "blazepod_vel_reacao_ms", "maior_melhor": false, "aproximado": false },
+        { "sigla": "MOB", "nome": "Flexibilidade", "tipo": "percentil", "teste": "banco_wells", "maior_melhor": true, "aproximado": false },
+        { "sigla": "SIM", "nome": "Equilíbrio das pernas", "tipo": "simetria", "teste": "single_hop", "aproximado": false }
+      ]
+    },
+    "GERAL": [
+      { "sigla": "VEL", "nome": "Velocidade", "tipo": "percentil", "teste": "sprint_20", "maior_melhor": false, "aproximado": false },
+      { "sigla": "POT", "nome": "Salto", "tipo": "percentil", "teste": "saltos_vert_countermovement", "maior_melhor": true, "aproximado": false },
+      { "sigla": "AGI", "nome": "Mudar de direção", "tipo": "percentil", "teste": "illinois", "maior_melhor": false, "aproximado": false },
+      { "sigla": "RES", "nome": "Resistência", "tipo": "percentil", "teste": "teste_vo2_distancia_total", "maior_melhor": true, "aproximado": false },
+      { "sigla": "MOB", "nome": "Flexibilidade", "tipo": "percentil", "teste": "banco_wells", "maior_melhor": true, "aproximado": false },
+      { "sigla": "SIM", "nome": "Equilíbrio das pernas", "tipo": "simetria", "teste": "single_hop", "aproximado": false }
+    ],
+    "ONE_TO_ONE": {
+      "Todas": [
+        { "sigla": "FIN", "nome": "Força de inferiores", "tipo": "sem_dados", "teste": null, "falta": "O One to One não tem avaliações físicas na API" },
+        { "sigla": "RES", "nome": "Resistência", "tipo": "sem_dados", "teste": null, "falta": "O One to One não tem avaliações físicas na API" },
+        { "sigla": "POT", "nome": "Potência", "tipo": "sem_dados", "teste": null, "falta": "O One to One não tem avaliações físicas na API" },
+        { "sigla": "FSU", "nome": "Força de superiores", "tipo": "sem_dados", "teste": null, "falta": "O One to One não tem avaliações físicas na API" },
+        { "sigla": "COR", "nome": "Core", "tipo": "sem_dados", "teste": null, "falta": "O One to One não tem avaliações físicas na API" },
+        { "sigla": "MOB", "nome": "Mobilidade", "tipo": "sem_dados", "teste": null, "falta": "O One to One não tem avaliações físicas na API" }
+      ]
+    }
+  },
+  "grupos_de_testes": [
+    { "nome": "Velocidade e agilidade", "testes": ["sprint_10", "sprint_20", "illinois", "slalom_wallball"] },
+    { "nome": "Salto e potência", "testes": ["saltos_vert_countermovement", "saltos_vert_squat_jump", "saltos_vert_abalakov", "single_hop", "cross_hop"] },
+    { "nome": "Resistência", "testes": ["teste_vo2_distancia_total", "teste_vo2_tempo_total", "teste_vo2_tempo_vel_max", "teste_vo2_vel_max"] },
+    { "nome": "Flexibilidade e equilíbrio", "testes": ["banco_wells", "estabilidade_aquabag"] },
+    { "nome": "Reação e foco", "testes": ["blazepod_foco", "blazepod_vel_reacao_hits", "blazepod_vel_reacao_ms"] },
+    { "nome": "Medidas do corpo", "testes": ["antropometria_altura", "antropometria_peso"] }
+  ]
+}
