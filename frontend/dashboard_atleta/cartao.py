@@ -99,10 +99,13 @@ def _motivo_da_falta(d: dict, atleta_id: str, ultimos: dict) -> str:
     return POUCOS_COLEGAS if fez else SEM_TESTE
 
 
-def calcular_cartoes(atletas: list[dict], medidas: list[dict], modalidade: str | None) -> dict[str, dict]:
+def calcular_cartoes(atletas: list[dict], medidas: list[dict], modalidade: str | None, one_to_one: bool = False) -> dict[str, dict]:
     """{atleta_id: cartão} de todos os atletas, nos atributos da modalidade (ou nos gerais, se ela não está no catálogo)."""
-    definicoes = CATALOGO["modalidades"]["PKZ"].get(modalidade) or CATALOGO["modalidades"]["GERAL"]
-    rotulo = modalidade if modalidade in MODALIDADES_PKZ else f"{modalidade or 'Modalidade não informada'} · atributos gerais"
+    if one_to_one:
+        definicoes, rotulo = CATALOGO["modalidades"]["ONE_TO_ONE"]["Todas"], "One to One"
+    else:
+        definicoes = CATALOGO["modalidades"]["PKZ"].get(modalidade) or CATALOGO["modalidades"]["GERAL"]
+        rotulo = modalidade if modalidade in MODALIDADES_PKZ else f"{modalidade or 'Modalidade não informada'} · atributos gerais"
     ultimos = ultimos_valores(medidas)
     grupos: dict[str, list[str]] = {}
     for atleta in atletas:
@@ -166,6 +169,8 @@ def _lista(nomes: list[str]) -> str:
 
 def aviso_de_dados(atleta: dict, cartao: dict) -> str:
     """O que falta no cartão, em palavras. Vazio quando está tudo preenchido."""
+    if atleta.get("unidade") == "ONE_TO_ONE":
+        return "O One to One ainda não tem avaliações físicas na API: atributos e nota aparecem quando houver."
     if not atleta["total_avaliacoes"]:
         return "Atleta novo: os atributos e a nota aparecem depois da primeira avaliação."
     frases = []
@@ -195,7 +200,7 @@ def _atributo(d: dict, valor) -> str:
             f'<div style="font-size:clamp(11px,2.9cqi,14px);line-height:1.2;color:#64748b">{escape(d["nome"])}</div></div>')
 
 
-def html_do_cartao(atleta: dict, cartao: dict) -> str:
+def html_do_cartao(atleta: dict, cartao: dict, rodape: str = "") -> str:
     """O tamanho de tudo acompanha a largura do próprio cartão. O que vem do banco passa pelo escape."""
     nota, nivel = cartao["nota"], cartao["nivel"]
     numero = "—" if nota is None else nota
@@ -205,7 +210,8 @@ def html_do_cartao(atleta: dict, cartao: dict) -> str:
 
     posicao = cartao["posicao"]
     fundo_pos, tinta_pos = MEDALHAS.get(posicao, ("#f3f5fd", "#12228e"))
-    pilula = (f'<span title="Posição entre {escape(cartao["grupo"].lower())}" style="display:inline-grid;place-items:center;flex-shrink:0;'
+    titulo_da_posicao = cartao.get("titulo_da_posicao") or f"Posição entre {cartao['grupo'].lower()}"
+    pilula = (f'<span title="{escape(titulo_da_posicao)}" style="display:inline-grid;place-items:center;flex-shrink:0;'
               f"min-width:34px;height:28px;padding:0 7px;border-radius:8px;background:{fundo_pos};color:{tinta_pos};"
               f'font-size:13px;font-weight:800">{posicao}º</span>') if posicao else ""
     atributos = "".join(_atributo(d, cartao["atributos"][d["sigla"]]) for d in cartao["definicoes"])
@@ -248,5 +254,6 @@ def html_do_cartao(atleta: dict, cartao: dict) -> str:
     <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:1fr;gap:clamp(6px,1.8cqi,10px);flex:1;padding:0 clamp(12px,3.4cqi,20px) clamp(12px,3.4cqi,20px)">{atributos}</div>
     {nota_aprox}
     {aviso}
+    {rodape}
   </div>
 </div>"""

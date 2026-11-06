@@ -1,10 +1,12 @@
-# Dashboard do atleta (PKZ)
+# Dashboards da PKZ e do One to One
 
-Tela em Streamlit em que se escolhe um atleta da PKZ e se vê como ele evolui nos testes físicos.
+App em Streamlit com três telas, escolhidas nos botões do topo: **Atleta**, **Comparativo** e **Reavaliações**. As três usam o mesmo cartão, o mesmo catálogo de atributos e a mesma nota provisória.
 
 **Tela Atleta**
 
-- filtros de modalidade, atleta e inativos, com setas para passar de um atleta para o outro;
+- a mesma barra de filtros do Comparativo: área (PKZ ou One to One, conforme o login), modalidade, faixa de idade e inativos. O que se escolhe numa tela continua escolhido na outra;
+- embaixo, o atleta, com setas para passar de um para o outro;
+- no One to One, o aluno aparece com presença e relatórios de treino, e um aviso de que ainda não há avaliação física na API;
 - visão geral: avaliações, comparação, presença e reavaliação;
 - cartão do atleta, no desenho do painel comparativo, com nota, nível e os seis atributos da modalidade;
 - radar dos atributos, contra a média do grupo;
@@ -12,6 +14,15 @@ Tela em Streamlit em que se escolhe um atleta da PKZ e se vê como ele evolui no
 - onde o atleta se destaca e o que mudou contra a avaliação anterior;
 - um gráfico para cada teste, com a forma ligada ao número de avaliações, e um aviso quando falta dado para comparar;
 - tabela compacta com todos os valores, fechada por padrão.
+
+**Tela Comparativo** (o painel comparativo, agora no mesmo app)
+
+- área PKZ ou One to One, conforme a unidade do login: o admin vê as duas, cada professor só a sua;
+- filtros de modalidade, faixa de idade, inativos e "comparar por" (nota ou um atributo da modalidade escolhida);
+- faixa azul com quantos estão acima, na média e abaixo, e a média do grupo filtrado;
+- resumo da chamada de hoje, só leitura, e a distribuição da turma por nível;
+- cartões ordenados pelo que se está comparando, ou o ranking em barras;
+- comparação de dois atletas, atributo por atributo, com a média do grupo marcada.
 
 **Tela Reavaliações**: lista das reavaliações vencidas e a vencer, para a coordenação.
 

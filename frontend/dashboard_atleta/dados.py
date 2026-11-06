@@ -2,6 +2,7 @@
 
 O contrato das views está em backend/docs/api.md.
 """
+import base64
 import csv
 import json
 import os
@@ -156,6 +157,30 @@ def atletas_pkz() -> list[dict]:
         linhas = [a for a in _ler_exemplo("atleta") if a["unidade"] == "PKZ"]
         return _com_modalidade(sorted(linhas, key=lambda a: a["nome"]))
     return _com_modalidade(_ler_api("atleta", unidade="eq.PKZ", order="nome.asc,atleta_id.asc"))
+
+
+def atletas_do_login() -> list[dict]:
+    """Todos os atletas que o login pode ver: a API filtra pela unidade do usuário."""
+    if usando_exemplos():
+        return _com_modalidade(sorted(_ler_exemplo("atleta"), key=lambda a: a["nome"]))
+    return _com_modalidade(_ler_api("atleta", order="nome.asc,atleta_id.asc"))
+
+
+def presencas_do_login() -> list[dict]:
+    if usando_exemplos():
+        return []  # sem arquivo de exemplo
+    return _ler_api("presenca", select="atleta_id,data,hora_inicio,status", order="data.asc,agendamento_id.asc")
+
+
+def unidade_do_login() -> str | None:
+    """TODAS, PKZ ou ONE_TO_ONE, como o login informa. Só decide o que a tela oferece: quem bloqueia é a API."""
+    if usando_exemplos():
+        return "TODAS"
+    global _token
+    _token = _token or _login()
+    carga = _token.split(".")[1]
+    carga += "=" * (-len(carga) % 4)
+    return (json.loads(base64.urlsafe_b64decode(carga)).get("app_metadata") or {}).get("unidade")
 
 
 def evolucao(atleta_id: str) -> list[dict]:

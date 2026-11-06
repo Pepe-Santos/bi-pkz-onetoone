@@ -179,6 +179,16 @@ def aviso(titulo: str, texto: str = "") -> str:
     return f'<div class="aviso" role="status"><span class="aviso-marca" aria-hidden="true">!</span><div>{corpo}</div></div>'
 
 
+def tile(valor, rotulo, detalhe, cor="#fff", em_texto=False) -> str:
+    return (f'<div class="heroi-tile"><b class="{"texto" if em_texto else ""}" style="color:{cor}">{valor}</b>'
+            f"<span>{rotulo}</span><small>{detalhe}</small></div>")
+
+
+def heroi(rotulo, frase, tiles) -> str:
+    return (f'<section class="heroi"><div><div class="heroi-rotulo">{rotulo}</div><p class="heroi-frase">{frase}</p></div>'
+            f'<div class="heroi-tiles">{"".join(tiles)}</div></section>')
+
+
 def titulo_de_painel(titulo: str, explicacao: str = "") -> str:
     return (f'<div><div class="painel-titulo">{escape(titulo)}</div>'
             + (f'<div class="painel-sub">{escape(explicacao)}</div>' if explicacao else "") + "</div>")

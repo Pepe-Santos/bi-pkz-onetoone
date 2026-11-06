@@ -1,5 +1,7 @@
 # Painel comparativo
 
+> **Agora o painel também está no app em Streamlit**, na tela *Comparativo* de [`../dashboard_atleta`](../dashboard_atleta/README.md), com o mesmo modelo do dashboard do atleta. Esta pasta guarda a versão em HTML, que abre sem Python.
+
 **A versão que vale é a [`painel-comparativo-v4.html`](painel-comparativo-v4.html): dados reais, lidos da API, com login.** A `v3`, logo abaixo, fica como registro da versão com dados fictícios.
 
 ## v4: como abrir
