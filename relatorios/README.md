@@ -52,7 +52,7 @@ Para cada aluno das duas unidades (`api.atleta`):
 
 Erro em um aluno não para os outros: o lote mostra o erro, segue e termina com código 1. Quem não foi registrado é tentado de novo na próxima execução. O envio de teste é registrado separado (`teste = true`), então não impede o envio real do mesmo período.
 
-**One to One:** ainda não tem gerador, então os alunos do One to One são pulados. Quando o relatório One to One existir, a ligação é só na função `gerar_relatorio()` do `enviar_lote.py`.
+**One to One:** usa o `gerar_relatorio_one_to_one()` do `gerador_pkz/gerar_pdf.py`, chamado pela função `gerar_relatorio()` do `enviar_lote.py`. Aluno sem agendamento nem treino no período é pulado, como na PKZ.
 
 ### Agendamento (GitHub Actions)
 
