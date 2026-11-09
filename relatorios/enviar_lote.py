@@ -123,14 +123,17 @@ def guardar_no_bucket(caminho_pdf, destino):
 def gerar_relatorio(aluno, periodo, referencia):
     """Caminho do PDF do período, ou None se o aluno não tem dados nele.
 
-    PKZ: gerador_pkz/gerar_pdf.py (Henrique). O One to One ainda não tem gerador e é pulado.
+    As duas unidades usam o gerador_pkz/gerar_pdf.py (Henrique): gerar_relatorio() para a PKZ
+    e gerar_relatorio_one_to_one() para o One to One.
     """
-    if aluno["unidade"] != "PKZ":
-        return None
     sys.path.insert(0, str(BASE_DIR / "gerador_pkz"))
     import gerar_pdf
 
-    return gerar_pdf.gerar_relatorio(aluno["atleta_id"], periodo, referencia)
+    if aluno["unidade"] == "PKZ":
+        return gerar_pdf.gerar_relatorio(aluno["atleta_id"], periodo, referencia)
+    if aluno["unidade"] == "ONE_TO_ONE":
+        return gerar_pdf.gerar_relatorio_one_to_one(aluno["atleta_id"], periodo, referencia)
+    return None
 
 
 def ler_argumentos():
