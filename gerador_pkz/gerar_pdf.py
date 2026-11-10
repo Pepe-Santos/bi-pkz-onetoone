@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import unicodedata
 from collections import defaultdict
@@ -30,6 +31,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_PATH = BASE_DIR / "backend" / ".env"
 API_DIR = BASE_DIR / "exemplos" / "api"
 SAIDA_DIR = BASE_DIR / "gerador_pkz" / "relatorios"
+API_PAGE_SIZE = 1000
 
 load_dotenv(ENV_PATH)
 
@@ -69,7 +71,7 @@ def formatar_valor(valor, unidade=""):
     if isinstance(valor, str):
         valor = valor.strip()
 
-        if valor in ("â€”", "â€“", ""):
+        if valor in ("—", "–", ""):
             return "—"
 
     unidades_exibicao = {
@@ -135,22 +137,24 @@ def montar_comparacoes(evolucoes_ate_fim):
         maior_melhor = atual.get("maior_melhor")
         # variação % calculada sempre que houver valor anterior e atual,
         # inclusive quando o teste ainda está em validação
+        variacao_abs = None
         variacao_pct = None
         if anterior is not None and valor_atual is not None and valor_anterior is not None:
+            variacao_abs = valor_atual - valor_anterior
             if valor_anterior != 0:
-                variacao_pct = ((valor_atual - valor_anterior) / abs(valor_anterior)) * 100
-            elif valor_atual == 0:
-                variacao_pct = 0.0
+                variacao_pct = (variacao_abs / valor_anterior) * 100
 
-        if atual.get("confirmado") is False:
+        if atual.get("confirmado") is not True:
             situacao = "em_validacao"
         elif anterior is None:
             situacao = "sem_comparacao"
-        elif variacao_pct is None or maior_melhor is None:
+        elif variacao_abs is None:
             situacao = "sem_classificacao"
-        elif abs(variacao_pct) < 2:
+        elif variacao_abs == 0 or (variacao_pct is not None and abs(variacao_pct) < 2):
             situacao = "estavel"
-        elif (variacao_pct > 0) == maior_melhor:
+        elif maior_melhor not in (True, False):
+            situacao = "sem_classificacao"
+        elif (variacao_abs > 0) == maior_melhor:
             situacao = "melhorou"
         else:
             situacao = "piorou"
@@ -214,13 +218,19 @@ def titulo_periodo(periodo, inicio, fim):
     return f"Relatório anual — {inicio:%Y}"
 
 
-def carregar_json(nome):
-    caminho = API_DIR / nome
+def carregar_json(nome, diretorio=None, obrigatorio=True):
+    caminho = Path(diretorio or API_DIR) / nome
     if not caminho.exists():
+        if not obrigatorio:
+            return []
         raise FileNotFoundError(f"Arquivo não encontrado: {caminho}")
-    import json
     with caminho.open("r", encoding="utf-8") as arquivo:
-        return json.load(arquivo)
+        dados = json.load(arquivo)
+    if not isinstance(dados, list):
+        raise ValueError(f"O arquivo {caminho} deve conter uma lista JSON de registros.")
+    if not all(isinstance(registro, dict) for registro in dados):
+        raise ValueError(f"Todos os registros em {caminho} devem ser objetos JSON.")
+    return dados
 
 
 def buscar_api(view, filtros=None, order=None):
@@ -238,19 +248,80 @@ def buscar_api(view, filtros=None, order=None):
     params = dict(filtros or {})
     if order:
         params["order"] = order
+    try:
+        limite_solicitado = int(params["limit"])
+    except (KeyError, TypeError, ValueError):
+        limite_solicitado = None
     url = base_url.rstrip("/") + f"/rest/v1/{view}"
-    resposta = requests.get(url, headers=headers, params=params, timeout=30)
-    if not resposta.ok:
-        raise RuntimeError(
-            f"Erro ao consultar a view '{view}' (HTTP {resposta.status_code}): {resposta.text[:600]}"
-        )
-    dados = resposta.json()
-    if not isinstance(dados, list):
-        raise RuntimeError(f"A view '{view}' não retornou uma lista de registros.")
-    return dados
+    dados_completos = []
+    offset = 0
+    pagina_anterior = None
+    while True:
+        headers_paginados = {
+            **headers,
+            "Range-Unit": "items",
+            "Range": f"{offset}-{offset + API_PAGE_SIZE - 1}",
+            "Prefer": "count=exact",
+        }
+        resposta = requests.get(url, headers=headers_paginados, params=params, timeout=30)
+        if not resposta.ok:
+            raise RuntimeError(
+                f"Erro ao consultar a view '{view}' (HTTP {resposta.status_code}): {resposta.text[:600]}"
+            )
+        pagina = resposta.json()
+        if not isinstance(pagina, list):
+            raise RuntimeError(f"A view '{view}' não retornou uma lista de registros.")
+        dados_completos.extend(pagina)
+        if limite_solicitado is not None and len(dados_completos) >= limite_solicitado:
+            break
+        content_range = resposta.headers.get("Content-Range", "")
+        faixa = content_range.split("/", 1)[0]
+        if "-" in faixa:
+            try:
+                inicio_faixa = int(faixa.split("-", 1)[0])
+            except ValueError:
+                inicio_faixa = offset
+            if inicio_faixa != offset:
+                raise RuntimeError(
+                    f"A view '{view}' não respeitou a paginação solicitada."
+                )
+        total = content_range.rsplit("/", 1)[-1]
+        total_conhecido = total.isdigit()
+        if total_conhecido and offset + len(pagina) >= int(total):
+            break
+        if not total_conhecido and len(pagina) < API_PAGE_SIZE:
+            break
+        if not pagina:
+            break
+        if pagina == pagina_anterior:
+            raise RuntimeError(
+                f"A view '{view}' repetiu uma página; os resultados não foram paginados com segurança."
+            )
+        pagina_anterior = pagina
+        offset += len(pagina)
+    return dados_completos
 
 
-def buscar_dados_atleta(atleta_id):
+def buscar_dados_atleta(atleta_id, json_dir=None):
+    if json_dir is not None:
+        atletas = carregar_json("atleta.json", json_dir)
+        evolucoes = carregar_json("evolucao.json", json_dir)
+        presencas = carregar_json("presenca.json", json_dir, obrigatorio=False)
+        candidatos = [
+            atleta for atleta in atletas
+            if atleta.get("unidade") == "PKZ"
+            and (not atleta_id or atleta.get("atleta_id") == atleta_id)
+        ]
+        if not candidatos:
+            raise ValueError(
+                f"Atleta PKZ não encontrado no JSON: {atleta_id or '(primeiro atleta PKZ)'}"
+            )
+        atleta = candidatos[0]
+        aid = atleta.get("atleta_id")
+        evolucoes = [item for item in evolucoes if item.get("atleta_id") == aid]
+        presencas = [item for item in presencas if item.get("atleta_id") == aid]
+        return atleta, [], evolucoes, presencas
+
     filtros_atleta = {"unidade": "eq.PKZ", "select": "atleta_id,unidade,nome,idade,categoria,ativo,total_avaliacoes,ultima_avaliacao_em"}
     if atleta_id:
         filtros_atleta["atleta_id"] = f"eq.{atleta_id}"
@@ -263,6 +334,8 @@ def buscar_dados_atleta(atleta_id):
     if atleta.get("unidade") != "PKZ":
         raise ValueError("O atleta informado não pertence à unidade PKZ.")
     aid = atleta["atleta_id"]
+    # A consulta à view faz parte do contrato de integração PKZ. O PDF recalcula
+    # as situações a partir de evolucao para aplicar período e confirmação localmente.
     comparacoes = buscar_api("comparacao", {"atleta_id": f"eq.{aid}"})
     evolucoes = buscar_api(
         "evolucao", {"atleta_id": f"eq.{aid}"}, order="data_avaliacao.asc"
@@ -319,9 +392,8 @@ def calcular_frequencia(presencas, inicio, fim):
     return no_periodo, presentes, faltas, cancelados, agendados, percentual
 
 
-def criar_tabela(dados, larguras, tamanho=8):
-    # Quebra nomes longos na primeira coluna para evitar sobreposição
-    # com as colunas de valores (por exemplo, nomes extensos de testes VO2).
+def criar_tabela(dados, larguras, tamanho=8, envolver_todas_colunas=False):
+    # Quebra textos longos nas colunas solicitadas para evitar sobreposição.
     estilos_celula = getSampleStyleSheet()
     estilo_primeira_coluna = ParagraphStyle(
         name=f"CelulaTabelaPKZ{tamanho}",
@@ -329,15 +401,17 @@ def criar_tabela(dados, larguras, tamanho=8):
         fontName="DejaVu",
         fontSize=tamanho,
         leading=tamanho + 2,
-        wordWrap="CJK",
     )
 
     dados_formatados = [list(linha) for linha in dados]
     for indice in range(1, len(dados_formatados)):
-        valor = dados_formatados[indice][0]
-        if not isinstance(valor, Paragraph):
-            texto = str(valor).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-            dados_formatados[indice][0] = Paragraph(texto, estilo_primeira_coluna)
+        colunas = range(len(dados_formatados[indice])) if envolver_todas_colunas else range(1)
+        for coluna in colunas:
+            valor = dados_formatados[indice][coluna]
+            if not isinstance(valor, Paragraph):
+                dados_formatados[indice][coluna] = Paragraph(
+                    escape(str(valor)), estilo_primeira_coluna
+                )
 
     tabela = Table(dados_formatados, colWidths=larguras, repeatRows=1)
     tabela.setStyle(TableStyle([
@@ -357,9 +431,10 @@ def criar_tabela(dados, larguras, tamanho=8):
     return tabela
 
 
-def gerar_relatorio(atleta_id, periodo, referencia):
+def gerar_relatorio(atleta_id, periodo, referencia, json_dir=None):
     inicio, fim = periodo_datas(periodo, referencia)
-    atleta, comparacoes_api, evolucoes, presencas = buscar_dados_atleta(atleta_id)
+    # A consulta a comparacao é mantida; a tabela do PDF é recalculada com evolucoes filtradas.
+    atleta, _comparacoes_api, evolucoes, presencas = buscar_dados_atleta(atleta_id, json_dir)
     aid = atleta["atleta_id"]
 
     evolucoes_ate_fim = [
@@ -478,7 +553,14 @@ def gerar_relatorio(atleta_id, periodo, referencia):
         ])
     if len(linhas) == 1:
         linhas.append(["Sem comparações disponíveis", "—", "—", "—", "—"])
-    conteudo.extend([criar_tabela(linhas, [4.1 * cm, 2.8 * cm, 2.8 * cm, 2.3 * cm, 3.4 * cm]), Spacer(1, 12)])
+    conteudo.extend([
+        criar_tabela(
+            linhas,
+            [4.1 * cm, 2.8 * cm, 2.8 * cm, 2.3 * cm, 3.4 * cm],
+            envolver_todas_colunas=True,
+        ),
+        Spacer(1, 12),
+    ])
 
     conteudo.append(Paragraph("Evolução histórica por teste", estilos["SubtituloPKZ"]))
     grupos = defaultdict(list)
@@ -527,6 +609,7 @@ def gerar_relatorio(atleta_id, periodo, referencia):
 
 
 
+
 def carregar_dados_one_to_one(atleta_id, inicio, fim):
     filtros_atleta = {
         "unidade": "eq.ONE_TO_ONE",
@@ -543,15 +626,17 @@ def carregar_dados_one_to_one(atleta_id, inicio, fim):
 
     atleta = atletas[0]
 
+    filtro_periodo = (
+        f"(data.gte.{inicio.isoformat()},"
+        f"data.lte.{fim.isoformat()})"
+    )
+
     presencas = buscar_api(
         "presenca",
         {
             "atleta_id": f"eq.{atleta_id}",
             "unidade": "eq.ONE_TO_ONE",
-            "data": [
-                f"gte.{inicio.isoformat()}",
-                f"lte.{fim.isoformat()}"
-            ],
+            "and": filtro_periodo,
             "select": "atleta_id,unidade,data,status"
         },
         order="data.asc"
@@ -562,10 +647,7 @@ def carregar_dados_one_to_one(atleta_id, inicio, fim):
         {
             "atleta_id": f"eq.{atleta_id}",
             "unidade": "eq.ONE_TO_ONE",
-            "data": [
-                f"gte.{inicio.isoformat()}",
-                f"lte.{fim.isoformat()}"
-            ],
+            "and": filtro_periodo,
             "select": (
                 "atleta_id,unidade,data,tipo_treino,"
                 "intensidade,objetivos,desempenho"
@@ -575,6 +657,8 @@ def carregar_dados_one_to_one(atleta_id, inicio, fim):
     )
 
     return atleta, presencas, treinos
+
+
 
 
 def gerar_relatorio_one_to_one(atleta_id, periodo, referencia):
@@ -587,7 +671,7 @@ def gerar_relatorio_one_to_one(atleta_id, periodo, referencia):
     if not presencas and not treinos:
         print(
             "Nenhum agendamento ou treino encontrado "
-            "no período informado. PDF não gerado."
+            "no per\u00edodo informado. PDF n\u00e3o gerado."
         )
         return None
 
@@ -595,17 +679,14 @@ def gerar_relatorio_one_to_one(atleta_id, periodo, referencia):
         1 for item in presencas
         if normalizar(item.get("status")) == "presente"
     )
-
     faltas = sum(
         1 for item in presencas
         if normalizar(item.get("status")) == "falta"
     )
-
     cancelados = sum(
         1 for item in presencas
         if normalizar(item.get("status")) == "cancelado"
     )
-
     agendados = sum(
         1 for item in presencas
         if normalizar(item.get("status")) in (
@@ -614,124 +695,127 @@ def gerar_relatorio_one_to_one(atleta_id, periodo, referencia):
     )
 
     total_considerado = presentes + faltas
-
     percentual = (
         presentes / total_considerado * 100
-        if total_considerado else 0
+        if total_considerado else None
     )
 
     SAIDA_DIR.mkdir(parents=True, exist_ok=True)
-
-    nome_arquivo = (
+    destino = SAIDA_DIR / (
         f"relatorio_one_to_one_{periodo}_"
         f"{atleta_id}_{referencia.isoformat()}.pdf"
     )
 
-    destino = SAIDA_DIR / nome_arquivo
-
     registrar_fontes()
-
     estilos = getSampleStyleSheet()
 
     for estilo in estilos.byName.values():
         estilo.fontName = "DejaVu"
 
-    titulo = ParagraphStyle(
-        "TituloOneToOne",
+    estilos.add(ParagraphStyle(
+        name="TituloOneToOne",
         parent=estilos["Title"],
-        fontSize=20,
-        leading=24,
         alignment=TA_CENTER,
-        textColor=colors.HexColor("#17365D"),
-        spaceAfter=15
-    )
-
-    subtitulo = ParagraphStyle(
-        "SubtituloOneToOne",
+        textColor=colors.HexColor("#176B55"),
+        fontName="DejaVu-Bold",
+        fontSize=19,
+        spaceAfter=5
+    ))
+    estilos.add(ParagraphStyle(
+        name="SubtituloOneToOne",
         parent=estilos["Heading2"],
-        fontSize=13,
-        leading=16,
-        textColor=colors.HexColor("#17365D"),
-        spaceBefore=12,
-        spaceAfter=8
-    )
-
-    texto_pdf = ParagraphStyle(
-        "TextoOneToOne",
-        parent=estilos["BodyText"],
+        textColor=colors.HexColor("#176B55"),
+        fontName="DejaVu-Bold",
+        spaceBefore=7,
+        spaceAfter=5
+    ))
+    estilos.add(ParagraphStyle(
+        name="AvisoOneToOne",
+        parent=estilos["Normal"],
+        textColor=colors.HexColor("#555555"),
         fontSize=9,
-        leading=13
-    )
-
-    texto_tabela = ParagraphStyle(
-        "TabelaOneToOne",
-        parent=estilos["BodyText"],
+        leading=12
+    ))
+    estilos.add(ParagraphStyle(
+        name="CelulaOneToOne",
+        parent=estilos["Normal"],
+        fontName="DejaVu",
         fontSize=8,
         leading=10
+    ))
+
+    documento = SimpleDocTemplate(
+        str(destino),
+        pagesize=A4,
+        rightMargin=1.5 * cm,
+        leftMargin=1.5 * cm,
+        topMargin=1.2 * cm,
+        bottomMargin=1.2 * cm
     )
 
-    elementos = [
-        Paragraph("RELATÓRIO ONE TO ONE", titulo),
+    conteudo = [
+        Paragraph("ONE TO ONE \u2014 Relat\u00f3rio de Acompanhamento",
+                  estilos["TituloOneToOne"]),
         Paragraph(
-            f"Aluno: {escape(str(atleta.get('nome') or 'Aluno'))}",
-            texto_pdf
-        ),
-        Paragraph(f"Período: {periodo.capitalize()}", texto_pdf),
-        Paragraph(
-            f"Referência: {referencia.strftime('%d/%m/%Y')}",
-            texto_pdf
+            titulo_periodo(periodo, inicio, fim),
+            estilos["Heading2"]
         ),
         Paragraph(
-            f"Intervalo: {inicio.strftime('%d/%m/%Y')} "
-            f"até {fim.strftime('%d/%m/%Y')}",
-            texto_pdf
+            "Relat\u00f3rio gerado automaticamente a partir dos dados "
+            "de frequ\u00eancia e treinamento.",
+            estilos["Normal"]
         ),
-        Spacer(1, 15),
-        Paragraph("Resumo de presença", subtitulo)
+        Spacer(1, 7),
+        Paragraph("Identifica\u00e7\u00e3o do aluno",
+                  estilos["SubtituloOneToOne"])
     ]
 
-    dados_presenca = [
+    identificacao = [
+        ["Campo", "Informa\u00e7\u00e3o"],
+        ["Aluno", escape(str(atleta.get("nome") or "N\u00e3o informado"))],
+        ["Unidade", "ONE TO ONE"],
+        ["Idade", str(atleta.get("idade") or "?")],
+        ["Situa\u00e7\u00e3o", "Ativo" if atleta.get("ativo") else "N\u00e3o informado"],
+        ["Per\u00edodo", f"{inicio:%d/%m/%Y} a {fim:%d/%m/%Y}"]
+    ]
+
+    conteudo.extend([
+        criar_tabela(identificacao, [5 * cm, 11 * cm]),
+        Spacer(1, 6),
+        Paragraph("No per\u00edodo", estilos["SubtituloOneToOne"])
+    ])
+
+    frequencia = [
         ["Indicador", "Quantidade"],
-        ["Presenças", str(presentes)],
+        ["Treinos realizados", str(len(treinos))],
+        ["Presen\u00e7as", str(presentes)],
         ["Faltas", str(faltas)],
         ["Cancelamentos", str(cancelados)],
         ["Agendamentos", str(agendados)],
-        ["Percentual de presença", f"{percentual:.2f}%"]
+        [
+            "Frequ\u00eancia",
+            f"{percentual:.1f}%".replace(".", ",")
+            if percentual is not None else "Sem dados"
+        ]
     ]
 
-    tabela_presenca = Table(
-        dados_presenca,
-        colWidths=[9 * cm, 5 * cm]
-    )
-
-    tabela_presenca.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#17365D")),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-        ("FONTNAME", (0, 0), (-1, -1), "DejaVu"),
-        ("FONTNAME", (0, 0), (-1, 0), "DejaVu-Bold"),
-        ("BACKGROUND", (0, 1), (-1, -1), colors.HexColor("#F4F6F8")),
-        ("ALIGN", (1, 1), (1, -1), "CENTER"),
-        ("PADDING", (0, 0), (-1, -1), 7)
-    ]))
-
-    elementos.extend([
-        tabela_presenca,
-        Spacer(1, 12),
+    conteudo.extend([
+        criar_tabela(frequencia, [8 * cm, 8 * cm]),
+        Spacer(1, 4),
         Paragraph(
-            "O percentual de presença considera apenas presenças "
-            "e faltas. Cancelamentos e agendamentos não entram "
-            "no cálculo.",
-            texto_pdf
+            "O percentual de frequ\u00eancia considera apenas presen\u00e7as "
+            "e faltas. Cancelamentos e agendamentos n\u00e3o entram "
+            "no c\u00e1lculo.",
+            estilos["AvisoOneToOne"]
         ),
-        Spacer(1, 15),
-        Paragraph("Treinos realizados", subtitulo),
+        Spacer(1, 6),
+        Paragraph("Hist\u00f3rico de treinos",
+                  estilos["SubtituloOneToOne"]),
         Paragraph(
-            f"Total de treinos no período: {len(treinos)}",
-            texto_pdf
+            f"Total de treinos no per\u00edodo: {len(treinos)}",
+            estilos["Normal"]
         ),
-        Spacer(1, 12)
+        Spacer(1, 4)
     ])
 
     treinos_ordenados = sorted(
@@ -745,78 +829,96 @@ def gerar_relatorio_one_to_one(atleta_id, periodo, referencia):
         else treinos_ordenados
     )
 
-    dados_treinos = [[
-        "Data", "Objetivos", "Tipo", "Intensidade", "Desempenho"
-    ]]
+    campos = [
+        ("objetivos", "Objetivos"),
+        ("tipo_treino", "Tipo de treino"),
+        ("intensidade", "Intensidade"),
+        ("desempenho", "Desempenho")
+    ]
 
-    def valor_tabela(valor):
-        if not valor:
-            return "-"
+    def valor_disponivel(valor):
+        if valor is None:
+            return False
+        texto = str(valor).strip()
+        if not texto:
+            return False
+        return "dado ficticio de demonstracao" not in normalizar(texto)
 
-        valor = str(valor)
+    campos_exibidos = [
+        campo for campo in campos
+        if any(
+            valor_disponivel(treino.get(campo[0]))
+            for treino in treinos_exibidos
+        )
+    ]
 
-        if "dado ficticio de demonstracao" in normalizar(valor):
-            return "-"
+    if treinos_exibidos:
+        cabecalho = ["Data"] + [
+            campo[1] for campo in campos_exibidos
+        ]
+        dados_treinos = [cabecalho]
 
-        return escape(valor)
+        for treino in treinos_exibidos:
+            linha = [
+                escape(str(formatar_data(treino.get("data"))))
+            ]
 
-    for treino in treinos_exibidos:
-        dados_treinos.append([
-            Paragraph(formatar_data(treino.get("data")), texto_tabela),
-            Paragraph(valor_tabela(treino.get("objetivos")), texto_tabela),
-            Paragraph(valor_tabela(treino.get("tipo_treino")), texto_tabela),
-            Paragraph(valor_tabela(treino.get("intensidade")), texto_tabela),
-            Paragraph(valor_tabela(treino.get("desempenho")), texto_tabela)
-        ])
+            for chave, nome in campos_exibidos:
+                valor = treino.get(chave)
+                texto = (
+                    escape(str(valor))
+                    if valor_disponivel(valor)
+                    else "—"
+                )
+                linha.append(
+                    Paragraph(texto, estilos["CelulaOneToOne"])
+                )
 
-    if not treinos_exibidos:
-        dados_treinos.append([
-            "-", Paragraph("Nenhum treino registrado.", texto_tabela),
-            "-", "-", "-"
-        ])
+            dados_treinos.append(linha)
 
-    tabela_treinos = Table(
-        dados_treinos,
-        colWidths=[
-            2.1 * cm, 3.8 * cm, 3.3 * cm, 2.5 * cm, 4.3 * cm
-        ],
-        repeatRows=1
-    )
+        quantidade_colunas = len(cabecalho)
+        largura_data = 3 * cm
+        largura_restante = 16 * cm - largura_data
+        largura_campo = largura_restante / max(
+            quantidade_colunas - 1, 1
+        )
+        larguras = [largura_data] + [
+            largura_campo
+        ] * (quantidade_colunas - 1)
 
-    tabela_treinos.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#17365D")),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("GRID", (0, 0), (-1, -1), 0.4, colors.grey),
-        ("FONTNAME", (0, 0), (-1, -1), "DejaVu"),
-        ("FONTNAME", (0, 0), (-1, 0), "DejaVu-Bold"),
-        ("VALIGN", (0, 0), (-1, -1), "TOP"),
-        ("BACKGROUND", (0, 1), (-1, -1), colors.HexColor("#F4F6F8")),
-        ("PADDING", (0, 0), (-1, -1), 5)
-    ]))
+        conteudo.append(criar_tabela(
+            dados_treinos,
+            larguras,
+            tamanho=8
+        ))
 
-    elementos.append(tabela_treinos)
+        if not campos_exibidos:
+            conteudo.extend([
+                Spacer(1, 4),
+                Paragraph(
+                    "Os detalhes dos treinos, como objetivos, tipo "
+                    "e desempenho, ainda não estão registrados "
+                    "na base de dados.",
+                    estilos["AvisoOneToOne"]
+                )
+            ])
+    else:
+        conteudo.append(Paragraph(
+            "Nenhum treino registrado neste período.",
+            estilos["AvisoOneToOne"]
+        ))
 
     if periodo == "anual" and len(treinos) > 10:
-        elementos.extend([
-            Spacer(1, 8),
+        conteudo.extend([
+            Spacer(1, 4),
             Paragraph(
-                "Este relatório apresenta os 10 treinos mais recentes. "
-                "O total acima considera todos os treinos do período.",
-                texto_pdf
+                "São apresentados os 10 treinos mais recentes. "
+                "O total considera todos os treinos do período.",
+                estilos["AvisoOneToOne"]
             )
         ])
 
-    documento = SimpleDocTemplate(
-        str(destino),
-        pagesize=A4,
-        rightMargin=1.5 * cm,
-        leftMargin=1.5 * cm,
-        topMargin=1.5 * cm,
-        bottomMargin=1.5 * cm
-    )
-
-    documento.build(elementos)
+    documento.build(conteudo)
 
     print(f"PDF One to One gerado: {destino}")
     return destino
@@ -824,12 +926,13 @@ def gerar_relatorio_one_to_one(atleta_id, periodo, referencia):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Gerador de relatérios PKZ e One to One."
+        description="Gerador de relatórios PKZ e One to One."
     )
 
     parser.add_argument(
         "atleta_id",
-        help="ID do atleta na API do Supabase"
+        nargs="?",
+        help="ID do atleta na API ou nos JSON (opcional: usa o primeiro atleta PKZ)"
     )
 
     parser.add_argument(
@@ -848,6 +951,15 @@ def main():
         default=(date.today() - timedelta(days=1)).isoformat()
     )
 
+    parser.add_argument(
+        "--json-dir",
+        type=Path,
+        help=(
+            "Gera PKZ a partir de atleta.json e evolucao.json nesta pasta; "
+            "presenca.json é opcional. Sem esta opção, consulta a API."
+        ),
+    )
+
     args = parser.parse_args()
 
     try:
@@ -856,13 +968,17 @@ def main():
         parser.error("--referencia deve estar no formato YYYY-MM-DD")
 
     if args.one_to_one:
+        if args.json_dir is not None:
+            parser.error("--json-dir está disponível somente para relatórios PKZ.")
+        if not args.atleta_id:
+            parser.error("Informe atleta_id para gerar relatório One to One.")
         gerar_relatorio_one_to_one(
             args.atleta_id,
             args.periodo,
             referencia
         )
     else:
-        gerar_relatorio(args.atleta_id, args.periodo, referencia)
+        gerar_relatorio(args.atleta_id, args.periodo, referencia, args.json_dir)
 
 
 if __name__ == "__main__":

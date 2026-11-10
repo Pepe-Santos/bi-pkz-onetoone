@@ -28,3 +28,10 @@ qa/
 
 - Bug encontrado vira task no ClickUp, com o grupo responsável e o passo a passo para reproduzir.
 - Só dados sintéticos; nenhum dado real de aluno, nem para reproduzir um bug.
+
+## Testes prontos
+
+- [`resultados/2026-11-02_tratamento_pdf_email.md`](resultados/2026-11-02_tratamento_pdf_email.md): tratamento das medidas, API, PDF do PKZ e envio por e-mail (bugs e o que passou).
+- `sql/00`–`10`: testes automáticos num PostgreSQL **local** com dados sintéticos (`bash qa/rodar_testes_local.sh`, na branch `backend`).
+- `sql/20`–`22`: consultas **só de leitura** para o SQL Editor do Supabase (atletas de referência e conferência com o app).
+- `e2e/`: API local e SMTP falso para rodar o gerador de PDF e o envio em lote sem tocar no projeto real.

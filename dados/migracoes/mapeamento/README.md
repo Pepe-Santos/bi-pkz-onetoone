@@ -104,17 +104,17 @@ Conferência: `conferencia/02_papel_unidade.sql` (distribuição e violações d
 
 ## Saldo de créditos: as duas conferências
 
-Há duas conferências de saldo no projeto, e elas **não medem a mesma coisa**. Os números de uma não confirmam nem contradizem os da outra sem a ponte abaixo.
+Há duas conferências de saldo no projeto, com **universos e critérios diferentes**. Desde a correção da conferência da 2.1 (PR #3, 21/10), as duas usam o mesmo ponto de partida e concordam onde se sobrepõem.
 
 | | A — carga 30 + migration 011 (Frente 1) | B — conferência 5 da tarefa 2.1 (Frente 2) |
 |---|---|---|
 | Universo | todo par (aluno, serviço): 106 alunos × 3 saldos = **318 pares** | só pares (atleta, serviço) com uma renovação cujo texto identifica o serviço: **196 pares** |
-| Serviço de cada lançamento | o colchete `[treino]`/`[fisio]`/`[nutri]` diz de qual saldo saiu; sem colchete, pelo texto; renovação genérica ("Renovação mensal (10/2026)") = treino | pelo texto, fisio > nutri > treino/PKZ, sem olhar o colchete; renovação genérica fica de fora |
-| Ponto de partida | a última renovação do serviço, **somando o delta dela**, que é a cota do plano | **10** fixo, mais os lançamentos depois da última renovação |
-| Sem renovação | soma do extrato inteiro | o par não entra |
-| Resultado na foto de 12/10 | 3 pares divergentes (3 alunos: 2 em fisio, 1 em nutri) | 195 de 196 divergentes |
+| Serviço de cada lançamento | o colchete `[treino]`/`[fisio]`/`[nutri]` diz de qual saldo saiu; sem colchete, pelo texto; renovação genérica ("Renovação mensal (10/2026)") = treino | só quando o texto é inequívoco; renovação genérica e casos ambíguos ficam sem serviço (inconclusivos) |
+| Ponto de partida | a última renovação do serviço, **somando o delta dela**, que é a cota do plano | o `delta` da última renovação identificável (a cota), mais os lançamentos posteriores. Até 21/10 partia de **10** fixo |
+| Sem renovação identificável | soma do extrato inteiro | o par não entra: fica como inconclusivo |
+| Resultado na foto de 12/10 | 3 pares divergentes (3 alunos: 2 em fisio, 1 em nutri) | 196 de 196 batem (antes da correção: 195 de 196 divergentes); 4 combinações sem renovação identificável (3 de fisio, 1 de nutri) ficam inconclusivas |
 
-**A ponte** (`conferencia/03_saldo_credito.sql` calcula tudo sobre a mesma foto):
+**A ponte** (`conferencia/03_saldo_credito.sql` calcula tudo sobre a mesma foto; a coluna "partindo de 10" mostra a versão da 2.1 anterior à correção):
 
 | Recorte | Pares | Divergentes pelo critério A | Partindo de 10 | Partindo da cota da renovação |
 |---|---|---|---|---|
@@ -124,8 +124,8 @@ Há duas conferências de saldo no projeto, e elas **não medem a mesma coisa**.
 
 Como ler:
 
-- **Dentro do universo B, os dois critérios concordam** quando o ponto de partida é a cota da renovação: 0 divergências. As 195 divergências vêm só do "reinicia em 10": a cota varia por plano (1 a 20 créditos) e só 5 das renovações da foto têm cota 10. O app grava a cota no `delta` da renovação, e é essa cota que vale.
-- **As 3 divergências do critério A estão todas fora do universo B**: são pares sem renovação identificável pelo texto, em que o saldo é a soma do extrato. É a pendência 13.
+- **Dentro do universo B, os dois critérios concordam**: 0 divergências. As 195 divergências da primeira versão da 2.1 vinham só do "reinicia em 10": a cota varia por plano (1 a 20 créditos) e só 5 das renovações da foto têm cota 10. O app grava a cota no `delta` da renovação, e é essa cota que vale; a 2.1 foi corrigida para usá-la.
+- **As 3 divergências do critério A estão todas fora do universo B**: são pares sem renovação identificável pelo texto, em que o saldo é a soma do extrato. É a pendência 13, o mesmo tipo de caso que a 2.1 deixa como inconclusivo.
 - Os resultados da A são contados por par (aluno, serviço). "3 alunos" e "3 pares" coincidem só porque cada aluno divergente diverge em um serviço.
 
 ## Migration 009
