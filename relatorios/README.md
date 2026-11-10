@@ -22,14 +22,41 @@ O e-mail, a senha de app e as chaves ficam só no `.env` e nos segredos do GitHu
 
 ## Testar o envio de um PDF
 
-Na raiz do repositório, gere o PDF de um atleta da PKZ (o `atleta_id` vem da view `api.atleta`) e mande para todos os e-mails de `EMAILS_TESTE`:
+Na raiz do repositório, gere um PDF pela API com um `atleta_id` da view `api.atleta`. A referência define a semana (segunda a domingo), o mês ou o ano-calendário:
 
 ```bash
+python gerador_pkz/gerar_pdf.py <atleta_id> --periodo semanal --referencia 2026-08-20
 python gerador_pkz/gerar_pdf.py <atleta_id> --periodo mensal --referencia 2026-08-20
+python gerador_pkz/gerar_pdf.py <atleta_id> --periodo anual --referencia 2026-08-20
+python gerador_pkz/gerar_pdf.py <atleta_id> --one-to-one --periodo semanal --referencia 2026-08-20
+python gerador_pkz/gerar_pdf.py <atleta_id> --one-to-one --periodo mensal --referencia 2026-08-20
+python gerador_pkz/gerar_pdf.py <atleta_id> --one-to-one --periodo anual --referencia 2026-08-20
+```
+
+O modo One to One consulta as views `atleta`, `presenca` e `treino`. Os relatórios mostram a presença e os dados de treino disponíveis no período: objetivos, tipo, intensidade e desempenho. No anual, a tabela lista até os 10 treinos mais recentes e informa o total do período. Para gerar e enviar um PDF de teste por e-mail, use:
+
+```bash
 python relatorios/enviar_email.py
 ```
 
+Para gerar um relatório PKZ sem consultar a API, informe uma pasta com `atleta.json` e `evolucao.json`; `presenca.json` é opcional. Os arquivos devem conter listas JSON no formato das views correspondentes. O ID do atleta pode ser omitido para usar o primeiro registro PKZ da amostra:
+
+```bash
+python gerador_pkz/gerar_pdf.py --json-dir exemplos/api --periodo mensal --referencia 2026-08-20
+```
+
+Os exemplos em `exemplos/api/` são fictícios. O repositório não contém a amostra original do Ewerton; use `--json-dir` com a pasta da amostra válida quando ela estiver disponível.
+
 Para mandar outro PDF: `python relatorios/enviar_email.py caminho/do/arquivo.pdf`.
+
+## Testes automatizados do gerador
+
+Instale as dependências de teste e rode a suíte. Os testes usam fixtures sintéticas, mocks da API e PDFs temporários fora do repositório; nenhuma chamada é feita ao Supabase.
+
+```bash
+python -m pip install -r requirements-test.txt
+python -m pytest
+```
 
 ## Envio automático (`enviar_lote.py`)
 
@@ -66,4 +93,4 @@ Erro em um aluno não para os outros: o lote mostra o erro, segue e termina com 
 Ficam em `TEXTOS`, no `enviar_email.py`, e `montar_texto(unidade, nome, periodo, rotulo)` devolve o assunto e o corpo prontos (`periodo`: semanal, mensal ou anual; `rotulo`: o período por extenso, como "agosto de 2026", que vai no assunto).
 
 - **PKZ** (para os pais): relatório de evolução nos testes físicos, avisando que resultados em validação não entram nos gráficos.
-- **One to One** (para o aluno): relatório de treinos com histórico, cargas e progressão.
+- **One to One** (para o aluno): relatório de presença e histórico de treinos, com objetivos, tipo, intensidade e desempenho quando registrados.
