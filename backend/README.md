@@ -15,10 +15,10 @@ Banco do app (Lovable / Supabase)
 novo            banco novo do grupo de Dados (o Grupo de Desenvolvimento só lê)
         │  views de leitura (vw_*) feitas pelo grupo de Dados
         ▼
-trat            regras de tratamento: parâmetros, catálogo de testes, medidas padronizadas
+trat            regras de tratamento: parâmetros, catálogo de testes, medidas padronizadas, revisão de dados
         │
         ▼
-api             views expostas pela API REST do Supabase (contrato em docs/api.md)
+api             views expostas pela API REST do Supabase, filtradas pela unidade do usuário (contrato em docs/api.md)
         │
         ▼
 Consumidores    relatórios em PDF e envio por e-mail · telas e dashboards · outros grupos
@@ -28,7 +28,7 @@ Tudo fica no **mesmo projeto Supabase**: o de ensaio do Lucas (`jhspjkelmnbvrnle
 
 - O Grupo de Desenvolvimento só cria objetos nos schemas `trat` e `api` e no bucket `relatorios`.
 - Nunca escreve em `novo`, `origem` ou `public`.
-- Lê o `novo` por views feitas pelo grupo de Dados, a pedido do Lucas (24/10). O Rafael passa ao Micael a lista, sem cálculo: `vw_aluno`, `vw_avaliacao_medida`, `vw_relatorio_treino` (sem os campos de dor) e `vw_agendamento`. Enquanto não existirem, as views do `trat` leem as tabelas e depois só trocam o `FROM`. O grupo de Dados avisa no grupo se mudar a estrutura de uma tabela ou view que usamos.
+- Views de consumo do grupo de Dados, a pedido do Lucas (24/10). O Rafael passa ao Micael a lista, sem cálculo: `vw_aluno`, `vw_avaliacao_medida`, `vw_relatorio_treino` (sem os campos de dor) e `vw_agendamento`. O Iago criou as quatro no `013_views_consumo.sql` do grupo de Dados (27/10; ajustes na `014`, aplicadas no ensaio em 28/10). O `05`, o `06` e o `08` leem as tabelas, e não essas views: elas são `security_invoker` e, pela API com login, devolvem 0 linhas (veja "O que ainda falta" no [`docs/api.md`](docs/api.md)). O grupo de Dados avisa no grupo se mudar a estrutura de uma tabela ou view que usamos.
 - O grupo de Dados controla o banco pelo histórico de migrações do Supabase (`pkzbi_...`). Os scripts daqui **não** entram nesse histórico: rodam direto, pelo `psql` ou pelo SQL Editor.
 - Quando existir o projeto Supabase definitivo (tarefa 3.6 do grupo de Dados), os mesmos scripts recriam tudo.
 
@@ -39,7 +39,15 @@ backend/
 ├── sql/
 │   ├── 01_schemas.sql                  schemas trat e api e leitura da API
 │   ├── 03_storage.sql                  bucket privado relatorios para os PDFs
-│   └── 04_trat_parametros_catalogo.sql parâmetros de negócio e catálogo de regras por teste
+│   ├── 04_trat_parametros_catalogo.sql parâmetros de negócio e catálogo de regras por teste
+│   ├── 05_trat_medidas.sql             medidas padronizadas, revisão de dados e resultado por teste
+│   ├── 06_api_avaliacoes.sql           views da API: atleta, evolucao, comparacao, reavaliacao
+│   ├── 07_trat_envio_relatorio.sql     registro dos relatórios já enviados por e-mail
+│   ├── 08_api_treinos.sql              views da API: presenca, treino
+│   └── 09_api_envio_relatorio.sql      funções da API do envio automático (só a secret key)
+├── scripts/
+│   ├── testar_acesso.py                os 3 testes de acesso à API (sem login, com login, secret key)
+│   └── criar_usuario.py                cria um usuário da API já confirmado e com a unidade
 ├── docs/api.md                         contrato das views do schema api
 ├── exemplos/api/                       respostas de exemplo, com dados fictícios
 ├── agents/git_flow.md                  regras do agente de git
@@ -49,11 +57,13 @@ backend/
 
 O `02_fdw.sql` saiu em 20/10. Ele conectava a um banco remoto do grupo de Dados, o que deixou de ser necessário com o banco novo no mesmo projeto. A numeração dos outros scripts foi mantida.
 
-## Estado em 20/10
+## Estado em 24/10
 
-- `01`, `03` e `04` aplicados no projeto do Lucas: schemas `trat` e `api`, bucket `relatorios` privado, 3 parâmetros e 10 testes no catálogo.
-- Views da `api`: contrato em `docs/api.md`, ainda não criadas. Vão ler as views `vw_*` do `novo` (24/10).
-- Catálogo: a `novo.metrica` já traz unidade e direção dos 19 testes físicos, mas não traz faixa plausível nem regra de conversão, e os códigos são outros (`sprint_20` lá, `sprint_20m` aqui). Decidido em 20/10: os códigos da `novo.metrica` passam a ser o padrão, e o `trat.catalogo_teste` guarda só faixa plausível e conversão. Falta recodificar o catálogo.
+- `01`, `03`, `04`, `05` e `06` aplicados no projeto do Lucas: schemas `trat` e `api`, bucket `relatorios` privado, 3 parâmetros, 20 testes no catálogo, medidas tratadas e as 4 views da API.
+- API no ar: o schema `api` está em Exposed schemas e as 4 views (`atleta`, `evolucao`, `comparacao`, `reavaliacao`) respondem pela REST. Contrato em `docs/api.md`.
+- Catálogo: recodificado com os códigos da `novo.metrica` (decidido em 20/10). Tem os testes físicos numéricos mais altura e peso, com faixas e conversões tiradas dos valores reais do `novo`. Os testes por perna (`single_hop`, `cross_hop`) saem com a coluna `lado` na API.
+- Medidas: o `05` converte as unidades misturadas (ex.: 4,01 m e 543 cm viram cm), separa os valores impossíveis em `trat.revisao_dados` (37 tentativas) e escolhe a melhor tentativa válida. No VO2, o tempo na velocidade máxima maior que o tempo total também vai para a revisão. Lê as tabelas do `novo`; a unidade do atleta é a da matrícula com a vigência mais recente. Rode o `06` sempre depois do `05`.
+- Acesso: cadastro público de usuários desligado; usuário de teste criado, com acesso às duas unidades; separação por unidade ativa (ver [API](#api)). Os 3 testes de acesso passam.
 - Envio: nenhum aluno da cópia tem e-mail ligado (nem do responsável, nem próprio), então o envio automático é demonstrado com e-mails de teste.
 
 ## Como rodar os scripts
@@ -67,6 +77,11 @@ set -a; source backend/.env; set +a
 psql "$SUPABASE_DB_URL" -f backend/sql/01_schemas.sql
 psql "$SUPABASE_DB_URL" -f backend/sql/03_storage.sql
 psql "$SUPABASE_DB_URL" -f backend/sql/04_trat_parametros_catalogo.sql
+psql "$SUPABASE_DB_URL" -f backend/sql/05_trat_medidas.sql
+psql "$SUPABASE_DB_URL" -f backend/sql/06_api_avaliacoes.sql
+psql "$SUPABASE_DB_URL" -f backend/sql/07_trat_envio_relatorio.sql
+psql "$SUPABASE_DB_URL" -f backend/sql/08_api_treinos.sql
+psql "$SUPABASE_DB_URL" -f backend/sql/09_api_envio_relatorio.sql
 ```
 
 Windows (PowerShell), na raiz do repositório:
@@ -76,6 +91,11 @@ $env:SUPABASE_DB_URL = "postgresql://postgres:SENHA@db.xxxx.supabase.co:5432/pos
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\01_schemas.sql
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\03_storage.sql
 psql "$env:SUPABASE_DB_URL" -f .\backend\sql\04_trat_parametros_catalogo.sql
+psql "$env:SUPABASE_DB_URL" -f .\backend\sql\05_trat_medidas.sql
+psql "$env:SUPABASE_DB_URL" -f .\backend\sql\06_api_avaliacoes.sql
+psql "$env:SUPABASE_DB_URL" -f .\backend\sql\07_trat_envio_relatorio.sql
+psql "$env:SUPABASE_DB_URL" -f .\backend\sql\08_api_treinos.sql
+psql "$env:SUPABASE_DB_URL" -f .\backend\sql\09_api_envio_relatorio.sql
 ```
 
 A string de conexão fica em **Connect**, no painel do Supabase.
@@ -90,9 +110,12 @@ A string de conexão fica em **Connect**, no painel do Supabase.
 ## API
 
 - A API é a REST automática do Supabase: cada view do schema `api` vira um endpoint. Colunas, regras e exemplos estão em [`docs/api.md`](docs/api.md).
-- Para o schema `api` aparecer na API, ele precisa estar em *Project Settings → Data API → Exposed schemas*. O `GRANT` do `01_schemas.sql` sozinho não basta. Como o projeto é compartilhado, combine com o Lucas antes de mudar essa configuração.
+- O schema `api` está em *Project Settings → Data API → Exposed schemas* (24/10). Num projeto novo, incluir de novo: o `GRANT` do `01_schemas.sql` sozinho não basta. Como o projeto é compartilhado, combine com o Lucas antes de mudar essa configuração.
 - Quem chama envia o cabeçalho `Accept-Profile: api`; sem ele o Supabase procura a view em `public`.
-- Só usuário logado (`authenticated`) recebe resposta. O papel `anon` não tem acesso ao schema.
+- Só recebem resposta o usuário logado (`authenticated`) e o gerador de relatórios (`service_role`, pela secret key). O papel `anon` não tem acesso ao schema. Como fazer login: seção "Login" do [`docs/api.md`](docs/api.md).
+- **Usuários:** o cadastro público está desligado (*Authentication → Sign In / Providers → Allow new users to sign up*). Qualquer membro do grupo cria usuários pelo `scripts/criar_usuario.py` (já com a unidade) ou pelo painel: passo a passo em "Criar um usuário", no [`docs/api.md`](docs/api.md).
+- **Separação por unidade:** cada usuário só vê os atletas da unidade gravada em `app_metadata.unidade` (`PKZ`, `ONE_TO_ONE` ou `TODAS`), gravada pelo `criar_usuario.py` ou pelo passo 4 de "Criar um usuário". Usuário sem unidade não vê nada; o gerador de relatórios vê tudo. O filtro fica em `trat.unidade_permitida`, no `06_api_avaliacoes.sql`.
+- **Teste de acesso:** com o `backend/.env` preenchido, `python backend/scripts/testar_acesso.py` confere os 3 casos (sem login não devolve dados; com o usuário de teste e com a secret key, devolve) nas views `atleta`, `presenca` e `treino`, e mostra quantas linhas de cada unidade cada acesso vê.
 
 ## Storage
 

@@ -1,0 +1,17 @@
+[theme]
+base = "light"
+primaryColor = "#12228E"
+backgroundColor = "#EEF0F4"
+secondaryBackgroundColor = "#F3F5FD"
+textColor = "#0F172A"
+
+[server]
+# Só nesta máquina: a tela mostra dados de menores e usa um login só, o do .env.
+address = "localhost"
+showEmailPrompt = false
+
+[client]
+toolbarMode = "minimal"
+
+[browser]
+gatherUsageStats = false
