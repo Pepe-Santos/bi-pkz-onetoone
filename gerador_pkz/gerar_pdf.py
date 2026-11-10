@@ -91,9 +91,100 @@ def formatar_percentual(valor):
     return f"{valor:+.1f}%".replace(".", ",")
 
 
-def menor_e_melhor(codigo, nome):
-    identificacao = normalizar(f"{codigo} {nome}")
-    return "sprint" in identificacao or "agilidade" in identificacao or "agility" in identificacao
+def menor_e_melhor(maior_melhor):
+    return maior_melhor is False
+
+
+def data_avaliacao(registro):
+    try:
+        return date.fromisoformat(str(registro.get("data_avaliacao"))[:10])
+    except (TypeError, ValueError):
+        return None
+
+
+def lado_normalizado(registro):
+    lado = normalizar(registro.get("lado")).strip()
+    return lado if lado in ("dir", "esq") else None
+
+
+def chave_teste(registro):
+    return registro.get("teste") or "outro", lado_normalizado(registro)
+
+
+def nome_com_lado(registro):
+    nome = registro.get("teste_nome") or registro.get("teste") or "—"
+    lado = lado_normalizado(registro)
+    if lado:
+        nome += f" ({lado})"
+    return nome
+
+
+def montar_comparacoes(evolucoes_ate_fim):
+    grupos = defaultdict(list)
+    for registro in evolucoes_ate_fim:
+        grupos[chave_teste(registro)].append(registro)
+
+    resultado = []
+    for registros in grupos.values():
+        registros.sort(key=lambda item: data_avaliacao(item) or date.min)
+        atual = registros[-1]
+        anterior = registros[-2] if len(registros) > 1 else None
+
+        valor_atual = atual.get("valor")
+        valor_anterior = anterior.get("valor") if anterior else None
+        maior_melhor = atual.get("maior_melhor")
+        # variação % calculada sempre que houver valor anterior e atual,
+        # inclusive quando o teste ainda está em validação
+        variacao_pct = None
+        if anterior is not None and valor_atual is not None and valor_anterior is not None:
+            if valor_anterior != 0:
+                variacao_pct = ((valor_atual - valor_anterior) / abs(valor_anterior)) * 100
+            elif valor_atual == 0:
+                variacao_pct = 0.0
+
+        if atual.get("confirmado") is False:
+            situacao = "em_validacao"
+        elif anterior is None:
+            situacao = "sem_comparacao"
+        elif variacao_pct is None or maior_melhor is None:
+            situacao = "sem_classificacao"
+        elif abs(variacao_pct) < 2:
+            situacao = "estavel"
+        elif (variacao_pct > 0) == maior_melhor:
+            situacao = "melhorou"
+        else:
+            situacao = "piorou"
+
+        resultado.append({
+            "teste": atual.get("teste"),
+            "teste_nome": atual.get("teste_nome"),
+            "lado": atual.get("lado"),
+            "unidade_medida": atual.get("unidade_medida", ""),
+            "maior_melhor": maior_melhor,
+            "confirmado": atual.get("confirmado"),
+            "valor_anterior": valor_anterior,
+            "valor_atual": valor_atual,
+            "variacao_pct": variacao_pct,
+            "situacao": situacao,
+        })
+
+    return sorted(resultado, key=lambda item: (
+        str(item.get("teste") or ""),
+        str(item.get("lado") or "")
+    ))
+
+
+def formatar_situacao(valor):
+    situacoes = {
+        "sem_classificacao": "Sem classificação",
+        "sem_comparacao": "Sem comparação",
+        "em_validacao": "Em validação",
+        "melhorou": "Melhorou",
+        "piorou": "Piorou",
+        "estavel": "Estável",
+    }
+    chave = normalizar(valor).replace(" ", "_")
+    return situacoes.get(chave, str(valor or "—").replace("_", " ").capitalize())
 
 
 def periodo_datas(periodo, referencia):
@@ -268,20 +359,35 @@ def criar_tabela(dados, larguras, tamanho=8):
 
 def gerar_relatorio(atleta_id, periodo, referencia):
     inicio, fim = periodo_datas(periodo, referencia)
-    atleta, comparacoes, evolucoes, presencas = buscar_dados_atleta(atleta_id)
+    atleta, comparacoes_api, evolucoes, presencas = buscar_dados_atleta(atleta_id)
     aid = atleta["atleta_id"]
 
-    evolucoes_periodo = []
-    avaliacoes_ids = set()
-    for registro in evolucoes:
-        try:
-            data_avaliacao = date.fromisoformat(str(registro.get("data_avaliacao"))[:10])
-        except (TypeError, ValueError):
-            continue
-        if inicio <= data_avaliacao <= fim:
-            evolucoes_periodo.append(registro)
-            if registro.get("avaliacao_id"):
-                avaliacoes_ids.add(registro["avaliacao_id"])
+    evolucoes_ate_fim = [
+        registro for registro in evolucoes
+        if data_avaliacao(registro) is not None and data_avaliacao(registro) <= fim
+    ]
+    evolucoes_periodo = [
+        registro for registro in evolucoes_ate_fim
+        if inicio <= data_avaliacao(registro) <= fim
+    ]
+
+    avaliacoes_ids = {
+        registro.get("avaliacao_id")
+        for registro in evolucoes_periodo
+        if registro.get("avaliacao_id")
+    }
+    avaliacoes_ate_fim_ids = {
+        registro.get("avaliacao_id")
+        for registro in evolucoes_ate_fim
+        if registro.get("avaliacao_id")
+    }
+    datas_ate_fim = [
+        data_avaliacao(registro) for registro in evolucoes_ate_fim
+        if data_avaliacao(registro) is not None
+    ]
+    atleta["total_avaliacoes"] = len(avaliacoes_ate_fim_ids)
+    atleta["ultima_avaliacao_em"] = max(datas_ate_fim).isoformat() if datas_ate_fim else None
+    comparacoes = montar_comparacoes(evolucoes_ate_fim)
 
     presencas_periodo, presentes, faltas, cancelados, agendados, percentual = calcular_frequencia(
         presencas, inicio, fim
@@ -360,26 +466,8 @@ def gerar_relatorio(atleta_id, periodo, referencia):
     linhas = [["Teste", "Anterior", "Atual", "Variação", "Situação"]]
     for item in comparacoes:
         unidade = item.get("unidade_medida", "")
-        situacao_original = normalizar(item.get("situacao", ""))
-        # Só classifica como melhorou/piorou/estável quando confirmado for exatamente True.
-        if item.get("confirmado") is not True:
-            situacao = "Em validação"
-        elif situacao_original == "melhorou":
-            situacao = "Melhorou"
-        elif situacao_original == "estavel":
-            situacao = "Estável"
-        elif situacao_original == "piorou":
-            situacao = "Piorou"
-        elif situacao_original == "sem_comparacao":
-            situacao = "Sem comparação"
-        else:
-            situacao = item.get("situacao", "—") or "—"
-        nome_teste = item.get("teste_nome", item.get("teste", "—"))
-        if item.get("teste") in ("single_hop", "cross_hop"):
-            if item.get("lado") == "dir":
-                nome_teste += " — Direita"
-            elif item.get("lado") == "esq":
-                nome_teste += " — Esquerda"
+        situacao = formatar_situacao(item.get("situacao"))
+        nome_teste = nome_com_lado(item)
 
         linhas.append([
             nome_teste,
@@ -394,35 +482,40 @@ def gerar_relatorio(atleta_id, periodo, referencia):
 
     conteudo.append(Paragraph("Evolução histórica por teste", estilos["SubtituloPKZ"]))
     grupos = defaultdict(list)
-    for registro in evolucoes:
-        codigo = registro.get("teste", "outro")
-        if codigo in ("single_hop", "cross_hop"):
-            chave = (codigo, registro.get("lado"))
-        else:
-            chave = (codigo, None)
-        grupos[chave].append(registro)
+    for registro in evolucoes_ate_fim:
+        grupos[chave_teste(registro)].append(registro)
 
-    for (codigo, lado), registros in grupos.items():
-        nome = registros[0].get("teste_nome", codigo)
-        if codigo in ("single_hop", "cross_hop"):
-            if lado == "dir":
-                nome += " — Direita"
-            elif lado == "esq":
-                nome += " — Esquerda"
+    if not grupos:
+        conteudo.append(Paragraph(
+            "Nenhuma avaliação registrada até o final deste período.",
+            estilos["AvisoPKZ"]
+        ))
+
+    for (codigo, lado), registros in sorted(grupos.items(), key=lambda g: (str(g[0][0]), str(g[0][1] or ""))):
+        registros.sort(key=lambda item: data_avaliacao(item) or date.min)
+        nome = nome_com_lado(registros[0])
+        # direção do resultado: valor mais recente que tenha maior_melhor definido
+        maior_melhor_grupo = next(
+            (r.get("maior_melhor") for r in reversed(registros) if r.get("maior_melhor") is not None),
+            None,
+        )
 
         grafico = criar_grafico(registros, nome)
         if grafico:
             elementos = [Paragraph(nome, estilos["Heading3"]), Image(grafico, width=15 * cm, height=6.4 * cm)]
-            if menor_e_melhor(codigo, nome):
-                elementos.append(Paragraph("Menor tempo = melhor resultado", estilos["NotaGraficoPKZ"]))
+            if menor_e_melhor(maior_melhor_grupo):
+                elementos.append(Paragraph("Menor = melhor resultado", estilos["NotaGraficoPKZ"]))
             elementos.append(Spacer(1, 8))
             conteudo.append(KeepTogether(elementos))
         else:
-            conteudo.append(KeepTogether([
+            bloco = [
                 Paragraph(nome, estilos["Heading3"]),
                 Paragraph("Gráfico disponível depois que a PKZ validar este teste.", estilos["AvisoPKZ"]),
-                Spacer(1, 8),
-            ]))
+            ]
+            if menor_e_melhor(maior_melhor_grupo):
+                bloco.append(Paragraph("Menor = melhor resultado", estilos["NotaGraficoPKZ"]))
+            bloco.append(Spacer(1, 8))
+            conteudo.append(KeepTogether(bloco))
     conteudo.extend([
         Spacer(1, 10),
         Paragraph("Os resultados em validação não são apresentados como resultados confirmados nos gráficos.", estilos["Italic"]),
