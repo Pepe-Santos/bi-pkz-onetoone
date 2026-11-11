@@ -2,3 +2,6 @@ reportlab
 matplotlib
 requests
 python-dotenv
+jinja2>=3.1
+playwright>=1.40
+pypdf>=5

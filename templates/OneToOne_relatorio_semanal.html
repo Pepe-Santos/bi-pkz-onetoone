@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block corpo %}
+{{ m.topo(r) }}
+{{ m.tiles(r) }}
+{{ m.agenda(r, 'Sessões da semana', 'Cada sessão agendada na semana e a situação registrada.') }}
+{{ m.treinos_cartoes(r) }}
+{{ m.extras(r) }}
+{% endblock %}

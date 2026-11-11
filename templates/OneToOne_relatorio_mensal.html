@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block corpo %}
+{{ m.topo(r) }}
+{{ m.tiles(r) }}
+{% set _presenca %}{{ m.grafico_presenca(r) }}{% endset %}{% set _distrib %}{{ m.distribuicoes(r, empilhar=true) }}{% endset %}
+{{ m.par(_presenca, _distrib) }}
+{{ m.treinos(r, 'Histórico de treinos do mês') }}
+{{ m.extras(r) }}
+{% endblock %}

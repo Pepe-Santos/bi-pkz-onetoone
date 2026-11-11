@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block corpo %}
+{{ m.topo(r) }}
+{{ m.tiles(r) }}
+{% set _presenca %}{{ m.grafico_presenca(r) }}{% endset %}{% set _destaques %}{{ m.destaques(r, empilhar=true) }}{% endset %}
+{{ m.par(_presenca, _destaques) }}
+{{ m.comparacoes(r) }}
+{{ m.evolucao(r) }}
+{{ m.extras(r) }}
+{% endblock %}
