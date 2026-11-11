@@ -7,6 +7,7 @@ Cada atleta usa os atributos da própria modalidade; sem modalidade no catálogo
 gerais. A comparação é sempre com os atletas da mesma faixa de idade. Todo atleta da modalidade
 mostra os mesmos atributos: quem não tem dado num deles recebe um aviso, nunca um número inventado.
 """
+import base64
 import json
 import math
 import unicodedata
@@ -36,6 +37,10 @@ ESTILO_MEDIA = {
     "abaixo": ("#fdeccb", "#7a4708", "abaixo da média do grupo"),
 }
 SEM_TESTE, POUCOS_COLEGAS = "sem_teste", "poucos_colegas"
+
+# A API ainda não tem foto. Até ter, o cartão mostra uma foto de exemplo, gerada por IA (não é de nenhum aluno).
+ARQUIVO_FOTO_EXEMPLO = Path(__file__).resolve().parent / "foto_exemplo.jpg"
+FOTO_EXEMPLO = (base64.b64encode(ARQUIVO_FOTO_EXEMPLO.read_bytes()).decode() if ARQUIVO_FOTO_EXEMPLO.exists() else None)
 
 
 def _sem_acento(texto: str) -> str:
@@ -169,8 +174,6 @@ def _lista(nomes: list[str]) -> str:
 
 def aviso_de_dados(atleta: dict, cartao: dict) -> str:
     """O que falta no cartão, em palavras. Vazio quando está tudo preenchido."""
-    if atleta.get("unidade") == "ONE_TO_ONE":
-        return "O One to One ainda não tem avaliações físicas na API: atributos e nota aparecem quando houver."
     if not atleta["total_avaliacoes"]:
         return "Atleta novo: os atributos e a nota aparecem depois da primeira avaliação."
     frases = []
@@ -207,6 +210,9 @@ def html_do_cartao(atleta: dict, cartao: dict, rodape: str = "") -> str:
     fundo_nivel, tinta_nivel = ESTILO_NIVEL.get(nivel, ("rgba(255,255,255,.14)", "#ffffff"))
     categoria = (atleta["categoria"] or "Sem categoria").replace("_", " ").capitalize()
     idade = f" · {atleta['idade']} anos" if atleta["idade"] is not None else ""
+    if atleta.get("unidade") == "ONE_TO_ONE" and not atleta["categoria"]:
+        # O One to One não usa categoria: a linha começa pela idade.
+        categoria, idade = f"{atleta['idade']} anos" if atleta["idade"] is not None else "Idade não informada", ""
 
     posicao = cartao["posicao"]
     fundo_pos, tinta_pos = MEDALHAS.get(posicao, ("#f3f5fd", "#12228e"))
@@ -229,12 +235,18 @@ def html_do_cartao(atleta: dict, cartao: dict, rodape: str = "") -> str:
                   "* teste aproximado: é o mais próximo que a bateria tem.</div>") if any(
         d.get("aproximado") for d in cartao["definicoes"]) else ""
 
+    medida = "width:clamp(72px,23cqi,132px);height:clamp(72px,23cqi,132px);flex-shrink:0;border-radius:50%;box-shadow:0 0 0 3px #c2f24a"
+    # A foto de exemplo é de um menino: em quem está registrada como menina, fica o espaço da foto.
+    com_foto = FOTO_EXEMPLO and atleta.get("sexo") != "F"
+    foto = (f'<img alt="Foto de exemplo, gerada por IA" title="Foto de exemplo, gerada por IA" src="data:image/jpeg;base64,{FOTO_EXEMPLO}" '
+            f'style="display:block;{medida};object-fit:cover;background:#dbe0f0">' if com_foto else
+            f'<div style="display:grid;place-items:center;{medida};background:#dbe0f0;color:#6b7590;font-size:clamp(11px,3cqi,14px);font-weight:600">Foto</div>')
     return f"""
 <div style="container-type:inline-size;height:100%">
   <div style="display:flex;flex-direction:column;height:100%;border:1px solid #12228e;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 8px 22px rgba(18,34,142,.12)">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:3cqi;padding:clamp(14px,4.4cqi,26px);background:radial-gradient(circle at 50% 122%,transparent 0 54px,rgba(255,255,255,.13) 54px 56px,transparent 56px),linear-gradient(90deg,transparent 0 49.2%,rgba(255,255,255,.13) 49.2% 50.6%,transparent 50.6%),linear-gradient(160deg,#1b30b4,#0e1a6b)">
       <div style="display:flex;align-items:center;gap:clamp(10px,3.6cqi,22px);flex:1;min-width:0">
-        <div style="display:grid;place-items:center;width:clamp(72px,23cqi,132px);height:clamp(72px,23cqi,132px);flex-shrink:0;border-radius:50%;background:#dbe0f0;box-shadow:0 0 0 3px #c2f24a;color:#6b7590;font-size:clamp(11px,3cqi,14px);font-weight:600">Foto</div>
+        {foto}
         <div style="min-width:0">
           <div style="font-size:clamp(44px,17cqi,88px);font-weight:800;line-height:1;color:#fff">{numero}</div>
           <div style="margin-top:4px;font-size:clamp(9px,2.5cqi,13px);font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;color:#c2f24a">Nota provisória</div>

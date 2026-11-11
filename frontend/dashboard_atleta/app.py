@@ -39,6 +39,10 @@ st.html("""
   .stApp { background: #eef0f4; }
   .block-container { max-width: 1880px; padding: 0 clamp(1rem, 2.4vw, 3rem) 3rem; }
   [data-testid="stHeader"] { height: 0; background: transparent; }
+  /* Aviso de desenvolvedor do Streamlit ("Help agents write better apps"): não é do produto. */
+  [data-testid="stSkillsNudge"] { display: none !important; }
+  /* Blocos que só carregam estilo ou script não ocupam lugar: sem eles, a barra do topo encosta no alto da tela. */
+  [data-testid="stElementContainer"]:has(> [data-testid="stHtml"] > :is(style, script):first-child):not(:has(> [data-testid="stHtml"] > :not(style, script))) { display: none; }
 
   /* Barra do topo, de ponta a ponta, igual à do painel comparativo */
   .st-key-topo { padding: 10px 0; background: #fff; box-shadow: 0 0 0 100vmax #fff; clip-path: inset(0 -100vmax); }
@@ -60,6 +64,11 @@ st.html("""
   .st-key-inativos p { font-size: 14px; font-weight: 500; color: #0f172a; }
   .stButton button { background: #fff; border-color: #12228e; color: #12228e; font-weight: 600; border-radius: 10px; }
   .stButton button:hover { background: #12228e; color: #fff; border-color: #12228e; }
+  .st-key-botao_comparar button { min-height: 40px; background: #12228e; color: #fff; }
+  .st-key-botao_comparar button p { color: #fff; font-weight: 700; }
+  .st-key-botao_comparar button:disabled { background: #f3f5fd; border-color: #dbe0f0; }
+  .st-key-botao_comparar button:disabled p { color: #94a3b8; }
+  .st-key-comparar { padding: clamp(14px, 1.2vw, 20px); border: 1px solid #dbe0f0; border-radius: 14px; background: #fff; }
 
   /* Faixa azul de cada tela */
   .heroi { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 8fr); gap: 14px clamp(16px, 1.6vw, 28px); align-items: center; padding: clamp(15px, 1.2vw, 22px) clamp(18px, 1.5vw, 26px); border-radius: 14px; background: #0e1a6b; }
@@ -83,6 +92,23 @@ st.html("""
 """ + graficos.CSS + comparativo.CSS + "</style>")
 
 
+# Campos de escolha só aceitam escolher: nada de digitar, colar ou apagar o texto mostrado.
+# Setas, Enter e clique continuam funcionando para escolher uma opção.
+st.html("""<script>
+(() => {
+  if (window.__soEscolher) return;
+  window.__soEscolher = true;
+  const ehCampo = (alvo) => alvo instanceof HTMLInputElement && alvo.closest('[data-testid="stSelectbox"], [data-testid="stMultiSelect"]');
+  for (const evento of ["beforeinput", "paste", "drop", "cut"]) {
+    document.addEventListener(evento, (e) => { if (ehCampo(e.target)) e.preventDefault(); }, true);
+  }
+})();
+</script>
+<style>
+  [data-testid="stSelectbox"] input, [data-testid="stMultiSelect"] input { caret-color: transparent; cursor: pointer; }
+</style>""", unsafe_allow_javascript=True)
+
+
 # ---------------------------------------------------------------- formatação
 def data_br(iso: str | None) -> str:
     return date.fromisoformat(iso).strftime("%d/%m/%Y") if iso else "—"
@@ -104,6 +130,20 @@ def prazo_da_reavaliacao(reavaliacao: dict | None) -> str | None:
 
 def categoria_de(atleta: dict) -> str:
     return (atleta["categoria"] or "Sem categoria").replace("_", " ").capitalize()
+
+
+def rotulo_do_atleta(atleta: dict) -> str:
+    """Nome, idade e o que mais identifica o atleta. A idade vem antes da categoria: é ela que o filtro usa."""
+    partes = [atleta["nome"] or "Sem nome", f"{atleta['idade']} anos" if atleta["idade"] is not None else "idade não informada"]
+    if atleta["modalidade"]:
+        partes.append(atleta["modalidade"])
+    elif atleta["categoria"]:
+        partes.append(categoria_de(atleta))
+    n = atleta["total_avaliacoes"]
+    partes.append(f"{n} {'avaliação' if n == 1 else 'avaliações'}")
+    if not atleta["ativo"]:
+        partes.append("inativo")
+    return " · ".join(partes)
 
 
 # ---------------------------------------------------------------- leitura, com cache de 5 minutos
@@ -173,9 +213,7 @@ def resumo_do_atleta(atleta, comparacao, presenca, reavaliacao, n_datas) -> str:
     if reavaliacao:
         rotulo, cor, _, _ = REAVALIACAO[reavaliacao["situacao"]]
         tiles.append(tile(rotulo, "Reavaliação", f"{prazo(reavaliacao['dias_para_vencer'])}, {data_br(reavaliacao['vence_em'])}", cor, em_texto=True))
-    if atleta["unidade"] == "ONE_TO_ONE" and not atleta["total_avaliacoes"]:
-        frase = "O One to One ainda não tem avaliações físicas na API."
-    elif not atleta["total_avaliacoes"]:
+    if not atleta["total_avaliacoes"]:
         frase = "Este atleta ainda não fez nenhuma avaliação física."
     elif n_datas < 2:
         frase = "Só há 1 avaliação até agora: ainda não dá para comparar a evolução."
@@ -251,7 +289,30 @@ def _guardar(origem: str, destino: str) -> None:
     st.session_state[destino] = st.session_state[origem]
 
 
-FAIXAS = ["Todas as idades", *[f["nome"] for f in cartao.CATALOGO["faixas_de_idade"]]]
+TODAS_AS_IDADES = "Todas as idades"
+FAIXAS = [TODAS_AS_IDADES, *[f["nome"] for f in cartao.CATALOGO["faixas_de_idade"]]]
+SEM_IDADE = "Idade não informada"
+# Campos de escolha: só se seleciona, não se digita (o Streamlit deixa digitar para buscar, por padrão).
+SO_ESCOLHER = {"filter_mode": None}
+
+
+def _faixa_do_atleta(atleta: dict) -> str:
+    return SEM_IDADE if atleta["idade"] is None else cartao.faixa_de_idade(atleta["idade"])
+
+
+def _rotulo_da_faixa(faixa: str, atletas: list[dict]) -> str:
+    """O nome da faixa e as idades que existem nela, para ninguém precisar adivinhar quem entra."""
+    if faixa == TODAS_AS_IDADES:
+        idades = [a["idade"] for a in atletas if a["idade"] is not None]
+        return f"{faixa} ({min(idades)} a {max(idades)})" if idades else faixa
+    idades = sorted({a["idade"] for a in atletas if a["idade"] is not None and _faixa_do_atleta(a) == faixa})
+    if not idades:
+        return f"{faixa} (nenhum nesta modalidade)"
+    return f"{faixa} ({idades[0]} anos)" if len(idades) == 1 else f"{faixa} ({idades[0]} a {idades[-1]})"
+
+
+def _contar(n: int, um: str, varios: str) -> str:
+    return f"{n} {um if n == 1 else varios}"
 
 
 def filtros_do_grupo(todos: list[dict]) -> tuple | None:
@@ -269,29 +330,45 @@ def filtros_do_grupo(todos: list[dict]) -> tuple | None:
         st.session_state.pop("area", None)
     st.session_state.setdefault("area", areas[0])
 
-    c_area, c_mod, c_faixa, c_inativos = st.columns([1.7, 2.4, 2, 1.3], vertical_alignment="bottom", gap="small")
+    c_area, c_mod, c_faixa, c_inativos = st.columns([1.7, 2.4, 2.2, 1.5], vertical_alignment="bottom", gap="small")
     area = c_area.segmented_control("Área", areas, required=True, key="area", width="stretch", disabled=len(areas) == 1,
                                     help="Cada login vê só a própria unidade." if len(areas) == 1 else None)
-    inativos = c_inativos.toggle("Incluir inativos", key="inativos")
-    ativos = [a for a in todos if (a["ativo"] or inativos) and (a["unidade"] == "PKZ") == (area == comparativo.PKZ)]
+    da_area = [a for a in todos if (a["unidade"] == "PKZ") == (area == comparativo.PKZ)]
+    n_inativos = sum(not a["ativo"] for a in da_area)
+    inativos = c_inativos.toggle(f"Incluir inativos ({n_inativos})", key="inativos", disabled=not n_inativos,
+                                 help=(f"{_contar(n_inativos, 'aluno inativo', 'alunos inativos')} nesta área. "
+                                       "Ligado, eles entram na lista, nos cartões e nas médias." if n_inativos
+                                       else "Nenhum aluno inativo nesta área."))
+    ativos = [a for a in da_area if a["ativo"] or inativos]
     nota = ""
     if area == comparativo.PKZ:
-        extras = sorted({a["modalidade"] for a in ativos if a["modalidade"]} - set(cartao.MODALIDADES_PKZ))
-        opcoes = [TODAS_AS_MODALIDADES, *cartao.MODALIDADES_PKZ, *extras]
+        # Só modalidades com atletas: nenhuma opção leva a uma lista vazia.
+        existentes = {a["modalidade"] for a in ativos if a["modalidade"]}
+        opcoes = [TODAS_AS_MODALIDADES, *[m for m in cartao.MODALIDADES_PKZ if m in existentes],
+                  *sorted(existentes - set(cartao.MODALIDADES_PKZ))]
         if st.session_state.get("modalidade") not in opcoes:
             st.session_state.pop("modalidade", None)
-        modalidade = c_mod.selectbox("Modalidade", opcoes, key="modalidade",
-                                     help="Mostra só os atletas dessa modalidade. Todos os atletas de uma modalidade têm os mesmos atributos.")
+        por_modalidade = {m: sum(a["modalidade"] == m for a in ativos) for m in opcoes[1:]}
+        modalidade = c_mod.selectbox("Modalidade", opcoes, key="modalidade", **SO_ESCOLHER,
+                                     format_func=lambda m: m if m == TODAS_AS_MODALIDADES else f"{m} ({por_modalidade[m]})",
+                                     help="Entre parênteses, quantos atletas há na modalidade. Todos os atletas de uma modalidade têm os mesmos atributos.")
         com_modalidade = sum(bool(a["modalidade"]) for a in ativos)
         if com_modalidade < len(ativos):
             nota = (f'<div class="tst-rodape">Modalidade registrada em {com_modalidade} de {len(ativos)} atletas. '
                     "Os outros aparecem só em Todas as modalidades, com os atributos gerais.</div>")
     else:
         modalidade = TODAS_AS_MODALIDADES
-        c_mod.selectbox("Modalidade", ["Sem modalidade no One to One"], key="modalidade_oto", disabled=True)
-    faixa = c_faixa.selectbox("Faixa de idade", FAIXAS, key="faixa")
-    lista = [a for a in ativos if (modalidade == TODAS_AS_MODALIDADES or a["modalidade"] == modalidade)
-             and (faixa == FAIXAS[0] or cartao.faixa_de_idade(a["idade"]) == faixa)]
+        c_mod.selectbox("Modalidade", ["Sem modalidade no One to One"], key="modalidade_oto", disabled=True, **SO_ESCOLHER)
+    # As faixas saem das idades cadastradas na área: toda idade tem onde cair e nenhuma faixa aparece sem aluno.
+    da_modalidade = [a for a in ativos if modalidade == TODAS_AS_MODALIDADES or a["modalidade"] == modalidade]
+    presentes = {_faixa_do_atleta(a) for a in ativos}
+    faixas = [TODAS_AS_IDADES, *[f for f in FAIXAS[1:] if f in presentes], *([SEM_IDADE] if SEM_IDADE in presentes else [])]
+    if st.session_state.get("faixa") not in faixas:
+        st.session_state.pop("faixa", None)
+    faixa = c_faixa.selectbox("Faixa de idade", faixas, key="faixa", **SO_ESCOLHER,
+                              format_func=lambda f: _rotulo_da_faixa(f, da_modalidade),
+                              help="Entre parênteses, as idades que existem na faixa. A comparação dos atributos é sempre com a mesma faixa.")
+    lista = [a for a in da_modalidade if faixa == TODAS_AS_IDADES or _faixa_do_atleta(a) == faixa]
     return area, modalidade, faixa, ativos, lista, nota
 
 
@@ -313,21 +390,20 @@ def barra_de_filtros(todos: list[dict]) -> dict | None:
             chave = _chave_da_lista("atleta", ids)
             st.session_state[chave] = st.session_state["atleta_escolhido"]
             atleta_id = escolha.selectbox(
-                "Atleta", ids, key=chave, on_change=_guardar, args=(chave, "atleta_escolhido"),
-                format_func=lambda i: (f"{por_id[i]['nome']} · {categoria_de(por_id[i])} · {por_id[i]['total_avaliacoes']} "
-                                       f"{'avaliação' if por_id[i]['total_avaliacoes'] == 1 else 'avaliações'}"),
+                f"Atleta · {len(ids)} na lista", ids, key=chave, on_change=_guardar,
+                args=(chave, "atleta_escolhido"), **SO_ESCOLHER, format_func=lambda i: rotulo_do_atleta(por_id[i]),
             )
         else:
-            escolha.selectbox("Atleta", ["Nenhum atleta com esses filtros"], key="atleta_vazio", disabled=True)
+            escolha.selectbox("Atleta", ["Nenhum atleta com esses filtros"], key="atleta_vazio", disabled=True, **SO_ESCOLHER)
         proximo.button("›", key="proximo", on_click=_passar_atleta, args=(ids, 1), width="stretch", disabled=not ids)
         if nota:
             st.html(nota)
 
     if not ids:
         if modalidade != TODAS_AS_MODALIDADES:
-            st.html(graficos.aviso(f"Nenhum atleta com a modalidade {modalidade} registrada{'' if faixa == FAIXAS[0] else ' nesta faixa de idade'}.",
+            st.html(graficos.aviso(f"Nenhum atleta com a modalidade {modalidade} registrada{'' if faixa == TODAS_AS_IDADES else ' nesta faixa de idade'}.",
                                    "Escolha Todas as modalidades, ou peça para registrar a modalidade dos atletas."))
-        elif faixa != FAIXAS[0]:
+        elif faixa != TODAS_AS_IDADES:
             st.html(graficos.aviso(f"Nenhum atleta de {faixa.lower()} nesta área.", "Escolha outra faixa de idade."))
         else:
             st.html(graficos.aviso("Nenhum atleta ativo.", "Ligue a opção Incluir inativos para ver os outros."))
@@ -344,12 +420,12 @@ def tela_atleta(todos: list[dict], reavaliacoes: list[dict]) -> None:
     one_to_one = atleta["unidade"] == "ONE_TO_ONE"
     da_unidade = [a for a in todos if a["unidade"] == atleta["unidade"]]
 
-    medidas = [] if one_to_one else ler_medidas()
+    medidas = ler_medidas()
     # Presença e relatórios de treino existem mesmo sem avaliação física (é o caso do One to One).
     linhas_evolucao, linhas_comparacao, linhas_presenca, linhas_treinos = ler_avaliacoes(atleta_id)
     reavaliacao = next((r for r in reavaliacoes if r["atleta_id"] == atleta_id), None)
     faixa = cartao.faixa_de_idade(atleta["idade"])
-    ids_do_grupo = [a["atleta_id"] for a in da_unidade if cartao.faixa_de_idade(a["idade"]) == faixa]
+    ids_do_grupo = [a["atleta_id"] for a in da_unidade if a["idade"] is not None and cartao.faixa_de_idade(a["idade"]) == faixa]
     ultimos = cartao.ultimos_valores(medidas)
     perfil = leitura.perfil_do_atleta(linhas_evolucao, ids_do_grupo, ultimos)
     n_datas = len({l["data_avaliacao"] for l in linhas_evolucao})
@@ -364,9 +440,7 @@ def tela_atleta(todos: list[dict], reavaliacoes: list[dict]) -> None:
             + "</div>")
 
     if not linhas_evolucao:
-        st.html(graficos.aviso("Sem dados para comparar.",
-                               "O One to One ainda não tem avaliações físicas na API: os gráficos aparecem quando houver." if one_to_one
-                               else "Os gráficos aparecem depois da primeira avaliação física deste atleta."))
+        st.html(graficos.aviso("Sem dados para comparar.", "Os gráficos aparecem depois da primeira avaliação física deste aluno."))
         return
 
     # 2. Onde está forte e o que mudou
@@ -376,7 +450,7 @@ def tela_atleta(todos: list[dict], reavaliacoes: list[dict]) -> None:
     # 3. Como veio evoluindo
     st.html('<div class="painel-titulo" style="margin-top:6px">Como veio evoluindo</div>'
             + (f'<div style="margin-top:9px">{aviso_da_evolucao(linhas_evolucao)}</div>' if n_datas < 2 else ""))
-    st.html(graficos.painel_de_evolucao(linhas_evolucao, ids_do_grupo, ultimos))
+    st.html(graficos.painel_de_evolucao(linhas_evolucao, ids_do_grupo, ultimos, one_to_one=one_to_one))
     with st.expander("Ver todos os valores em tabela"):
         st.html(graficos.tabela_de_valores(linhas_evolucao, linhas_comparacao))
 
@@ -388,8 +462,47 @@ def _cartoes_de(atletas_pkz: list[dict], atletas_oto: list[dict], medidas: list[
         calculados = cartao.calcular_cartoes(atletas_pkz, medidas, modalidade)
         cartoes.update({a["atleta_id"]: calculados[a["atleta_id"]] for a in atletas_pkz if a["modalidade"] == modalidade})
     if atletas_oto:
-        cartoes.update(cartao.calcular_cartoes(atletas_oto, [], None, one_to_one=True))
+        cartoes.update(cartao.calcular_cartoes(atletas_oto, medidas, None, one_to_one=True))
     return cartoes
+
+
+VAZIO = ""
+
+
+def _limpar_comparacao() -> None:
+    st.session_state.pop("comparacao_feita", None)
+
+
+def comparar_dois(lista: list[dict], cartoes: dict, area: str) -> None:
+    """1º atleta, 2º atleta da mesma modalidade, botão Comparar e, depois do clique, o gráfico dos dois."""
+    por_id = {a["atleta_id"]: a for a in lista}
+    rotulo = lambda i: "Escolha um atleta" if i == VAZIO else rotulo_do_atleta(por_id[i])
+    with st.container(key="comparar"):
+        st.html(graficos.titulo_de_painel("Comparar dois atletas",
+                                          "Escolha o primeiro, depois o segundo, da mesma modalidade, e clique em Comparar."))
+        c1, c2, c_botao = st.columns([3, 3, 1.2], vertical_alignment="bottom", gap="small")
+        ids = list(por_id)
+        if st.session_state.get("comparar_1") not in [VAZIO, *ids]:
+            st.session_state.pop("comparar_1", None)
+        primeiro = c1.selectbox("1º atleta", [VAZIO, *ids], key="comparar_1", format_func=rotulo,
+                                on_change=_limpar_comparacao, **SO_ESCOLHER)
+        # O segundo só pode ser da mesma modalidade do primeiro: assim os atributos são os mesmos para os dois.
+        mesma = [i for i in ids if i != primeiro and (area != comparativo.PKZ or not primeiro
+                                                      or por_id[i]["modalidade"] == por_id[primeiro]["modalidade"])]
+        if st.session_state.get("comparar_2") not in [VAZIO, *mesma]:
+            st.session_state.pop("comparar_2", None)
+        segundo = c2.selectbox("2º atleta" + (f" · {por_id[primeiro]['modalidade']}" if primeiro and por_id[primeiro]["modalidade"] else ""),
+                               [VAZIO, *mesma], key="comparar_2", format_func=rotulo, disabled=not primeiro,
+                               on_change=_limpar_comparacao, **SO_ESCOLHER)
+        if c_botao.button("Comparar", key="botao_comparar", width="stretch", type="primary", disabled=not (primeiro and segundo)):
+            st.session_state["comparacao_feita"] = (primeiro, segundo)
+        if primeiro and not mesma:
+            st.html(graficos.aviso("Não há outro atleta desta modalidade com esses filtros.",
+                                   "Amplie a faixa de idade ou ligue Incluir inativos para ter com quem comparar."))
+    feita = st.session_state.get("comparacao_feita")
+    if feita and feita == (primeiro, segundo) and all(i in por_id for i in feita):
+        a, b = (por_id[i] for i in feita)
+        st.html(comparativo.comparacao(a, b, cartoes[a["atleta_id"]], cartoes[b["atleta_id"]], [cartoes[x["atleta_id"]] for x in lista]))
 
 
 def tela_comparativo() -> None:
@@ -401,7 +514,7 @@ def tela_comparativo() -> None:
         area, modalidade, faixa, ativos, lista, nota = grupo
         pkz = [a for a in todos if a["unidade"] == "PKZ"]
         oto = [a for a in todos if a["unidade"] == "ONE_TO_ONE"]
-        cartoes = _cartoes_de(pkz, oto, ler_medidas() if pkz else [])
+        cartoes = _cartoes_de(pkz, oto, ler_medidas())
 
         definicoes = (cartao.CATALOGO["modalidades"]["PKZ"].get(modalidade)
                       if area == comparativo.PKZ and modalidade != TODAS_AS_MODALIDADES else None)
@@ -412,7 +525,11 @@ def tela_comparativo() -> None:
             st.session_state.pop("comparar_por", None)
         st.session_state.setdefault("vista", "Cards")
         c_chave, c_vista, _ = st.columns([2.4, 1.7, 3.3], vertical_alignment="bottom", gap="small")
-        nome_da_chave = c_chave.selectbox("Comparar por", list(chaves), key="comparar_por", disabled=len(chaves) == 1,
+        if area == comparativo.ONE_TO_ONE:
+            chaves |= {d["nome"]: d["sigla"] for d in cartao.CATALOGO["modalidades"]["ONE_TO_ONE"]["Todas"] if d["tipo"] != "sem_dados"}
+        if st.session_state.get("comparar_por") not in chaves:
+            st.session_state.pop("comparar_por", None)
+        nome_da_chave = c_chave.selectbox("Comparar por", list(chaves), key="comparar_por", disabled=len(chaves) == 1, **SO_ESCOLHER,
                                           help=None if len(chaves) > 1 else "Para comparar por um atributo, escolha uma modalidade.")
         vista = c_vista.segmented_control("Ver como", ["Cards", "Ranking"], required=True, key="vista", width="stretch")
         if nota:
@@ -431,17 +548,8 @@ def tela_comparativo() -> None:
     st.html('<div class="dupla">' + comparativo.resumo_do_dia(lista, presencas_por_atleta, hoje)
             + comparativo.distribuicao(lista, cartoes) + "</div>")
 
-    if any(cartoes[a["atleta_id"]]["nota"] is not None for a in lista):
-        por_id = {a["atleta_id"]: a for a in lista}
-        st.session_state["comparar_escolhidos"] = [i for i in st.session_state.get("comparar_escolhidos", []) if i in por_id]
-        chave = _chave_da_lista("comparar", list(por_id))
-        st.session_state[chave] = st.session_state["comparar_escolhidos"]
-        escolhidos = st.multiselect("Comparar dois atletas", list(por_id), key=chave, max_selections=2,
-                                    on_change=_guardar, args=(chave, "comparar_escolhidos"),
-                                    format_func=lambda i: por_id[i]["nome"] or "Sem nome", placeholder="Escolha dois atletas")
-        if len(escolhidos) == 2:
-            a, b = (por_id[i] for i in escolhidos)
-            st.html(comparativo.comparacao(a, b, cartoes[a["atleta_id"]], cartoes[b["atleta_id"]], [cartoes[x["atleta_id"]] for x in lista]))
+    if len(lista) >= 2:
+        comparar_dois(lista, cartoes, area)
 
     ordenados = comparativo.ordenar(lista, cartoes, chave)
     recorte = modalidade if area == comparativo.PKZ else comparativo.ONE_TO_ONE
@@ -451,7 +559,7 @@ def tela_comparativo() -> None:
         st.html(comparativo.ranking(ordenados, cartoes, chave, nome_da_chave))
     else:
         st.html(comparativo.grade_de_cartoes(ordenados, cartoes, chave, nome_da_chave, presencas_por_atleta, hoje))
-    st.html('<div class="tst-rodape">Dados reais, lidos da API, só para leitura. Cada atributo é o percentil do atleta entre os da '
+    st.html(f'<div class="tst-rodape">{"Dados fictícios, só para teste." if dados.usando_exemplos() else "Dados reais, lidos da API, só para leitura."} Cada atributo é o percentil do atleta entre os da '
             'mesma faixa de idade; até 5 pontos de diferença conta como na média. A nota é provisória: a fórmula definitiva é da escola.</div>')
 
 
@@ -502,7 +610,8 @@ with st.container(key="topo"):
 
 faltando = dados.variaveis_faltando()
 if dados.usando_exemplos():
-    st.warning("**Dados de exemplo, fictícios.** Para ler a API, preencha o arquivo .env (veja o README).")
+    if not dados.DADOS_FICTICIOS:  # no modo apresentação, quem explica é o apresentador
+        st.warning("**Dados de exemplo, fictícios.** Para ler a API, preencha o arquivo .env (veja o README).")
 elif faltando:
     st.error(f"Faltam variáveis no .env: {', '.join(faltando)}.")
     st.stop()

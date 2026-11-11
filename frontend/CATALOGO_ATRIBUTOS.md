@@ -81,16 +81,18 @@ Em todas as modalidades da PKZ, **SIM** é a simetria entre as pernas no `single
 
 ## One to One
 
-| Sigla | Atributo | Situação |
-|---|---|---|
-| FIN | Força de inferiores | Sem dados |
-| RES | Resistência | Sem dados |
-| POT | Potência | Sem dados |
-| FSU | Força de superiores | Sem dados |
-| COR | Core | Sem dados |
-| MOB | Mobilidade | Sem dados |
+Atributos da ficha do relatório One to One da AP1. Testes escolhidos pelo Front-end em 10/11/2026 e aprovados pela gerência para a apresentação; a coordenação técnica ainda pode trocá-los.
 
-Os 74 alunos do One to One não têm nenhuma avaliação em `api.evolucao`. Por isso, o painel mostra os alunos e a presença, sem nota.
+| Sigla | Atributo | Teste (`api.evolucao.teste`) | Melhor |
+|---|---|---|---|
+| FIN | Força de inferiores | `cadeira_isometrica` (segundos) | Maior |
+| RES | Resistência | `teste_vo2_distancia_total` | Maior |
+| POT | Potência | `saltos_vert_countermovement` | Maior |
+| FSU | Força de superiores | `flexao_bracos` (repetições em 1 min) | Maior |
+| COR | Core | `prancha_ventral` (segundos) | Maior |
+| MOB | Mobilidade | `banco_wells` | Maior |
+
+Na API real, os alunos do One to One ainda não têm avaliações: o cartão mostra o aviso de aluno sem avaliação. `cadeira_isometrica`, `flexao_bracos` e `prancha_ventral` ainda não existem na bateria da API; existem nos dados fictícios da apresentação.
 
 ## Testes fora dos atributos
 
@@ -99,7 +101,7 @@ Estes testes têm dados e aparecem nos gráficos do dashboard, mas não entram n
 ## Como a nota é calculada (provisória)
 
 1. **Último resultado:** usa o valor mais recente de cada teste.
-2. **Percentil:** de 0 a 99, entre os atletas da mesma faixa de idade: até 10 anos, 11 e 12, 13 ou mais. Faixa com menos de 5 resultados no teste fica sem valor, com aviso.
+2. **Percentil:** de 0 a 99, entre os atletas da mesma faixa de idade: até 10 anos, 11 e 12, 13 a 17, 18 ou mais (18 ou mais separado em 10/11/2026, por causa dos adultos do One to One). Faixa com menos de 5 resultados no teste fica sem valor, com aviso.
 3. **Simetria:** menor lado ÷ maior lado × 100. Abaixo de 90 fica em alerta.
 4. **Nota:** média dos atributos preenchidos, sem a simetria. Precisa de pelo menos 3.
 5. **Nível e metal:** E até 20 e D até 40 (bronze), C até 60 (prata), B até 80 (ouro), A acima (preto). É a regra provisória do README do projeto.

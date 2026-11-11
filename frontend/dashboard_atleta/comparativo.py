@@ -40,6 +40,9 @@ CSS = """
   .resumo-dia span { font-size:12.5px; color:#475569; }
   .cmp-atributos { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr)); gap:10px 26px; }
   .cmp-atributo { display:flex; flex-direction:column; gap:6px; padding:9px 0; border-top:1px solid #eef1f6; }
+  .cmp-grafico { display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); gap:18px 28px; align-items:center; }
+  .cmp-grafico .cmp-atributos { grid-template-columns:minmax(0,1fr); }
+  @media (max-width:900px) { .cmp-grafico { grid-template-columns:minmax(0,1fr); } }
   @media (max-width:640px) { .resumo-dia { grid-template-columns:repeat(2,minmax(0,1fr)); } .niveis { gap:4px; } }
 """
 
@@ -111,8 +114,7 @@ def heroi(nome_da_chave: str, atletas: list[dict], cartoes: dict, chave: str, ar
     if not n:
         frase = "Nenhum atleta com esses filtros."
     elif contagem["sem"] == n:
-        frase = (f"Os {n} alunos do One to One ainda não têm avaliações físicas na API, por isso não há nota nem atributos."
-                 if area == ONE_TO_ONE else f"Ainda não há dados de {nome_da_chave.lower()} para este recorte.")
+        frase = f"Ainda não há dados de {nome_da_chave.lower()} para este recorte."
     else:
         frase = (f"{contagem['acima']} {'atleta está' if contagem['acima'] == 1 else 'atletas estão'} acima da média em "
                  f"{nome_da_chave.lower()}, {contagem['media']} na média e {contagem['abaixo']} abaixo."
@@ -200,6 +202,50 @@ def ranking(ordenados, cartoes: dict, chave: str, nome_da_chave: str) -> str:
             f"O risco escuro em cada barra é a média do grupo filtrado em {escape(nome_da_chave.lower())}.</div>")
 
 
+COR_A, COR_B = "#2343c8", "#e07a1f"
+
+
+def radar_de_dois(a: dict, b: dict, ca: dict, cb: dict) -> str:
+    """Os dois atletas no mesmo radar, de 0 a 99. Só os atributos que os dois têm viram vértice do desenho."""
+    import math
+    eixos = [(d["nome"], ca["atributos"].get(d["sigla"]), cb["atributos"].get(d["sigla"]))
+             for d in ca["definicoes"] if d["tipo"] != "simetria"]
+    n = len(eixos)
+    cx, cy, raio = 50, 41, 29
+
+    def xy(i, v):
+        angulo = -math.pi / 2 + 2 * math.pi * i / n
+        return cx + raio * v / 100 * math.cos(angulo), cy + raio * v / 100 * math.sin(angulo)
+
+    def pontos(pares):
+        return " ".join(f"{xy(i, v)[0]:.2f},{xy(i, v)[1]:.2f}" for i, v in pares)
+
+    aneis = "".join(f'<polygon points="{pontos((i, v) for i in range(n))}" fill="none" stroke="#e1e5f0" stroke-width=".3"/>' for v in (25, 50, 75, 100))
+    raios = "".join(f'<line x1="{cx}" y1="{cy}" x2="{xy(i, 100)[0]:.2f}" y2="{xy(i, 100)[1]:.2f}" stroke="#e1e5f0" stroke-width=".3"/>' for i in range(n))
+    desenhos = ""
+    for indice, cor in ((1, COR_A), (2, COR_B)):
+        pares = [(i, e[indice]) for i, e in enumerate(eixos) if e[indice] is not None]
+        if len(pares) >= 3:
+            desenhos += (f'<polygon points="{pontos(pares)}" fill="{cor}" fill-opacity=".16" stroke="{cor}" stroke-width=".7" stroke-linejoin="round"/>'
+                         + "".join(f'<circle cx="{xy(i, v)[0]:.2f}" cy="{xy(i, v)[1]:.2f}" r="1" fill="{cor}" stroke="#fff" stroke-width=".3"/>' for i, v in pares))
+    svg = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80">{aneis}{raios}{desenhos}</svg>'
+    rotulos = ""
+    for i, (nome, va, vb) in enumerate(eixos):
+        x, y = xy(i, 113)
+        if abs(x - cx) < 4:
+            posicao, alinhamento = ("translate(-50%,-100%)" if y < cy else "translate(-50%,0)"), "center"
+        elif x > cx:
+            posicao, alinhamento = "translate(0,-50%)", "left"
+        else:
+            posicao, alinhamento = "translate(-100%,-50%)", "right"
+        numeros = (f'<b style="color:{COR_A}">{"—" if va is None else va}</b><span style="color:#94a3b8"> × </span>'
+                   f'<b style="color:{COR_B}">{"—" if vb is None else vb}</b>')
+        rotulos += (f'<div class="radar-rotulo" style="left:{x:.2f}%;top:{y / 80 * 100:.2f}%;transform:{posicao};text-align:{alinhamento}">'
+                    f'{escape(nome)}<span style="display:block;font-size:14px">{numeros}</span></div>')
+    descricao = "Radar comparando dois atletas: " + ", ".join(f"{e[0]} {e[1]} contra {e[2]}" for e in eixos)
+    return f'<div class="radar">{graficos._imagem_svg(svg, descricao)}{rotulos}</div>'
+
+
 def comparacao(a: dict, b: dict, ca: dict, cb: dict, todos_os_cartoes: list[dict]) -> str:
     """Dois atletas, atributo por atributo, com a média do grupo marcada em cada barra."""
     primeiro = lambda atleta: escape((atleta["nome"] or "Atleta").split()[0])
@@ -213,13 +259,15 @@ def comparacao(a: dict, b: dict, ca: dict, cb: dict, todos_os_cartoes: list[dict
         if va is not None and vb is not None and chave != NOTA:
             frente_a += va > vb
             frente_b += vb > va
-        if va is None or vb is None:
-            diferenca, cor = "sem dado", "#94a3b8"
+        if va is None and vb is None:
+            diferenca, cor = "os dois sem dado", "#94a3b8"
+        elif va is None or vb is None:
+            diferenca, cor = f"sem dado de {primeiro(a) if va is None else primeiro(b)}", "#94a3b8"
         elif va == vb:
             diferenca, cor = "iguais", "#64748b"
         else:
             diferenca = f"{primeiro(a) if va > vb else primeiro(b)} +{abs(cartao._arredondar(va) - cartao._arredondar(vb))}"
-            cor = "#2343c8" if va > vb else "#2e9e5b"
+            cor = COR_A if va > vb else COR_B
 
         def barra(v, cor_barra):
             largura = 0 if v is None else max(2, min(100, v / 99 * 100))
@@ -228,14 +276,26 @@ def comparacao(a: dict, b: dict, ca: dict, cb: dict, todos_os_cartoes: list[dict
                     f'<span style="width:34px;text-align:right;font-size:14px;font-weight:800;color:#0f172a">{"—" if v is None else cartao._arredondar(v)}</span></div>')
         blocos += (f'<div class="cmp-atributo"><div style="display:flex;justify-content:space-between;gap:8px">'
                    f'<span style="font-size:14px;font-weight:600;color:#0f172a">{escape(nome)}</span>'
-                   f'<span style="font-size:13px;font-weight:700;color:{cor}">{diferenca}</span></div>{barra(va, "#2343c8")}{barra(vb, "#2e9e5b")}</div>')
-    legenda = (f'<div class="gr-legenda" style="font-size:13.5px"><span><i style="background:#2343c8"></i><span class="cartao-nome">{escape(a["nome"])}</span></span>'
-               f'<span><i style="background:#2e9e5b"></i><span class="cartao-nome">{escape(b["nome"])}</span></span>'
+                   f'<span style="font-size:13px;font-weight:700;color:{cor}">{diferenca}</span></div>{barra(va, COR_A)}{barra(vb, COR_B)}</div>')
+    legenda = (f'<div class="gr-legenda" style="font-size:13.5px"><span><i style="background:{COR_A}"></i><span class="cartao-nome">{escape(a["nome"])}</span></span>'
+               f'<span><i style="background:{COR_B}"></i><span class="cartao-nome">{escape(b["nome"])}</span></span>'
                '<span><i style="background:#0f172a;width:2px;height:12px"></i>média do grupo</span></div>')
     if mesmos:
         resumo = (f"{primeiro(a)} está à frente em {frente_a} de {len(linhas_def) - 1} atributos e {primeiro(b)} em {frente_b}. "
                   f"Na nota provisória: {'—' if ca['nota'] is None else ca['nota']} contra {'—' if cb['nota'] is None else cb['nota']}.")
     else:
         resumo = "Os dois são de modalidades com atributos diferentes, então a comparação fica na nota provisória."
-    return ('<div class="painel">' + graficos.titulo_de_painel("Comparação entre dois atletas", "Atributo por atributo, com a média do grupo marcada em cada barra.")
-            + legenda + f'<div class="cmp-atributos">{blocos}</div><div class="tst-rodape">{resumo}</div></div>')
+    sem_avaliacao = [x for x, c in ((a, ca), (b, cb)) if all(v is None for v in c["atributos"].values())]
+    if sem_avaliacao:
+        nomes = " e ".join(escape(x["nome"]) for x in sem_avaliacao)
+        aviso = graficos.aviso(f"{nomes} ainda {'não têm' if len(sem_avaliacao) == 2 else 'não tem'} atributos para comparar.",
+                               "Os atributos aparecem depois da primeira avaliação física. O gráfico mostra só o que existe.")
+    else:
+        aviso = ""
+    radar = radar_de_dois(a, b, ca, cb) if mesmos and not sem_avaliacao else ""
+    corpo = (f'<div class="cmp-grafico"><div>{radar}</div><div class="cmp-atributos">{blocos}</div></div>' if radar
+             else f'<div class="cmp-atributos">{blocos}</div>')
+    return ('<div class="painel">' + graficos.titulo_de_painel(
+                "Comparação entre dois atletas",
+                "Atributos de 0 a 99, a posição de cada um entre os colegas da mesma faixa de idade. Quanto mais longe do centro, melhor.")
+            + aviso + legenda + corpo + f'<div class="tst-rodape">{resumo}</div></div>')
