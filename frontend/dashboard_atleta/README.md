@@ -6,7 +6,9 @@ App em Streamlit com três telas, escolhidas nos botões do topo: **Atleta**, **
 
 - a mesma barra de filtros do Comparativo: área (PKZ ou One to One, conforme o login), modalidade, faixa de idade e inativos. O que se escolhe numa tela continua escolhido na outra;
 - embaixo, o atleta, com setas para passar de um para o outro;
-- no One to One, o aluno aparece com presença e relatórios de treino, e um aviso de que ainda não há avaliação física na API;
+- no One to One, o aluno aparece com presença, relatórios de treino e, quando houver avaliação, os seis atributos da ficha (FIN, RES, POT, FSU, COR, MOB) e os gráficos de força, core, potência, resistência e mobilidade;
+- os campos de escolha só aceitam escolher: não dá para digitar nem apagar o texto deles;
+- cartão com foto de exemplo, gerada por IA, até a API ter foto;
 - visão geral: avaliações, comparação, presença e reavaliação;
 - cartão do atleta, no desenho do painel comparativo, com nota, nível e os seis atributos da modalidade;
 - radar dos atributos, contra a média do grupo;
@@ -22,7 +24,7 @@ App em Streamlit com três telas, escolhidas nos botões do topo: **Atleta**, **
 - faixa azul com quantos estão acima, na média e abaixo, e a média do grupo filtrado;
 - resumo da chamada de hoje, só leitura, e a distribuição da turma por nível;
 - cartões ordenados pelo que se está comparando, ou o ranking em barras;
-- comparação de dois atletas, atributo por atributo, com a média do grupo marcada.
+- comparação de dois atletas: escolhe-se o 1º, depois o 2º (da mesma modalidade) e clica-se em *Comparar*. Aparecem os dois no mesmo radar, de 0 a 99, e as barras atributo por atributo, com a média do grupo marcada. Quem não tem avaliação recebe um aviso, sem gráfico.
 
 **Tela Reavaliações**: lista das reavaliações vencidas e a vencer, para a coordenação.
 
@@ -43,11 +45,16 @@ No Mac ou no Linux, ative o ambiente com `source .venv/bin/activate`. A tela abr
 
 **Com o `.env`, da API.** Copie o `.env.example` para `.env` e preencha a URL, a publishable key, o e-mail e a senha do usuário de teste. A senha é passada em particular pelo Miguel. O `.env` não vai para o GitHub.
 
+**Para apresentar, dados fictícios.** Rode `.presentacao.ps1` nesta pasta: abre em `http://localhost:8503`, com os 70 alunos inventados de `dados_ficticios/` e um aviso no topo. Nesse modo (`DADOS_FICTICIOS=1`) a tela ignora o `.env`, então nenhum dado real aparece. A base sai de `gerar_dados_ficticios.py`, com semente fixa: rode `python gerar_dados_ficticios.py AAAA-MM-DD` com o dia da apresentação para o *Resumo do dia* ter sessões.
+
 **Sem o `.env`, dos exemplos.** A tela usa os JSON fictícios de `backend/exemplos/api/` e avisa no topo que são dados de exemplo. Como não existe `reavaliacao.json`, a situação da reavaliação é calculada pela mesma regra da view: 90 dias para vencer e aviso a 30 dias. Se a API falhar, a tela mostra o erro e não troca para os exemplos.
 
 Contrato das views: [`backend/docs/api.md`](../../backend/docs/api.md). O dashboard usa `atleta`, `evolucao`, `comparacao`, `reavaliacao`, `presenca` e `treino`, só com `unidade = PKZ`. Os dados ficam em memória por 5 minutos; o botão *Atualizar* lê tudo de novo.
 
 ## Regras que a tela segue
+
+- Faixa de idade e modalidade só oferecem opções que têm alunos, com as idades e a quantidade entre parênteses. A lista de atletas mostra a idade, que é o que o filtro usa (a categoria cadastrada nem sempre bate com ela).
+- *Incluir inativos* mostra quantos inativos há na área e fica desligado quando não há nenhum.
 
 - Melhorou, piorou, estável e vencimento vêm prontos da API; a tela não recalcula nada.
 - Teste com regra ainda não confirmada pela PKZ (`confirmado = false`) mostra a classificação com um asterisco e um aviso. Pelo `api.md`, no relatório dos pais esse teste aparece só com os valores.

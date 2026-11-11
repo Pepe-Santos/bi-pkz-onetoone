@@ -36,6 +36,8 @@ NOMES_DE_TESTE = {
     "teste_vo2_tempo_total": "VO2 (tempo total)", "teste_vo2_tempo_vel_max": "VO2 (tempo na velocidade máxima)",
     "blazepod_vel_reacao_ms": "Blazepod (reação, tempo)", "blazepod_vel_reacao_hits": "Blazepod (reação, acertos)",
     "blazepod_foco": "Blazepod (foco)", "antropometria_altura": "Altura", "antropometria_peso": "Peso",
+    "cadeira_isometrica": "Cadeira isométrica (força de inferiores)", "flexao_bracos": "Flexão de braços em 1 min",
+    "prancha_ventral": "Prancha ventral (core)",
 }
 # (nome do grupo, largura na página, colunas, testes). "saltos" é o cartão único dos três saltos.
 GRUPOS = (
@@ -46,7 +48,14 @@ GRUPOS = (
     ("Medidas do corpo", "metade", 2, ("antropometria_altura", "antropometria_peso")),
     ("Reação e foco", "inteiro", 3, ("blazepod_vel_reacao_ms", "blazepod_vel_reacao_hits", "blazepod_foco")),
 )
-ORDEM_DOS_TESTES = [t for grupo in GRUPOS for chave in grupo[3] for t in (TESTES_DE_SALTO if chave == "saltos" else (chave,))]
+# One to One: a ficha de avaliação da AP1 (força, core, potência, resistência e mobilidade).
+GRUPOS_ONE_TO_ONE = (
+    ("Força e core", "inteiro", 3, ("cadeira_isometrica", "flexao_bracos", "prancha_ventral")),
+    ("Potência e resistência", "inteiro", 3, ("saltos_vert_countermovement", "teste_vo2_distancia_total")),
+    ("Mobilidade", "metade", 2, ("banco_wells",)),
+    ("Medidas do corpo", "metade", 2, ("antropometria_altura", "antropometria_peso")),
+)
+ORDEM_DOS_TESTES = [t for grupo in GRUPOS + GRUPOS_ONE_TO_ONE for chave in grupo[3] for t in (TESTES_DE_SALTO if chave == "saltos" else (chave,))]
 
 # Vai uma vez só na página, pelo app.py.
 CSS = """
@@ -359,7 +368,7 @@ def _cartao_de_saltos(por_teste: dict, ids: list[str], ultimos: dict) -> str:
             f'<div class="tst-grafico">{legenda}{_colunas_agrupadas(grupos)}</div></div>')
 
 
-def painel_de_evolucao(linhas: list[dict], ids: list[str], ultimos: dict) -> str:
+def painel_de_evolucao(linhas: list[dict], ids: list[str], ultimos: dict, one_to_one: bool = False) -> str:
     """Todos os testes, sempre no mesmo lugar: o professor acha cada um em qualquer atleta."""
     por_teste: dict[str, list[dict]] = {}
     for linha in linhas:
@@ -376,7 +385,7 @@ def painel_de_evolucao(linhas: list[dict], ids: list[str], ultimos: dict) -> str
     return '<div class="grupos">' + "".join(
         f'<section class="grupo {largura}"><div class="grupo-nome">{escape(nome)}</div>'
         f'<div class="cartoes c{colunas}">{"".join(cartao(c) for c in chaves)}</div></section>'
-        for nome, largura, colunas, chaves in GRUPOS) + "</div>"
+        for nome, largura, colunas, chaves in (GRUPOS_ONE_TO_ONE if one_to_one else GRUPOS)) + "</div>"
 
 
 # ---------------------------------------------------------------- tabela compacta

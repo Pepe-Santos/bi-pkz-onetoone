@@ -1,4 +1,7 @@
-"""Leitura dos dados do dashboard: a API do Supabase ou, sem .env, os JSON de exemplo.
+"""Leitura dos dados do dashboard: a API do Supabase, os dados fictícios da apresentação ou, sem .env, os JSON de exemplo.
+
+Com DADOS_FICTICIOS=1, a tela usa os alunos inventados de dados_ficticios/ (veja gerar_dados_ficticios.py),
+mesmo que exista um .env. É o modo da apresentação: nenhum dado real aparece.
 
 O contrato das views está em backend/docs/api.md.
 """
@@ -13,7 +16,8 @@ import requests
 from dotenv import load_dotenv
 
 PASTA = Path(__file__).resolve().parent
-EXEMPLOS = PASTA.parents[1] / "backend" / "exemplos" / "api"
+DADOS_FICTICIOS = os.environ.get("DADOS_FICTICIOS", "").strip() in ("1", "sim", "true")
+EXEMPLOS = PASTA / "dados_ficticios" if DADOS_FICTICIOS else PASTA.parents[1] / "backend" / "exemplos" / "api"
 VARIAVEIS = ("SUPABASE_URL", "SUPABASE_PUBLISHABLE_KEY", "API_TESTE_EMAIL", "API_TESTE_SENHA")
 LIMITE = 1000  # teto de linhas por chamada no Supabase
 TEMPO_MAXIMO = 30
@@ -34,12 +38,14 @@ class ErroDados(Exception):
 
 
 def variaveis_faltando() -> list[str]:
+    if DADOS_FICTICIOS:
+        return []
     return [nome for nome in VARIAVEIS if not os.environ.get(nome)]
 
 
 def usando_exemplos() -> bool:
     """Sem nenhuma credencial, usa os exemplos. Com o .env pela metade, a tela avisa o que falta."""
-    return len(variaveis_faltando()) == len(VARIAVEIS)
+    return DADOS_FICTICIOS or len(variaveis_faltando()) == len(VARIAVEIS)
 
 
 # ---------------------------------------------------------------- API
@@ -105,7 +111,9 @@ def _ler_api(view: str, **filtros) -> list[dict]:
 
 # ---------------------------------------------------------------- exemplos
 def _ler_exemplo(view: str) -> list[dict]:
-    return json.loads((EXEMPLOS / f"{view}.json").read_text(encoding="utf-8"))
+    """Views sem arquivo de exemplo (presenca, treino) voltam vazias."""
+    arquivo = EXEMPLOS / f"{view}.json"
+    return json.loads(arquivo.read_text(encoding="utf-8")) if arquivo.exists() else []
 
 
 def _reavaliacao_de_exemplo() -> list[dict]:
@@ -168,7 +176,7 @@ def atletas_do_login() -> list[dict]:
 
 def presencas_do_login() -> list[dict]:
     if usando_exemplos():
-        return []  # sem arquivo de exemplo
+        return sorted(_ler_exemplo("presenca"), key=lambda l: l["data"])
     return _ler_api("presenca", select="atleta_id,data,hora_inicio,status", order="data.asc,agendamento_id.asc")
 
 
@@ -200,13 +208,13 @@ def medidas_do_grupo() -> list[dict]:
 
 def presenca(atleta_id: str) -> list[dict]:
     if usando_exemplos():
-        return []  # sem arquivo de exemplo
+        return sorted(_do_atleta(_ler_exemplo("presenca"), atleta_id), key=lambda l: l["data"])
     return _ler_api("presenca", atleta_id=f"eq.{atleta_id}", select="data,status", order="data.asc")
 
 
 def treinos(atleta_id: str) -> list[dict]:
     if usando_exemplos():
-        return []  # sem arquivo de exemplo
+        return sorted(_do_atleta(_ler_exemplo("treino"), atleta_id), key=lambda l: l["data"])
     return _ler_api("treino", atleta_id=f"eq.{atleta_id}", select="relatorio_id,data,observacoes",
                     order="data.asc,relatorio_id.asc")
 

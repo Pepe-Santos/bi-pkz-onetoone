@@ -1,0 +1,2711 @@
+[
+ {
+  "atleta_id": "c0ac7264-b724-44fb-af63-2ebc14efd5b8",
+  "relatorio_id": "bd9a2972-2415-4b9b-bf50-f1b85107c0f4",
+  "data": "2026-09-14",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "c0ac7264-b724-44fb-af63-2ebc14efd5b8",
+  "relatorio_id": "f0ce5fb6-f993-4143-9a75-6ba17d3d5ae7",
+  "data": "2026-09-30",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "c0ac7264-b724-44fb-af63-2ebc14efd5b8",
+  "relatorio_id": "7ac59b4d-f0d5-4c4f-9832-332d5d900069",
+  "data": "2026-10-07",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "c0ac7264-b724-44fb-af63-2ebc14efd5b8",
+  "relatorio_id": "d7771f93-5501-4a4a-9297-20783771c28d",
+  "data": "2026-10-12",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "c0ac7264-b724-44fb-af63-2ebc14efd5b8",
+  "relatorio_id": "6cba2811-ee96-4e93-b78e-46e94acab0c6",
+  "data": "2026-10-19",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "c0ac7264-b724-44fb-af63-2ebc14efd5b8",
+  "relatorio_id": "8e8177c2-8605-492c-8d64-f50ec84c238d",
+  "data": "2026-10-26",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "c0ac7264-b724-44fb-af63-2ebc14efd5b8",
+  "relatorio_id": "64e14cac-c271-4c1a-a6a9-a8e4db419761",
+  "data": "2026-11-04",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "c0ac7264-b724-44fb-af63-2ebc14efd5b8",
+  "relatorio_id": "6ac31c87-2203-43fc-94dc-74f4181b75e7",
+  "data": "2026-11-09",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "77eb0748-e1db-4343-8bcb-c1f23772644d",
+  "relatorio_id": "0e3d51c9-0728-4880-8924-426223abfa18",
+  "data": "2026-09-07",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "77eb0748-e1db-4343-8bcb-c1f23772644d",
+  "relatorio_id": "ac554cb9-4179-49b9-a6be-a94e708469a9",
+  "data": "2026-09-14",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "77eb0748-e1db-4343-8bcb-c1f23772644d",
+  "relatorio_id": "6ec7c016-12ca-41d3-8828-30d00e14bd81",
+  "data": "2026-09-16",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "77eb0748-e1db-4343-8bcb-c1f23772644d",
+  "relatorio_id": "043f4b2b-cecf-4208-9d33-c51f5f163f46",
+  "data": "2026-10-12",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "77eb0748-e1db-4343-8bcb-c1f23772644d",
+  "relatorio_id": "11205167-909e-41b8-a37f-fa6644875991",
+  "data": "2026-10-14",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "77eb0748-e1db-4343-8bcb-c1f23772644d",
+  "relatorio_id": "4e63e580-eae4-4420-8083-e11d07b458de",
+  "data": "2026-10-26",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "07bb2fb8-f955-42bd-8d7b-fc4c21e455ff",
+  "relatorio_id": "cdc95013-f753-4dd9-8722-e73e179dabdf",
+  "data": "2026-09-02",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "07bb2fb8-f955-42bd-8d7b-fc4c21e455ff",
+  "relatorio_id": "4327bdf1-cbac-4c55-8232-35546a6348ad",
+  "data": "2026-09-14",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "07bb2fb8-f955-42bd-8d7b-fc4c21e455ff",
+  "relatorio_id": "8b45a00d-4979-43f2-ac80-3d71a2fda7df",
+  "data": "2026-09-21",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "07bb2fb8-f955-42bd-8d7b-fc4c21e455ff",
+  "relatorio_id": "715d254b-6749-4a16-a137-2dbd09b1f6ae",
+  "data": "2026-10-19",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "07bb2fb8-f955-42bd-8d7b-fc4c21e455ff",
+  "relatorio_id": "30d2fc58-7028-4535-909e-be15e8f3169c",
+  "data": "2026-10-26",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "07bb2fb8-f955-42bd-8d7b-fc4c21e455ff",
+  "relatorio_id": "26ca568a-33e6-41c3-aeec-0a032ec766b8",
+  "data": "2026-11-02",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "1248ee7e-22f3-4f3d-8dc9-5b047f09722a",
+  "relatorio_id": "d9b2df77-e901-4800-ac9b-bb7521392508",
+  "data": "2026-09-14",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "1248ee7e-22f3-4f3d-8dc9-5b047f09722a",
+  "relatorio_id": "8c22e515-7d2e-4fe8-bc0f-1ec991eaea25",
+  "data": "2026-10-19",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "1248ee7e-22f3-4f3d-8dc9-5b047f09722a",
+  "relatorio_id": "0cb4ea8d-186f-490f-a333-5badd720cd19",
+  "data": "2026-10-26",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "1248ee7e-22f3-4f3d-8dc9-5b047f09722a",
+  "relatorio_id": "1c636a0d-325f-4f89-aa69-17c4469ea30f",
+  "data": "2026-10-28",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "1248ee7e-22f3-4f3d-8dc9-5b047f09722a",
+  "relatorio_id": "555928bc-8ac6-4065-a15e-4a016c03c088",
+  "data": "2026-11-04",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "9f2c8fcf-d489-46d5-853c-5c3c97e1e280",
+  "relatorio_id": "886dd970-9e6f-4818-86db-31fa48a2b62a",
+  "data": "2026-09-23",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "9f2c8fcf-d489-46d5-853c-5c3c97e1e280",
+  "relatorio_id": "40f67690-844a-49f3-8b03-d1f2b32b5fb6",
+  "data": "2026-09-28",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "9f2c8fcf-d489-46d5-853c-5c3c97e1e280",
+  "relatorio_id": "a455e7c1-8677-4908-a7b3-adca070da612",
+  "data": "2026-09-30",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "9f2c8fcf-d489-46d5-853c-5c3c97e1e280",
+  "relatorio_id": "f3bc3cb2-e3ef-4290-89d1-66b522cc2406",
+  "data": "2026-10-05",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "9f2c8fcf-d489-46d5-853c-5c3c97e1e280",
+  "relatorio_id": "d6c8dadf-c041-470e-8e55-3507d5dd69d9",
+  "data": "2026-10-19",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "9f2c8fcf-d489-46d5-853c-5c3c97e1e280",
+  "relatorio_id": "5dae09bd-61f9-4130-9b16-7944349559c7",
+  "data": "2026-10-21",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "9f2c8fcf-d489-46d5-853c-5c3c97e1e280",
+  "relatorio_id": "3572276b-93bb-465f-a2b4-e9d4e1543fd0",
+  "data": "2026-10-28",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "cc5cec5d-00f1-41e7-86e4-8052b0876991",
+  "relatorio_id": "bffc0fe1-b663-4b51-9d2e-6b5ce6676b24",
+  "data": "2026-09-09",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "cc5cec5d-00f1-41e7-86e4-8052b0876991",
+  "relatorio_id": "82998102-a39f-428e-b72e-2af83c3410e9",
+  "data": "2026-09-16",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "cc5cec5d-00f1-41e7-86e4-8052b0876991",
+  "relatorio_id": "23651ae2-24a3-4314-acab-22dcf80f6906",
+  "data": "2026-09-23",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "cc5cec5d-00f1-41e7-86e4-8052b0876991",
+  "relatorio_id": "360f22f0-13d5-4508-9446-d3d007c7a53f",
+  "data": "2026-10-07",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "cc5cec5d-00f1-41e7-86e4-8052b0876991",
+  "relatorio_id": "d53c785c-3888-4fe1-ac8a-58e02e080a6f",
+  "data": "2026-10-12",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "cc5cec5d-00f1-41e7-86e4-8052b0876991",
+  "relatorio_id": "47e7444e-e283-4eb0-9305-88aabee881a6",
+  "data": "2026-10-28",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "02a010c5-0ac8-45d2-8eeb-f40c59d9203d",
+  "relatorio_id": "1ef0179e-aa6b-4b6b-843c-9e80967120bc",
+  "data": "2026-09-07",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "02a010c5-0ac8-45d2-8eeb-f40c59d9203d",
+  "relatorio_id": "3b01566f-eb9f-4f43-b64f-5dba45f33bd0",
+  "data": "2026-09-16",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "02a010c5-0ac8-45d2-8eeb-f40c59d9203d",
+  "relatorio_id": "fc1c032d-26f1-494f-a020-a183a7a8cabc",
+  "data": "2026-09-23",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "02a010c5-0ac8-45d2-8eeb-f40c59d9203d",
+  "relatorio_id": "bfea3167-330d-413f-bde4-d272aad23fde",
+  "data": "2026-09-28",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "02a010c5-0ac8-45d2-8eeb-f40c59d9203d",
+  "relatorio_id": "d0c838fb-f122-4046-ae58-7c343879e9df",
+  "data": "2026-09-30",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "02a010c5-0ac8-45d2-8eeb-f40c59d9203d",
+  "relatorio_id": "69154a97-db70-4c27-a173-2f41cff955c2",
+  "data": "2026-10-14",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "02a010c5-0ac8-45d2-8eeb-f40c59d9203d",
+  "relatorio_id": "1df17579-c2a9-4b6f-a767-45f98655457d",
+  "data": "2026-10-21",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "02a010c5-0ac8-45d2-8eeb-f40c59d9203d",
+  "relatorio_id": "63e94267-f4de-49c0-9e97-d21c78c69a2a",
+  "data": "2026-11-09",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "e06b0b9f-1029-41a3-a9e4-b9e315e06312",
+  "relatorio_id": "5ecd91cf-012b-4912-8e5e-0c2ed8749517",
+  "data": "2026-09-14",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "e06b0b9f-1029-41a3-a9e4-b9e315e06312",
+  "relatorio_id": "c42037cf-9ff1-4f51-a1b4-8818f93e2e6c",
+  "data": "2026-10-12",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "e06b0b9f-1029-41a3-a9e4-b9e315e06312",
+  "relatorio_id": "79bf335d-3f0d-4ed2-b72f-cf7d92403269",
+  "data": "2026-10-21",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "e06b0b9f-1029-41a3-a9e4-b9e315e06312",
+  "relatorio_id": "eaf85fd7-bdc1-47d1-9e19-f7b873534298",
+  "data": "2026-10-28",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "e06b0b9f-1029-41a3-a9e4-b9e315e06312",
+  "relatorio_id": "a3e55318-290e-4c97-a40e-d8f4e367f02a",
+  "data": "2026-11-04",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "e06b0b9f-1029-41a3-a9e4-b9e315e06312",
+  "relatorio_id": "b377c8fb-4b36-451a-8208-775823b7d640",
+  "data": "2026-11-09",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "e0c025c0-aa3a-4132-889b-e37cb3084aab",
+  "relatorio_id": "f9ed026c-397b-4905-abf3-06def8bce6d2",
+  "data": "2026-09-02",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "e0c025c0-aa3a-4132-889b-e37cb3084aab",
+  "relatorio_id": "dd79153f-fe8c-462e-8e04-6cbdc730319b",
+  "data": "2026-09-07",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "e0c025c0-aa3a-4132-889b-e37cb3084aab",
+  "relatorio_id": "29c2e2aa-3985-4046-b7a2-74cd51e4d2b0",
+  "data": "2026-10-07",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "e0c025c0-aa3a-4132-889b-e37cb3084aab",
+  "relatorio_id": "89efc75b-89dc-43aa-a0fc-f7771e1fd25d",
+  "data": "2026-11-04",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "b7b40fa9-5474-409a-ba4c-4d212e6c71e8",
+  "relatorio_id": "87f7722b-2bf2-4402-a38a-fbd01cb261f5",
+  "data": "2026-09-02",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "b7b40fa9-5474-409a-ba4c-4d212e6c71e8",
+  "relatorio_id": "56037b34-7897-4883-b021-1ea263197094",
+  "data": "2026-09-30",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "b7b40fa9-5474-409a-ba4c-4d212e6c71e8",
+  "relatorio_id": "34342bd8-f174-40aa-ad10-a348fca6d158",
+  "data": "2026-10-05",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "b7b40fa9-5474-409a-ba4c-4d212e6c71e8",
+  "relatorio_id": "0ecd40df-6f0d-4ed1-8933-5038c70d1d93",
+  "data": "2026-10-07",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "b7b40fa9-5474-409a-ba4c-4d212e6c71e8",
+  "relatorio_id": "29e29b07-dee1-453a-80fa-2e5b5a3f9149",
+  "data": "2026-10-14",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "b7b40fa9-5474-409a-ba4c-4d212e6c71e8",
+  "relatorio_id": "8d818f0b-ebff-4604-a512-8194bc94bb61",
+  "data": "2026-10-28",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "abc5f16c-c0c3-4c26-ae36-fefbca410f0c",
+  "relatorio_id": "ef09f0a4-1ea3-4607-99e9-f4189562d260",
+  "data": "2026-09-16",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "abc5f16c-c0c3-4c26-ae36-fefbca410f0c",
+  "relatorio_id": "72f3daa8-b740-4996-8cfe-981774bd4cc9",
+  "data": "2026-09-21",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "abc5f16c-c0c3-4c26-ae36-fefbca410f0c",
+  "relatorio_id": "df47b9df-ef2f-475f-a3a4-e4c355de0649",
+  "data": "2026-09-23",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "abc5f16c-c0c3-4c26-ae36-fefbca410f0c",
+  "relatorio_id": "bea86ac7-ee66-4c3a-adb3-a85cd9926531",
+  "data": "2026-09-30",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "abc5f16c-c0c3-4c26-ae36-fefbca410f0c",
+  "relatorio_id": "75215004-5814-4e4c-80ce-40faea71eb1e",
+  "data": "2026-10-05",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "abc5f16c-c0c3-4c26-ae36-fefbca410f0c",
+  "relatorio_id": "16ab33eb-5f37-4d8d-91b3-067c1d606745",
+  "data": "2026-10-07",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "abc5f16c-c0c3-4c26-ae36-fefbca410f0c",
+  "relatorio_id": "e5508eaa-fb6c-484f-a18a-b070adb8c2b6",
+  "data": "2026-10-12",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "abc5f16c-c0c3-4c26-ae36-fefbca410f0c",
+  "relatorio_id": "853ac94d-7c78-41a5-97cd-ab1cd589f2bb",
+  "data": "2026-10-14",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "abc5f16c-c0c3-4c26-ae36-fefbca410f0c",
+  "relatorio_id": "3cf4b20d-af7c-4154-8fce-9e9f4af155fc",
+  "data": "2026-10-28",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "abc5f16c-c0c3-4c26-ae36-fefbca410f0c",
+  "relatorio_id": "87a90a06-6243-4c3b-9d34-16a6b0f1907c",
+  "data": "2026-11-09",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "61524230-1420-490b-99c2-0fef525f3a85",
+  "relatorio_id": "b66409e9-96cc-4e71-a215-05ba59188760",
+  "data": "2026-09-09",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "61524230-1420-490b-99c2-0fef525f3a85",
+  "relatorio_id": "4073ac5c-35e7-4242-beeb-7b6868cca92b",
+  "data": "2026-09-14",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "61524230-1420-490b-99c2-0fef525f3a85",
+  "relatorio_id": "001e84fc-214a-4cb8-9791-a02ac0518d2b",
+  "data": "2026-09-23",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "61524230-1420-490b-99c2-0fef525f3a85",
+  "relatorio_id": "0e8b6d53-f0fa-4428-b205-fe13b29df04a",
+  "data": "2026-09-28",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "61524230-1420-490b-99c2-0fef525f3a85",
+  "relatorio_id": "9358d6d0-3201-4ada-822a-781e4cf94cb9",
+  "data": "2026-10-14",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "f51bd4ff-2fde-4a3f-8856-30a836992210",
+  "relatorio_id": "af1fc301-4167-4607-be01-6591bf26d448",
+  "data": "2026-09-09",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "f51bd4ff-2fde-4a3f-8856-30a836992210",
+  "relatorio_id": "3c4b8f78-1b6b-4084-8873-91aad1b0118b",
+  "data": "2026-09-28",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "f51bd4ff-2fde-4a3f-8856-30a836992210",
+  "relatorio_id": "665abffd-b249-45b9-a05c-e5ad442d75de",
+  "data": "2026-10-14",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "f51bd4ff-2fde-4a3f-8856-30a836992210",
+  "relatorio_id": "24586fd7-e3a8-432b-9957-6c9376cc3ea2",
+  "data": "2026-10-19",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "f51bd4ff-2fde-4a3f-8856-30a836992210",
+  "relatorio_id": "35272439-71ff-4227-aeff-714470bc7f94",
+  "data": "2026-10-28",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "2f30abb2-3b65-440f-a64d-9d3891ef2790",
+  "relatorio_id": "b39a0752-fb93-4c39-b4da-8d617d71b608",
+  "data": "2026-09-09",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "2f30abb2-3b65-440f-a64d-9d3891ef2790",
+  "relatorio_id": "f8892a65-419f-4321-a2f7-8034157debbf",
+  "data": "2026-09-28",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "2f30abb2-3b65-440f-a64d-9d3891ef2790",
+  "relatorio_id": "b84ba5cb-cf40-42fe-952e-14f3bd381200",
+  "data": "2026-09-30",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "2f30abb2-3b65-440f-a64d-9d3891ef2790",
+  "relatorio_id": "b1cb8668-0292-4723-a8c0-ee6a7e8fba6f",
+  "data": "2026-10-07",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "2f30abb2-3b65-440f-a64d-9d3891ef2790",
+  "relatorio_id": "ffb235b9-26d8-442a-a7bf-5c11d0a022bc",
+  "data": "2026-10-12",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "2f30abb2-3b65-440f-a64d-9d3891ef2790",
+  "relatorio_id": "ff518c7e-a084-478b-8b3a-4aa3d27288b8",
+  "data": "2026-10-14",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "2f30abb2-3b65-440f-a64d-9d3891ef2790",
+  "relatorio_id": "a5aa3179-f1d2-46fa-b4ab-930b1198080e",
+  "data": "2026-10-26",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "2f30abb2-3b65-440f-a64d-9d3891ef2790",
+  "relatorio_id": "a74337f4-f29f-4175-98d3-b087c416d1e5",
+  "data": "2026-11-04",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "5a9879ec-1343-4fd6-9d94-132d89082648",
+  "relatorio_id": "6dae3ce0-9ffc-472c-a3b1-e6069aef4c6d",
+  "data": "2026-09-21",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "5a9879ec-1343-4fd6-9d94-132d89082648",
+  "relatorio_id": "c67de315-5ecd-4f3c-87c6-2c685b9dc8ac",
+  "data": "2026-09-30",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "5a9879ec-1343-4fd6-9d94-132d89082648",
+  "relatorio_id": "2afc8246-276e-48a2-83b5-6733ec3f974a",
+  "data": "2026-10-07",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "5a9879ec-1343-4fd6-9d94-132d89082648",
+  "relatorio_id": "2f6456bd-0421-44e8-ae6a-18e0907e0187",
+  "data": "2026-10-21",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "5a9879ec-1343-4fd6-9d94-132d89082648",
+  "relatorio_id": "513f7876-87bf-4fe3-a40b-ee5548a6a73d",
+  "data": "2026-10-26",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "5a9879ec-1343-4fd6-9d94-132d89082648",
+  "relatorio_id": "41f69fe9-f3e6-43b3-b175-cda610d62e33",
+  "data": "2026-11-09",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "6bce6067-f17e-4340-ac7f-6e0e960ee3b0",
+  "relatorio_id": "082f4d70-8e26-4259-bc51-ce15a103d037",
+  "data": "2026-09-02",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "6bce6067-f17e-4340-ac7f-6e0e960ee3b0",
+  "relatorio_id": "aaa75610-1b0e-4915-8e25-94e3a7992342",
+  "data": "2026-09-09",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "6bce6067-f17e-4340-ac7f-6e0e960ee3b0",
+  "relatorio_id": "a579aedb-ae0d-4e93-a2c5-a7a914549dfd",
+  "data": "2026-09-16",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "6bce6067-f17e-4340-ac7f-6e0e960ee3b0",
+  "relatorio_id": "1b01cae7-2373-4204-ad78-5af0c1756225",
+  "data": "2026-10-05",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "6bce6067-f17e-4340-ac7f-6e0e960ee3b0",
+  "relatorio_id": "e7d985c8-dd05-4420-93b3-47bfc7b85cff",
+  "data": "2026-10-12",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "6bce6067-f17e-4340-ac7f-6e0e960ee3b0",
+  "relatorio_id": "e9bfa0f2-619f-4b19-9b5c-f5d557887be4",
+  "data": "2026-10-28",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "6bce6067-f17e-4340-ac7f-6e0e960ee3b0",
+  "relatorio_id": "a04bfdcf-83c8-45ce-8f39-462369d70bbc",
+  "data": "2026-11-02",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "b672c05a-8ce8-4e83-8fe5-0a9ab2a7c1bf",
+  "relatorio_id": "eedc915d-bc9d-4a31-bdbb-18465e813248",
+  "data": "2026-10-12",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "b672c05a-8ce8-4e83-8fe5-0a9ab2a7c1bf",
+  "relatorio_id": "f77a79c5-f2f0-4392-8578-880755d88519",
+  "data": "2026-10-14",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "b672c05a-8ce8-4e83-8fe5-0a9ab2a7c1bf",
+  "relatorio_id": "0e9815b5-7831-4e71-9546-1e8dfe7c4420",
+  "data": "2026-10-21",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "b672c05a-8ce8-4e83-8fe5-0a9ab2a7c1bf",
+  "relatorio_id": "d5cbd943-a5b5-41e1-9920-2cf2c658fca4",
+  "data": "2026-10-28",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "b672c05a-8ce8-4e83-8fe5-0a9ab2a7c1bf",
+  "relatorio_id": "a51dcc7f-a235-41a6-953c-7c7248310925",
+  "data": "2026-11-02",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "b672c05a-8ce8-4e83-8fe5-0a9ab2a7c1bf",
+  "relatorio_id": "35864139-28e9-41ff-9584-39a660847001",
+  "data": "2026-11-04",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "b672c05a-8ce8-4e83-8fe5-0a9ab2a7c1bf",
+  "relatorio_id": "3995b1a6-fed0-4d9b-8927-551efbe464bd",
+  "data": "2026-11-09",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "c2d6c64d-8690-47d0-8fde-a6ea0e600924",
+  "relatorio_id": "ad3ce14d-a856-4a53-a899-28985b6ec9a1",
+  "data": "2026-09-21",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "7513a41d-82e4-4b84-b572-556b62f35944",
+  "relatorio_id": "8900ed9c-b9d4-421d-93c4-e073c65a00fb",
+  "data": "2026-09-14",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "7513a41d-82e4-4b84-b572-556b62f35944",
+  "relatorio_id": "5ad46f2f-0c78-4442-a49d-4e290eae8387",
+  "data": "2026-09-21",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "7513a41d-82e4-4b84-b572-556b62f35944",
+  "relatorio_id": "5105e31c-5dc9-4412-8d1c-bf9b81bb26fc",
+  "data": "2026-09-30",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "7513a41d-82e4-4b84-b572-556b62f35944",
+  "relatorio_id": "299110d7-6751-4a37-8d31-6bed63f1be50",
+  "data": "2026-10-14",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "8d4d1f8e-e0ac-4da7-8fed-4e0980629d8d",
+  "relatorio_id": "65f53163-71d0-49c7-94de-6962182f77ee",
+  "data": "2026-09-14",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "8d4d1f8e-e0ac-4da7-8fed-4e0980629d8d",
+  "relatorio_id": "b6329b16-ba91-484c-b76d-15a06c6bda7c",
+  "data": "2026-09-21",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "8d4d1f8e-e0ac-4da7-8fed-4e0980629d8d",
+  "relatorio_id": "136d15d5-ed8c-4db3-9c52-63bc6fc44c2b",
+  "data": "2026-09-28",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "8d4d1f8e-e0ac-4da7-8fed-4e0980629d8d",
+  "relatorio_id": "e92ceafc-3c9c-42ce-91a5-f6bc40b69dc8",
+  "data": "2026-10-19",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "8d4d1f8e-e0ac-4da7-8fed-4e0980629d8d",
+  "relatorio_id": "3bf5b9d8-8c40-4df5-959c-aac40102753d",
+  "data": "2026-10-21",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "8d4d1f8e-e0ac-4da7-8fed-4e0980629d8d",
+  "relatorio_id": "498226b9-23dd-44ff-a7c1-6da2a584f764",
+  "data": "2026-10-26",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "8d4d1f8e-e0ac-4da7-8fed-4e0980629d8d",
+  "relatorio_id": "0538b4a9-9f8f-473d-975b-699f76df91a1",
+  "data": "2026-11-04",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "c2ca49ad-630c-4ab0-86dd-e454e7e571e8",
+  "relatorio_id": "a8424441-34ce-471f-bba6-0288b075c8c3",
+  "data": "2026-09-02",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "c2ca49ad-630c-4ab0-86dd-e454e7e571e8",
+  "relatorio_id": "bf17a508-e2d8-44f5-998b-d33ad9cd5c89",
+  "data": "2026-09-09",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "c2ca49ad-630c-4ab0-86dd-e454e7e571e8",
+  "relatorio_id": "017a34b6-0f97-414e-8d65-8be009b0a485",
+  "data": "2026-10-19",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "c2ca49ad-630c-4ab0-86dd-e454e7e571e8",
+  "relatorio_id": "2a5f2b89-55bd-4887-95d3-a9e05d1e3143",
+  "data": "2026-11-09",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "cea07c7d-e6f2-4c71-be20-498a0ebf3501",
+  "relatorio_id": "a80c197a-acc7-474f-954d-f7d507b70576",
+  "data": "2026-09-16",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "cea07c7d-e6f2-4c71-be20-498a0ebf3501",
+  "relatorio_id": "cec1f6db-b0be-4754-bac8-bcaab4b59cab",
+  "data": "2026-09-21",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "cea07c7d-e6f2-4c71-be20-498a0ebf3501",
+  "relatorio_id": "9f0a01c0-2043-4aff-8efa-82cef593b909",
+  "data": "2026-09-23",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "cea07c7d-e6f2-4c71-be20-498a0ebf3501",
+  "relatorio_id": "9bfdf2de-bf95-49cb-a0c2-4bc3d22da341",
+  "data": "2026-09-30",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "cea07c7d-e6f2-4c71-be20-498a0ebf3501",
+  "relatorio_id": "019831cd-e711-4bf9-b7b3-719d60ef2a1f",
+  "data": "2026-10-12",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "cea07c7d-e6f2-4c71-be20-498a0ebf3501",
+  "relatorio_id": "13a9463d-04e4-4ee4-bdd1-d35f53f14ac1",
+  "data": "2026-11-04",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "6f9c0cfa-d2a8-4022-9ba6-0344d2e83b83",
+  "relatorio_id": "197e1ff9-7353-4dc4-b5d8-0315782e5d87",
+  "data": "2026-09-09",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "6f9c0cfa-d2a8-4022-9ba6-0344d2e83b83",
+  "relatorio_id": "7b6e7ea3-d43a-47c3-be0f-8e459372e238",
+  "data": "2026-09-14",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "6f9c0cfa-d2a8-4022-9ba6-0344d2e83b83",
+  "relatorio_id": "40edc240-0f0c-437f-8927-f9ece73d5b80",
+  "data": "2026-09-23",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "6f9c0cfa-d2a8-4022-9ba6-0344d2e83b83",
+  "relatorio_id": "32a19899-43b2-43e7-95da-e3f85b6dadf9",
+  "data": "2026-11-04",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "6f9c0cfa-d2a8-4022-9ba6-0344d2e83b83",
+  "relatorio_id": "f320e23d-0c97-4a6d-b6a8-df640fa8b83f",
+  "data": "2026-11-09",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "62f0a284-3184-4975-b954-e8f59aff4f6f",
+  "relatorio_id": "52f8a92b-7388-45d8-be37-c3770934223f",
+  "data": "2026-09-14",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "62f0a284-3184-4975-b954-e8f59aff4f6f",
+  "relatorio_id": "dc0dbd12-5cf0-4cd6-9427-c5ef30245225",
+  "data": "2026-09-21",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "62f0a284-3184-4975-b954-e8f59aff4f6f",
+  "relatorio_id": "c922d339-7501-40dc-92cd-eb55952a40df",
+  "data": "2026-09-23",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "62f0a284-3184-4975-b954-e8f59aff4f6f",
+  "relatorio_id": "2e596c7d-c81e-44fd-bd5f-7eeb3eef94d2",
+  "data": "2026-09-28",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "62f0a284-3184-4975-b954-e8f59aff4f6f",
+  "relatorio_id": "75689fbf-5aa8-44c7-a590-c94ac3668501",
+  "data": "2026-10-07",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "1ed54992-4786-4f07-b3ad-6288667d8a31",
+  "relatorio_id": "9de7f53d-5d45-4880-b811-972253441d72",
+  "data": "2026-09-09",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "1ed54992-4786-4f07-b3ad-6288667d8a31",
+  "relatorio_id": "31f06080-bfaa-457b-b724-075b62b63dee",
+  "data": "2026-09-14",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "1ed54992-4786-4f07-b3ad-6288667d8a31",
+  "relatorio_id": "8faaae0d-ede6-443d-af16-95f88f84d629",
+  "data": "2026-10-05",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "1ed54992-4786-4f07-b3ad-6288667d8a31",
+  "relatorio_id": "33ce59ad-b7f1-4b2e-bd48-716dfdd21b60",
+  "data": "2026-10-14",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "1ed54992-4786-4f07-b3ad-6288667d8a31",
+  "relatorio_id": "cecbda3e-bc70-4df3-a3ea-221a6d33a2e5",
+  "data": "2026-10-21",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "48072c11-fc33-435d-b97b-c30b6a3c05f6",
+  "relatorio_id": "d70e3c8f-1471-4490-bc71-59216ff5f838",
+  "data": "2026-09-02",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "48072c11-fc33-435d-b97b-c30b6a3c05f6",
+  "relatorio_id": "647873b2-f76f-4ad6-b110-9f264d477939",
+  "data": "2026-09-07",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "48072c11-fc33-435d-b97b-c30b6a3c05f6",
+  "relatorio_id": "1f3d51d3-c379-4ccb-a66b-786fd5e6f2d4",
+  "data": "2026-09-09",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "48072c11-fc33-435d-b97b-c30b6a3c05f6",
+  "relatorio_id": "2c6967dc-dcd6-4916-adba-bd43c6a3a2fd",
+  "data": "2026-09-23",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "48072c11-fc33-435d-b97b-c30b6a3c05f6",
+  "relatorio_id": "e9ca1e76-70d7-4a14-948f-19ebf6e01d3c",
+  "data": "2026-10-28",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "48072c11-fc33-435d-b97b-c30b6a3c05f6",
+  "relatorio_id": "77bfc0fa-919d-437f-8e5a-b981ea837100",
+  "data": "2026-11-02",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "0980a9f2-dafa-4447-8d61-13d528f88140",
+  "relatorio_id": "0f67a8dd-ba7e-424b-89c6-508bd2ff803c",
+  "data": "2026-09-09",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "0980a9f2-dafa-4447-8d61-13d528f88140",
+  "relatorio_id": "5a104f12-5bda-4dd8-b0cb-d46acd121f62",
+  "data": "2026-09-16",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "6d1199b5-07aa-4fd9-ba6d-023ffe51dc7e",
+  "relatorio_id": "da0e4c9b-7a0e-4c58-b4e0-dc9787d350cb",
+  "data": "2026-09-21",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "6d1199b5-07aa-4fd9-ba6d-023ffe51dc7e",
+  "relatorio_id": "d326bf13-814d-4c9d-8b8e-fc575d40369d",
+  "data": "2026-09-28",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "6d1199b5-07aa-4fd9-ba6d-023ffe51dc7e",
+  "relatorio_id": "946d8d8f-630f-44d0-a821-50e76d167ea0",
+  "data": "2026-11-04",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "6d1199b5-07aa-4fd9-ba6d-023ffe51dc7e",
+  "relatorio_id": "2b8469f6-b126-4bf4-83aa-389efb0cf1c1",
+  "data": "2026-11-09",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "efe98a30-84eb-4d81-971d-37dc78aed9b5",
+  "relatorio_id": "324923d8-245b-4c0b-b919-3f3ce9cb8a5d",
+  "data": "2026-09-02",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "efe98a30-84eb-4d81-971d-37dc78aed9b5",
+  "relatorio_id": "62172138-c431-45c5-b0d0-eb10505d908d",
+  "data": "2026-09-14",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "efe98a30-84eb-4d81-971d-37dc78aed9b5",
+  "relatorio_id": "e948cdce-0ab7-47e5-af2d-71509bdcfcec",
+  "data": "2026-09-21",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "efe98a30-84eb-4d81-971d-37dc78aed9b5",
+  "relatorio_id": "5fe6a7ef-637c-434c-8df1-7d5541e880b9",
+  "data": "2026-11-04",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "927f0dfd-f72a-4510-b4f9-8e3599e94b17",
+  "relatorio_id": "0598b14c-c89e-438c-9463-b6757671244a",
+  "data": "2026-09-02",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "927f0dfd-f72a-4510-b4f9-8e3599e94b17",
+  "relatorio_id": "5de263a2-7ba5-471d-b902-398ac8623a4b",
+  "data": "2026-09-14",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "927f0dfd-f72a-4510-b4f9-8e3599e94b17",
+  "relatorio_id": "dfbe205c-ddb1-47fc-9e09-fdb395b6c312",
+  "data": "2026-10-21",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "927f0dfd-f72a-4510-b4f9-8e3599e94b17",
+  "relatorio_id": "91f642e6-d520-492b-a13d-afd450f3b77c",
+  "data": "2026-11-09",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "c48f6009-ae73-4bab-8881-a39a698ee7f6",
+  "relatorio_id": "492e7314-cd74-4929-b14d-2e2395a1a1fa",
+  "data": "2026-09-16",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "c48f6009-ae73-4bab-8881-a39a698ee7f6",
+  "relatorio_id": "e3d0eeb6-0f2f-4147-9879-375bd064c7be",
+  "data": "2026-09-23",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "c48f6009-ae73-4bab-8881-a39a698ee7f6",
+  "relatorio_id": "df1edf55-6128-4974-add5-a448084c0a0b",
+  "data": "2026-09-28",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "c48f6009-ae73-4bab-8881-a39a698ee7f6",
+  "relatorio_id": "a173c299-e520-46d2-9a22-3809a3024d56",
+  "data": "2026-10-05",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "c48f6009-ae73-4bab-8881-a39a698ee7f6",
+  "relatorio_id": "9c142884-aefc-4638-ad85-aaf380bcdf8b",
+  "data": "2026-10-12",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "c48f6009-ae73-4bab-8881-a39a698ee7f6",
+  "relatorio_id": "ae5c28dc-0111-47b9-8f0b-29136912482e",
+  "data": "2026-10-26",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "c48f6009-ae73-4bab-8881-a39a698ee7f6",
+  "relatorio_id": "0629cbea-3c8f-4d45-b847-4e26c4c6fa0c",
+  "data": "2026-11-04",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "18310124-0e66-471c-9661-33f5e938ce1c",
+  "relatorio_id": "fa5e179d-99c3-40bb-a625-5e8e9c3cfac4",
+  "data": "2026-09-02",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "18310124-0e66-471c-9661-33f5e938ce1c",
+  "relatorio_id": "89f63532-ccf3-4ea1-a7d3-1f81bc1ec6f9",
+  "data": "2026-09-09",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "18310124-0e66-471c-9661-33f5e938ce1c",
+  "relatorio_id": "86803ae6-9fc6-451b-b5eb-7271cd1eef5a",
+  "data": "2026-09-16",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "18310124-0e66-471c-9661-33f5e938ce1c",
+  "relatorio_id": "0ebb841e-10b8-4d96-89e7-fe61daba0753",
+  "data": "2026-09-28",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "18310124-0e66-471c-9661-33f5e938ce1c",
+  "relatorio_id": "714aad24-188d-4461-ae30-72324fee6f48",
+  "data": "2026-10-05",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "18310124-0e66-471c-9661-33f5e938ce1c",
+  "relatorio_id": "87642126-2422-4d51-a67f-df9c7685df0b",
+  "data": "2026-10-21",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "18310124-0e66-471c-9661-33f5e938ce1c",
+  "relatorio_id": "fced4a55-9845-4319-92a9-00c9afd95963",
+  "data": "2026-10-26",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "18310124-0e66-471c-9661-33f5e938ce1c",
+  "relatorio_id": "519a7454-2432-4bb2-b115-37d024336934",
+  "data": "2026-11-02",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "18310124-0e66-471c-9661-33f5e938ce1c",
+  "relatorio_id": "d6faeba5-53f2-4b12-81cf-5b124c914de9",
+  "data": "2026-11-09",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "150517e1-8e50-4f20-b467-407c5f896c9f",
+  "relatorio_id": "24332d1e-5214-45fa-9e03-be24ace4b0b3",
+  "data": "2026-09-02",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "150517e1-8e50-4f20-b467-407c5f896c9f",
+  "relatorio_id": "9dc2cf5a-a0f8-4d4b-9a3a-5adb6b4e2d39",
+  "data": "2026-09-07",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "150517e1-8e50-4f20-b467-407c5f896c9f",
+  "relatorio_id": "bd437fc7-86bf-409c-bc4b-da0b9feac47a",
+  "data": "2026-09-16",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "150517e1-8e50-4f20-b467-407c5f896c9f",
+  "relatorio_id": "aedb74f8-bb0d-4cc1-9383-ee685b79ebd7",
+  "data": "2026-09-30",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "150517e1-8e50-4f20-b467-407c5f896c9f",
+  "relatorio_id": "ab776fe5-3385-4aa4-a35f-53b39ebc1ec3",
+  "data": "2026-10-05",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "150517e1-8e50-4f20-b467-407c5f896c9f",
+  "relatorio_id": "f5f41e85-7426-480b-bde7-cb725b449652",
+  "data": "2026-11-02",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "7e2afee1-9c0c-48ea-9a5a-2f89b11258a0",
+  "relatorio_id": "25eccc1c-fe4e-4a2c-9120-5b9d6694dbe3",
+  "data": "2026-09-02",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "7e2afee1-9c0c-48ea-9a5a-2f89b11258a0",
+  "relatorio_id": "28bb0afc-cc4c-4429-9834-7ec36dd17003",
+  "data": "2026-09-23",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "7e2afee1-9c0c-48ea-9a5a-2f89b11258a0",
+  "relatorio_id": "09120ec3-6a57-4e3a-8aea-af759b1cbfec",
+  "data": "2026-10-05",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "7e2afee1-9c0c-48ea-9a5a-2f89b11258a0",
+  "relatorio_id": "bea22dba-8c8c-41a9-9d11-9ab4503a3119",
+  "data": "2026-10-07",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "7e2afee1-9c0c-48ea-9a5a-2f89b11258a0",
+  "relatorio_id": "019ae4c2-02ce-4230-9edc-fa9bd3f5dd3c",
+  "data": "2026-10-19",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "7e2afee1-9c0c-48ea-9a5a-2f89b11258a0",
+  "relatorio_id": "8e4ce296-84ab-4a38-8781-b08eee7cb81f",
+  "data": "2026-10-26",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "7e2afee1-9c0c-48ea-9a5a-2f89b11258a0",
+  "relatorio_id": "5773c29d-3557-477e-a492-8e0861d5de65",
+  "data": "2026-11-02",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "7e2afee1-9c0c-48ea-9a5a-2f89b11258a0",
+  "relatorio_id": "4f18b17c-92db-4a64-8589-eb719d77ac60",
+  "data": "2026-11-09",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "e93b4891-2377-40b2-aa05-d2861ef172f7",
+  "relatorio_id": "f25c0763-950a-4fa1-a924-d13a5cc312b2",
+  "data": "2026-09-23",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "e93b4891-2377-40b2-aa05-d2861ef172f7",
+  "relatorio_id": "7e72bb2e-6a58-4486-98d6-583d7a906a84",
+  "data": "2026-09-30",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "e93b4891-2377-40b2-aa05-d2861ef172f7",
+  "relatorio_id": "4e9e8924-ec43-4d89-bde6-5c7e8bf37faa",
+  "data": "2026-10-05",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "e93b4891-2377-40b2-aa05-d2861ef172f7",
+  "relatorio_id": "a372e5b8-8a4c-4fa0-bd70-1c66e18cc7f6",
+  "data": "2026-10-07",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "23d62bd5-2bed-4bc9-bcfc-f23f4c72c54d",
+  "relatorio_id": "e1ab483c-fa34-44bf-825e-d72808edc28a",
+  "data": "2026-10-07",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "23d62bd5-2bed-4bc9-bcfc-f23f4c72c54d",
+  "relatorio_id": "2274c8ca-a61b-4d25-a725-cdde5b42808e",
+  "data": "2026-10-26",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "23d62bd5-2bed-4bc9-bcfc-f23f4c72c54d",
+  "relatorio_id": "32ccad30-1dd3-4816-9acd-fc6eb66a425f",
+  "data": "2026-10-28",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "bfd28114-e9a2-47d0-8504-78febabb77cf",
+  "relatorio_id": "558e8cd9-f531-42e4-a994-e0c19430c422",
+  "data": "2026-09-02",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "bfd28114-e9a2-47d0-8504-78febabb77cf",
+  "relatorio_id": "93845b4e-51d7-4f4c-93b3-ea97848436b5",
+  "data": "2026-09-21",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "bfd28114-e9a2-47d0-8504-78febabb77cf",
+  "relatorio_id": "9faf7cbc-aa7c-4e0f-8eda-fa1c8db10a66",
+  "data": "2026-09-23",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "bfd28114-e9a2-47d0-8504-78febabb77cf",
+  "relatorio_id": "951951d7-1694-45d7-b602-bc80ef7b840a",
+  "data": "2026-09-30",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "bfd28114-e9a2-47d0-8504-78febabb77cf",
+  "relatorio_id": "45c9f00e-a479-46b4-831b-fffe658dd7d3",
+  "data": "2026-10-05",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "bfd28114-e9a2-47d0-8504-78febabb77cf",
+  "relatorio_id": "055704e9-26a2-413d-ac44-7ef4e0a55bb9",
+  "data": "2026-10-07",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "bfd28114-e9a2-47d0-8504-78febabb77cf",
+  "relatorio_id": "7b77425f-c76b-428a-852c-949078d6f77d",
+  "data": "2026-10-19",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "bfd28114-e9a2-47d0-8504-78febabb77cf",
+  "relatorio_id": "21eca0de-f599-4e9c-8d86-a7768309f92e",
+  "data": "2026-10-26",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "bfd28114-e9a2-47d0-8504-78febabb77cf",
+  "relatorio_id": "b0049cec-6954-4c80-b343-e3f2a4f2cef2",
+  "data": "2026-11-02",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "bfd28114-e9a2-47d0-8504-78febabb77cf",
+  "relatorio_id": "3af34a43-9480-4d18-9d7f-0d961537c8cd",
+  "data": "2026-11-04",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "d356954d-dd6d-4b0f-a9b5-45157cefd971",
+  "relatorio_id": "d52b8039-6133-4395-96b1-1eaebc7f03b0",
+  "data": "2026-09-28",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "d356954d-dd6d-4b0f-a9b5-45157cefd971",
+  "relatorio_id": "b9d9df80-4021-4ae8-805f-3f46bb7a9331",
+  "data": "2026-10-05",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "d356954d-dd6d-4b0f-a9b5-45157cefd971",
+  "relatorio_id": "d7caf216-94f9-4f95-b3c5-5658e9c652da",
+  "data": "2026-10-07",
+  "tipo_treino": "físico",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "d356954d-dd6d-4b0f-a9b5-45157cefd971",
+  "relatorio_id": "97ee80be-cc76-4e15-9d01-9b0fbc16aa13",
+  "data": "2026-10-12",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "d356954d-dd6d-4b0f-a9b5-45157cefd971",
+  "relatorio_id": "ca2896c7-0b81-4679-9d5a-de4657141cb5",
+  "data": "2026-10-14",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "d356954d-dd6d-4b0f-a9b5-45157cefd971",
+  "relatorio_id": "bd12d347-ad9b-4989-b3c0-85ef49314ad2",
+  "data": "2026-10-26",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "d356954d-dd6d-4b0f-a9b5-45157cefd971",
+  "relatorio_id": "71dd14a9-6e1f-4267-bf91-e2d80a5acfef",
+  "data": "2026-10-28",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "d356954d-dd6d-4b0f-a9b5-45157cefd971",
+  "relatorio_id": "accba43c-7cb3-461a-ae0a-6e57cbd239b4",
+  "data": "2026-11-04",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "d356954d-dd6d-4b0f-a9b5-45157cefd971",
+  "relatorio_id": "e1293bfe-635b-4de2-9141-6629afeba96d",
+  "data": "2026-11-09",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "17187936-cdb7-4579-9185-3cdb957da3b0",
+  "relatorio_id": "6ae26564-5386-4b4f-bfa2-88a69e1e251b",
+  "data": "2026-09-07",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "17187936-cdb7-4579-9185-3cdb957da3b0",
+  "relatorio_id": "246bf774-249b-4206-88d6-5cedacb6c119",
+  "data": "2026-09-16",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "17187936-cdb7-4579-9185-3cdb957da3b0",
+  "relatorio_id": "2433c7fc-384d-406e-950f-9a05629238c2",
+  "data": "2026-09-23",
+  "tipo_treino": "físico",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "17187936-cdb7-4579-9185-3cdb957da3b0",
+  "relatorio_id": "4d127714-efc9-4389-9347-d2d6bae239f6",
+  "data": "2026-10-12",
+  "tipo_treino": "físico",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "17187936-cdb7-4579-9185-3cdb957da3b0",
+  "relatorio_id": "27cc49d4-dbe9-4a1a-a774-3e6d7e2e3e41",
+  "data": "2026-10-19",
+  "tipo_treino": "físico",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "17187936-cdb7-4579-9185-3cdb957da3b0",
+  "relatorio_id": "38ec30c9-0ba6-4923-9ecb-2b318e191818",
+  "data": "2026-10-28",
+  "tipo_treino": "físico",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "17187936-cdb7-4579-9185-3cdb957da3b0",
+  "relatorio_id": "e8dc9df8-d195-4a0a-89ff-de27f7c247a2",
+  "data": "2026-11-02",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "1a18715b-cc22-462e-9603-148de223c279",
+  "relatorio_id": "a10b40c1-9752-47c9-97f5-a01411866f94",
+  "data": "2026-09-09",
+  "tipo_treino": "físico",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "1a18715b-cc22-462e-9603-148de223c279",
+  "relatorio_id": "85f95aa5-e9d6-4f44-bbc0-d770946c117b",
+  "data": "2026-09-21",
+  "tipo_treino": "físico",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "1a18715b-cc22-462e-9603-148de223c279",
+  "relatorio_id": "3c4c023d-5bd9-4d72-af46-ba83a91e4822",
+  "data": "2026-10-07",
+  "tipo_treino": "físico",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "1a18715b-cc22-462e-9603-148de223c279",
+  "relatorio_id": "330f29a7-e23b-4b30-98f4-a6b1cdf8a863",
+  "data": "2026-10-12",
+  "tipo_treino": "físico",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "aa3f79f9-f2ec-4e75-82a3-e5cd5b10a798",
+  "relatorio_id": "262a3c84-f5a4-4098-a36e-6c01eb4203e6",
+  "data": "2026-09-03",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "aa3f79f9-f2ec-4e75-82a3-e5cd5b10a798",
+  "relatorio_id": "27609808-edfa-4e5f-b54b-1ecd81c4dca2",
+  "data": "2026-09-10",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "aa3f79f9-f2ec-4e75-82a3-e5cd5b10a798",
+  "relatorio_id": "dee66063-1270-4769-b331-4379a56c96aa",
+  "data": "2026-10-01",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "aa3f79f9-f2ec-4e75-82a3-e5cd5b10a798",
+  "relatorio_id": "5e825e5d-a392-4e30-8d50-6b420baf7de4",
+  "data": "2026-10-19",
+  "tipo_treino": "força",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "aa3f79f9-f2ec-4e75-82a3-e5cd5b10a798",
+  "relatorio_id": "2501ed81-2a3d-4ae9-8ce5-a09bf1e88f99",
+  "data": "2026-11-02",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "18478260-2903-4cf6-af4d-3bf2f7ce15d2",
+  "relatorio_id": "4e8d8453-e58e-4181-9d49-86201e396ead",
+  "data": "2026-09-11",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "18478260-2903-4cf6-af4d-3bf2f7ce15d2",
+  "relatorio_id": "bd949bb0-1382-47f3-8fbf-f5f8bfbc83d4",
+  "data": "2026-09-14",
+  "tipo_treino": "força",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "18478260-2903-4cf6-af4d-3bf2f7ce15d2",
+  "relatorio_id": "30f9cd3c-5ec0-4b39-9aaf-149fcacb9de6",
+  "data": "2026-09-23",
+  "tipo_treino": "força",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "18478260-2903-4cf6-af4d-3bf2f7ce15d2",
+  "relatorio_id": "57163b4d-870e-4893-ad2d-298933fb7a59",
+  "data": "2026-09-28",
+  "tipo_treino": "força",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "18478260-2903-4cf6-af4d-3bf2f7ce15d2",
+  "relatorio_id": "b1ed0fde-1273-4cc6-8fe9-3eb4bac901a7",
+  "data": "2026-09-30",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "18478260-2903-4cf6-af4d-3bf2f7ce15d2",
+  "relatorio_id": "f830bcbc-6ae7-4b3a-a80d-7751a162e1bc",
+  "data": "2026-10-30",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "370632d5-5dbd-4e33-be71-caf1bb180384",
+  "relatorio_id": "0f8f2afb-f872-44e4-a44b-74865d7b9ba9",
+  "data": "2026-09-03",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "370632d5-5dbd-4e33-be71-caf1bb180384",
+  "relatorio_id": "33bdf119-4404-4b34-bb9e-20dacd22f35f",
+  "data": "2026-09-08",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "370632d5-5dbd-4e33-be71-caf1bb180384",
+  "relatorio_id": "298536d5-ea46-4011-a667-933b26c14b1b",
+  "data": "2026-09-17",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "370632d5-5dbd-4e33-be71-caf1bb180384",
+  "relatorio_id": "c3b87252-5ca0-4104-98e9-224d93f8f085",
+  "data": "2026-09-29",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "370632d5-5dbd-4e33-be71-caf1bb180384",
+  "relatorio_id": "09f5ae32-7889-4927-b37a-27b16516062b",
+  "data": "2026-10-06",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "370632d5-5dbd-4e33-be71-caf1bb180384",
+  "relatorio_id": "1546710a-f5c8-480a-8997-0df999c7f416",
+  "data": "2026-10-27",
+  "tipo_treino": "força",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "370632d5-5dbd-4e33-be71-caf1bb180384",
+  "relatorio_id": "7c0ba884-7c17-4559-aacc-28bdcac4d234",
+  "data": "2026-11-03",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "7c378a4f-5597-4664-90ea-e85d5943349e",
+  "relatorio_id": "aade81b0-67b0-4dec-812c-992e5ed4b101",
+  "data": "2026-09-24",
+  "tipo_treino": "força",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "7c378a4f-5597-4664-90ea-e85d5943349e",
+  "relatorio_id": "4f3e957c-248a-4f15-b15d-874d62dc7253",
+  "data": "2026-09-29",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "7c378a4f-5597-4664-90ea-e85d5943349e",
+  "relatorio_id": "a01e8e11-99ae-451b-9f2e-b3c29ea4fae8",
+  "data": "2026-10-06",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "7c378a4f-5597-4664-90ea-e85d5943349e",
+  "relatorio_id": "5712e036-00f1-4728-bce3-f9dd0a4a4721",
+  "data": "2026-10-29",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "7c378a4f-5597-4664-90ea-e85d5943349e",
+  "relatorio_id": "2dd07c7d-e50c-4159-a97e-392adf1a8385",
+  "data": "2026-11-03",
+  "tipo_treino": "força",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "4fdd062e-125a-4fe7-bd52-c48da3f31080",
+  "relatorio_id": "c4ffd1a6-6ce8-4b35-8864-aaf26a0c4c82",
+  "data": "2026-09-17",
+  "tipo_treino": "força",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "4fdd062e-125a-4fe7-bd52-c48da3f31080",
+  "relatorio_id": "5ecfdeda-450a-4166-8a79-d2a11a1de59f",
+  "data": "2026-09-22",
+  "tipo_treino": "força",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "4fdd062e-125a-4fe7-bd52-c48da3f31080",
+  "relatorio_id": "169ae005-5f33-4297-a719-c5cc09dd1e95",
+  "data": "2026-09-29",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "4fdd062e-125a-4fe7-bd52-c48da3f31080",
+  "relatorio_id": "d38b31b7-015c-4151-a80a-ae756220f1e2",
+  "data": "2026-10-01",
+  "tipo_treino": "força",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "4fdd062e-125a-4fe7-bd52-c48da3f31080",
+  "relatorio_id": "418f2487-e1b3-48f5-b77e-b6602d88271e",
+  "data": "2026-10-13",
+  "tipo_treino": "força",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "4fdd062e-125a-4fe7-bd52-c48da3f31080",
+  "relatorio_id": "82b4ff4f-4bd5-4c43-a4f5-b1a62f8daf4d",
+  "data": "2026-10-15",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "18e593c5-cbee-4275-aa28-bd31d4b46ead",
+  "relatorio_id": "19386dc0-6c07-4411-82da-97f7a0d1b6e5",
+  "data": "2026-09-21",
+  "tipo_treino": "força",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "18e593c5-cbee-4275-aa28-bd31d4b46ead",
+  "relatorio_id": "e66a2945-6cc2-4413-86fa-43b1e077ef01",
+  "data": "2026-10-01",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "18e593c5-cbee-4275-aa28-bd31d4b46ead",
+  "relatorio_id": "ca5355d2-2721-4026-9a97-b384a4f6dc4a",
+  "data": "2026-10-05",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "18e593c5-cbee-4275-aa28-bd31d4b46ead",
+  "relatorio_id": "fab55d6b-b06f-4667-8895-ce15d9175cc5",
+  "data": "2026-10-08",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "18e593c5-cbee-4275-aa28-bd31d4b46ead",
+  "relatorio_id": "9f519825-89fc-492a-b885-4ee5c7a2df99",
+  "data": "2026-10-19",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "18e593c5-cbee-4275-aa28-bd31d4b46ead",
+  "relatorio_id": "3be38e7c-65b8-4e1e-9c6c-a904b2928a10",
+  "data": "2026-10-22",
+  "tipo_treino": "força",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "18e593c5-cbee-4275-aa28-bd31d4b46ead",
+  "relatorio_id": "03df1444-e7be-41ad-a855-d4839b0fcf94",
+  "data": "2026-10-26",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "6b85a7de-e559-40e9-90ec-f98e8950aa39",
+  "relatorio_id": "6b9a142a-04f1-4a54-998f-2f2a64b0039f",
+  "data": "2026-09-03",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "6b85a7de-e559-40e9-90ec-f98e8950aa39",
+  "relatorio_id": "890df24b-4f12-42a9-8925-ad2e655d9d32",
+  "data": "2026-09-14",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "6b85a7de-e559-40e9-90ec-f98e8950aa39",
+  "relatorio_id": "abd17aeb-8739-40a6-8015-f0da5f82576e",
+  "data": "2026-09-21",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "6b85a7de-e559-40e9-90ec-f98e8950aa39",
+  "relatorio_id": "236dd2cc-076a-49b3-8b35-6e9eb1f61159",
+  "data": "2026-09-24",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "6b85a7de-e559-40e9-90ec-f98e8950aa39",
+  "relatorio_id": "0b48878c-f834-4a54-a37d-55ac30f9a06c",
+  "data": "2026-10-05",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "6b85a7de-e559-40e9-90ec-f98e8950aa39",
+  "relatorio_id": "017650b5-ecfe-4705-b243-3298b8889d60",
+  "data": "2026-10-12",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "3ae5b36c-e53b-4f8c-8105-b6249838211e",
+  "relatorio_id": "96289b3d-faa9-4ad9-a7fe-6e17011a3f6c",
+  "data": "2026-10-01",
+  "tipo_treino": "força",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "3ae5b36c-e53b-4f8c-8105-b6249838211e",
+  "relatorio_id": "0b2986b3-bcb8-4b42-8d38-25b7dfa6a1c3",
+  "data": "2026-10-06",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "ac2fe1e1-d686-4c0f-9d24-2c865eb56c39",
+  "relatorio_id": "a53134be-e156-4640-bddd-b265baf1325b",
+  "data": "2026-09-03",
+  "tipo_treino": "força",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "ac2fe1e1-d686-4c0f-9d24-2c865eb56c39",
+  "relatorio_id": "6f7e4af1-c910-4404-ba95-c0e97e08f8e1",
+  "data": "2026-09-17",
+  "tipo_treino": "força",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "ac2fe1e1-d686-4c0f-9d24-2c865eb56c39",
+  "relatorio_id": "de85a81d-c853-4050-b045-3e94a534838b",
+  "data": "2026-09-24",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "ac2fe1e1-d686-4c0f-9d24-2c865eb56c39",
+  "relatorio_id": "c5932d6d-1ec1-4494-bd01-2427b2dbc5a1",
+  "data": "2026-09-29",
+  "tipo_treino": "força",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "ac2fe1e1-d686-4c0f-9d24-2c865eb56c39",
+  "relatorio_id": "907ac965-5936-4780-bcea-b17208940ebb",
+  "data": "2026-10-01",
+  "tipo_treino": "força",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "ac2fe1e1-d686-4c0f-9d24-2c865eb56c39",
+  "relatorio_id": "06f06c32-1638-4fcf-b750-d527c2d62ba4",
+  "data": "2026-10-20",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "ac2fe1e1-d686-4c0f-9d24-2c865eb56c39",
+  "relatorio_id": "41b59e31-dfe4-48ae-8a70-53b9499bd41c",
+  "data": "2026-10-29",
+  "tipo_treino": "força",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "ac2fe1e1-d686-4c0f-9d24-2c865eb56c39",
+  "relatorio_id": "34a71d1a-f3a7-4423-adb8-924e3155295b",
+  "data": "2026-11-10",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "5ed6443e-36d6-4cbe-aa97-b3d9434713dc",
+  "relatorio_id": "095c9add-b6a2-4a5c-8e69-796f1db7eae8",
+  "data": "2026-09-17",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "5ed6443e-36d6-4cbe-aa97-b3d9434713dc",
+  "relatorio_id": "57c48422-5428-497b-b032-abeee5d5a55e",
+  "data": "2026-09-22",
+  "tipo_treino": "força",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "5ed6443e-36d6-4cbe-aa97-b3d9434713dc",
+  "relatorio_id": "db08387c-8f29-4408-997a-236f4ccebda1",
+  "data": "2026-09-24",
+  "tipo_treino": "força",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "5ed6443e-36d6-4cbe-aa97-b3d9434713dc",
+  "relatorio_id": "976282a8-7993-47af-9723-cff22ac4b675",
+  "data": "2026-10-01",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "5ed6443e-36d6-4cbe-aa97-b3d9434713dc",
+  "relatorio_id": "731372bf-26f4-4d19-a095-c7315c13a2a0",
+  "data": "2026-10-27",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "1b60926e-98d1-42aa-8728-fdc17a4ba494",
+  "relatorio_id": "7b1a4ade-1dfe-4b9d-b3c1-9fb100e1110c",
+  "data": "2026-09-03",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "1b60926e-98d1-42aa-8728-fdc17a4ba494",
+  "relatorio_id": "35a4847d-27ed-453c-a9d1-9065f78c7226",
+  "data": "2026-09-22",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "1b60926e-98d1-42aa-8728-fdc17a4ba494",
+  "relatorio_id": "873c6a04-930a-4246-a711-e90a810f4ddc",
+  "data": "2026-10-13",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "1b60926e-98d1-42aa-8728-fdc17a4ba494",
+  "relatorio_id": "ee522107-a5a4-4e5e-b233-2ee37fcb0047",
+  "data": "2026-10-27",
+  "tipo_treino": "força",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "1b60926e-98d1-42aa-8728-fdc17a4ba494",
+  "relatorio_id": "d7e332e4-d949-425c-95fe-512646ba73cf",
+  "data": "2026-11-03",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "8e566668-c10c-4b72-b335-3c215c2c5b07",
+  "relatorio_id": "41eaa8d6-a2fb-4db2-a9a1-e3f1a4cae0ff",
+  "data": "2026-09-17",
+  "tipo_treino": "força",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "8e566668-c10c-4b72-b335-3c215c2c5b07",
+  "relatorio_id": "044a9a94-deaf-4339-9981-b04b3acb4ec8",
+  "data": "2026-10-01",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "8e566668-c10c-4b72-b335-3c215c2c5b07",
+  "relatorio_id": "6a91a939-e821-45d0-be8a-c61d8eaa1bbe",
+  "data": "2026-10-13",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "8e566668-c10c-4b72-b335-3c215c2c5b07",
+  "relatorio_id": "d0b61e99-00d8-4355-a670-51710dcef1bb",
+  "data": "2026-10-22",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "8e566668-c10c-4b72-b335-3c215c2c5b07",
+  "relatorio_id": "a9bcb699-19be-417f-8882-5ac26d6e3f99",
+  "data": "2026-10-27",
+  "tipo_treino": "força",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "8e566668-c10c-4b72-b335-3c215c2c5b07",
+  "relatorio_id": "2b049427-9c96-47dc-9b60-96a49bbeba69",
+  "data": "2026-10-29",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "8e566668-c10c-4b72-b335-3c215c2c5b07",
+  "relatorio_id": "bc8d05f1-07aa-4dc6-b258-75caa6f8a990",
+  "data": "2026-11-10",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "54a801c9-6fda-4bb0-9135-2eb17fc3b166",
+  "relatorio_id": "85011734-4c99-4a63-8598-2ec33a76ea1b",
+  "data": "2026-09-03",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "54a801c9-6fda-4bb0-9135-2eb17fc3b166",
+  "relatorio_id": "eeda4289-9c39-4b35-9ee6-91fa828c8b64",
+  "data": "2026-09-14",
+  "tipo_treino": "força",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "54a801c9-6fda-4bb0-9135-2eb17fc3b166",
+  "relatorio_id": "4bf61652-4e92-485c-b47e-26773d447b11",
+  "data": "2026-09-21",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "54a801c9-6fda-4bb0-9135-2eb17fc3b166",
+  "relatorio_id": "22106152-ab40-4cd5-aae6-6562bf668b4d",
+  "data": "2026-10-08",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "54a801c9-6fda-4bb0-9135-2eb17fc3b166",
+  "relatorio_id": "2079240d-0301-43e2-a07c-ce22766d12a9",
+  "data": "2026-11-05",
+  "tipo_treino": "força",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "2a918633-f92c-4e93-b458-d2d129274be9",
+  "relatorio_id": "838090f3-8b6f-48d8-8b72-1f9534ddd120",
+  "data": "2026-09-03",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "2a918633-f92c-4e93-b458-d2d129274be9",
+  "relatorio_id": "bea8684e-8151-4670-8313-18d773810f5d",
+  "data": "2026-10-01",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "2a918633-f92c-4e93-b458-d2d129274be9",
+  "relatorio_id": "fd5d46cc-9929-4d7f-8aef-451c17c967c7",
+  "data": "2026-10-08",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "2a918633-f92c-4e93-b458-d2d129274be9",
+  "relatorio_id": "223dc4f5-5446-437e-bbb8-3f642a372807",
+  "data": "2026-10-15",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "10add2c0-bbbe-4164-8da4-b434b4844a96",
+  "relatorio_id": "6c41becf-dd8d-43a2-b1d7-256209a0a6d7",
+  "data": "2026-10-12",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "10add2c0-bbbe-4164-8da4-b434b4844a96",
+  "relatorio_id": "7d341a7e-b5e8-4a83-8d9f-495a900e48d9",
+  "data": "2026-10-15",
+  "tipo_treino": "força",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "10add2c0-bbbe-4164-8da4-b434b4844a96",
+  "relatorio_id": "228eaab1-dbfb-4d60-b357-3adfc884e85c",
+  "data": "2026-10-22",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "10add2c0-bbbe-4164-8da4-b434b4844a96",
+  "relatorio_id": "89da9586-d9bd-44bd-8992-97d9e9b7bcb2",
+  "data": "2026-11-05",
+  "tipo_treino": "força",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "10add2c0-bbbe-4164-8da4-b434b4844a96",
+  "relatorio_id": "05120076-5b2d-431e-be1b-105fc110cbd5",
+  "data": "2026-11-09",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "a68a0600-9993-4109-a436-a0ca73859eb7",
+  "relatorio_id": "ecd5e344-59fc-4926-ad3d-d4679ae3ed18",
+  "data": "2026-09-14",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "a68a0600-9993-4109-a436-a0ca73859eb7",
+  "relatorio_id": "e93fef3a-241b-4038-bcc6-3767eec4f283",
+  "data": "2026-10-15",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "a68a0600-9993-4109-a436-a0ca73859eb7",
+  "relatorio_id": "44fbc6c6-455b-400d-a26a-b6c34091c34f",
+  "data": "2026-10-22",
+  "tipo_treino": "força",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "a68a0600-9993-4109-a436-a0ca73859eb7",
+  "relatorio_id": "ae707e15-04b4-4b78-8a19-408310721de3",
+  "data": "2026-10-29",
+  "tipo_treino": "força",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "bb3cbcaf-e0c6-4688-a406-c16696967679",
+  "relatorio_id": "09c33bc2-8378-42d4-9344-c777a5fc7d7f",
+  "data": "2026-09-09",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "bb3cbcaf-e0c6-4688-a406-c16696967679",
+  "relatorio_id": "207db7b7-5418-44b1-a683-7f3eb1a90ada",
+  "data": "2026-09-16",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "bb3cbcaf-e0c6-4688-a406-c16696967679",
+  "relatorio_id": "e43450e3-e9da-418b-975d-42ab8deb03be",
+  "data": "2026-09-21",
+  "tipo_treino": "força",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "bb3cbcaf-e0c6-4688-a406-c16696967679",
+  "relatorio_id": "2e615bdc-aade-4817-bd98-9e5b7cfab32c",
+  "data": "2026-09-23",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "bb3cbcaf-e0c6-4688-a406-c16696967679",
+  "relatorio_id": "b84fe8eb-1554-4002-93a7-3a286f175409",
+  "data": "2026-09-25",
+  "tipo_treino": "força",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "bb3cbcaf-e0c6-4688-a406-c16696967679",
+  "relatorio_id": "25f662f5-6f86-40ec-ad72-fbd316985c68",
+  "data": "2026-10-05",
+  "tipo_treino": "força",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "bb3cbcaf-e0c6-4688-a406-c16696967679",
+  "relatorio_id": "f60aa49a-35aa-4c6f-952e-aa86a102bff2",
+  "data": "2026-10-07",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "bb3cbcaf-e0c6-4688-a406-c16696967679",
+  "relatorio_id": "620d29dc-50a4-4492-a57a-786f72908715",
+  "data": "2026-10-14",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "bb3cbcaf-e0c6-4688-a406-c16696967679",
+  "relatorio_id": "aeeca6e5-a6b4-4f37-87df-95a0954463be",
+  "data": "2026-10-26",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "50cae863-a472-41f1-a901-8e65b5b3e02e",
+  "relatorio_id": "0fea9310-86e6-4cd0-96c4-c5e543229927",
+  "data": "2026-09-17",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "50cae863-a472-41f1-a901-8e65b5b3e02e",
+  "relatorio_id": "3c677c2b-dc31-409e-8482-4452911a1d18",
+  "data": "2026-09-22",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "50cae863-a472-41f1-a901-8e65b5b3e02e",
+  "relatorio_id": "2a2fb428-488b-48bc-b2d0-635487656305",
+  "data": "2026-10-01",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "50cae863-a472-41f1-a901-8e65b5b3e02e",
+  "relatorio_id": "6252b36e-11be-4e2e-8a5d-8197d5e7c432",
+  "data": "2026-10-06",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "50cae863-a472-41f1-a901-8e65b5b3e02e",
+  "relatorio_id": "9373bca4-35ce-45d6-9894-b98269a6fe10",
+  "data": "2026-10-20",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "8c37f4b2-c7ed-4283-ab2d-f7b6bfd44ba8",
+  "relatorio_id": "68f86589-25cb-45d7-9d00-d7bc6e1db1ea",
+  "data": "2026-09-08",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "8c37f4b2-c7ed-4283-ab2d-f7b6bfd44ba8",
+  "relatorio_id": "c54eeee4-8982-4ded-b015-67e26c9be37b",
+  "data": "2026-09-29",
+  "tipo_treino": "força",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "8c37f4b2-c7ed-4283-ab2d-f7b6bfd44ba8",
+  "relatorio_id": "a3f1c9da-7f7c-469b-b385-3546eed3cd59",
+  "data": "2026-10-13",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "8c37f4b2-c7ed-4283-ab2d-f7b6bfd44ba8",
+  "relatorio_id": "0370ac04-4671-43a7-bed3-503b2f76299a",
+  "data": "2026-10-15",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "8c37f4b2-c7ed-4283-ab2d-f7b6bfd44ba8",
+  "relatorio_id": "c64f4091-8a17-4f86-ad24-ebdd969316f1",
+  "data": "2026-10-22",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "5a5a78e1-5f65-439b-a520-261b81bb2650",
+  "relatorio_id": "9151ea3e-64aa-43e1-a4b9-3b2129876c62",
+  "data": "2026-09-14",
+  "tipo_treino": "força",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "5a5a78e1-5f65-439b-a520-261b81bb2650",
+  "relatorio_id": "3f17bc92-88d2-4c05-a844-98c517d1a1bb",
+  "data": "2026-09-17",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "5a5a78e1-5f65-439b-a520-261b81bb2650",
+  "relatorio_id": "bc30b100-feba-43ce-b805-165d2b830f43",
+  "data": "2026-09-21",
+  "tipo_treino": "força",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "5a5a78e1-5f65-439b-a520-261b81bb2650",
+  "relatorio_id": "ca5c24a9-c8a8-48f2-8a78-1d3f477b053c",
+  "data": "2026-10-08",
+  "tipo_treino": "força",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "5a5a78e1-5f65-439b-a520-261b81bb2650",
+  "relatorio_id": "75d70857-7b9c-46f1-95fb-fdfe39d842dc",
+  "data": "2026-10-12",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "5a5a78e1-5f65-439b-a520-261b81bb2650",
+  "relatorio_id": "e0bde30d-d0e2-4e91-8b7e-20865c1cec10",
+  "data": "2026-10-19",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "5a5a78e1-5f65-439b-a520-261b81bb2650",
+  "relatorio_id": "d64962a9-bbb0-4fb7-b381-93a43f0e7a14",
+  "data": "2026-10-29",
+  "tipo_treino": "força",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "5a5a78e1-5f65-439b-a520-261b81bb2650",
+  "relatorio_id": "44f7fe88-878c-4dc8-b93c-44df6d824d81",
+  "data": "2026-11-02",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "136013b9-0e2e-467e-86f7-15695e280500",
+  "relatorio_id": "4135fc65-5812-4fd8-8693-7383ecee6fa1",
+  "data": "2026-09-10",
+  "tipo_treino": "força",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "136013b9-0e2e-467e-86f7-15695e280500",
+  "relatorio_id": "72d66172-eaa9-4dc7-b48d-fb9b22b4bb86",
+  "data": "2026-09-14",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "136013b9-0e2e-467e-86f7-15695e280500",
+  "relatorio_id": "b35cdba0-55dc-4957-9e17-310be0c3e6dd",
+  "data": "2026-09-17",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "136013b9-0e2e-467e-86f7-15695e280500",
+  "relatorio_id": "87306848-590a-4339-8ab3-239e73cbbab1",
+  "data": "2026-09-21",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "136013b9-0e2e-467e-86f7-15695e280500",
+  "relatorio_id": "f61293b2-1335-4278-a5a1-7d05c533f1c4",
+  "data": "2026-10-01",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "136013b9-0e2e-467e-86f7-15695e280500",
+  "relatorio_id": "7f54ef24-8530-4535-aa86-ea2b1f20e4d2",
+  "data": "2026-10-15",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "136013b9-0e2e-467e-86f7-15695e280500",
+  "relatorio_id": "a3f833ee-6e13-4f39-b69f-4931036673ae",
+  "data": "2026-10-22",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "136013b9-0e2e-467e-86f7-15695e280500",
+  "relatorio_id": "01c45df9-5e2c-436b-b230-4bdddac1739c",
+  "data": "2026-10-29",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "136013b9-0e2e-467e-86f7-15695e280500",
+  "relatorio_id": "9c0f40e1-f5ef-46db-ab36-734ef6a098f2",
+  "data": "2026-11-02",
+  "tipo_treino": "força",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "9601d231-55a1-48c6-a0b3-86ac3c697785",
+  "relatorio_id": "eb0efb89-ef18-4bc7-9ac6-557cd62c1c8b",
+  "data": "2026-09-07",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "9601d231-55a1-48c6-a0b3-86ac3c697785",
+  "relatorio_id": "6be487e0-98f8-4dc6-b391-18a20907d5be",
+  "data": "2026-09-10",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "9601d231-55a1-48c6-a0b3-86ac3c697785",
+  "relatorio_id": "45869824-9653-4556-8fcf-da78795fb3d8",
+  "data": "2026-10-05",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "9601d231-55a1-48c6-a0b3-86ac3c697785",
+  "relatorio_id": "96d91258-a9fb-446d-b6bb-5c54e6e1f45c",
+  "data": "2026-10-08",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "9601d231-55a1-48c6-a0b3-86ac3c697785",
+  "relatorio_id": "1b211b2b-4a32-46e7-bdf9-f6b035733cf6",
+  "data": "2026-10-12",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "9601d231-55a1-48c6-a0b3-86ac3c697785",
+  "relatorio_id": "f736fb6e-7745-4f40-bf09-787c829f4b0a",
+  "data": "2026-10-19",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "9601d231-55a1-48c6-a0b3-86ac3c697785",
+  "relatorio_id": "6c870920-b0c7-4a17-9c94-9337952e353e",
+  "data": "2026-10-22",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "9601d231-55a1-48c6-a0b3-86ac3c697785",
+  "relatorio_id": "3f039bd9-069e-4645-a5b9-40b4da7e785d",
+  "data": "2026-11-09",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "9af8a346-2be9-4771-8d7f-d3ca44662e5e",
+  "relatorio_id": "2c2af591-ef72-460d-ae25-0b5d44aee909",
+  "data": "2026-09-15",
+  "tipo_treino": "força",
+  "observacoes": "Chegou cansado, treino adaptado com menos volume."
+ },
+ {
+  "atleta_id": "9af8a346-2be9-4771-8d7f-d3ca44662e5e",
+  "relatorio_id": "b0a6d3a9-e9a8-4018-8cb1-4513f48d9575",
+  "data": "2026-10-01",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "9af8a346-2be9-4771-8d7f-d3ca44662e5e",
+  "relatorio_id": "5709628c-2dff-4b57-8a45-2fe0fdc21f2b",
+  "data": "2026-10-13",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "9af8a346-2be9-4771-8d7f-d3ca44662e5e",
+  "relatorio_id": "3ae351c5-0bd1-482f-82bd-830a04bfe734",
+  "data": "2026-10-15",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "9af8a346-2be9-4771-8d7f-d3ca44662e5e",
+  "relatorio_id": "ad9ca1e5-945b-4991-9d4f-3495b5f74735",
+  "data": "2026-10-20",
+  "tipo_treino": "força",
+  "observacoes": "Excelente foco nos exercícios de reação."
+ },
+ {
+  "atleta_id": "9af8a346-2be9-4771-8d7f-d3ca44662e5e",
+  "relatorio_id": "9f83f787-b6d0-4161-92a7-e6a7f1d9691a",
+  "data": "2026-10-27",
+  "tipo_treino": "força",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "9af8a346-2be9-4771-8d7f-d3ca44662e5e",
+  "relatorio_id": "18c99e7e-7e24-4c69-89d7-b35b362db363",
+  "data": "2026-10-29",
+  "tipo_treino": "força",
+  "observacoes": null
+ },
+ {
+  "atleta_id": "9af8a346-2be9-4771-8d7f-d3ca44662e5e",
+  "relatorio_id": "c2a68785-0043-4881-aa22-6fb80b83053d",
+  "data": "2026-11-03",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "f8aafb18-d462-43be-a6c3-4fa4c500faba",
+  "relatorio_id": "97d3e690-0c66-4cfa-aa62-ff7f8ab0a299",
+  "data": "2026-09-24",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "f8aafb18-d462-43be-a6c3-4fa4c500faba",
+  "relatorio_id": "986de600-9d21-4d4a-b34a-a2af51928c68",
+  "data": "2026-10-20",
+  "tipo_treino": "força",
+  "observacoes": "Melhorou o controle de tronco na prancha."
+ },
+ {
+  "atleta_id": "f8aafb18-d462-43be-a6c3-4fa4c500faba",
+  "relatorio_id": "58506565-c9f8-4320-b81f-41540b9f845a",
+  "data": "2026-10-27",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "f17b9e5c-0ebe-483d-a7c6-097c38435235",
+  "relatorio_id": "25fe7f12-5508-4980-9dad-7819ace13a82",
+  "data": "2026-09-10",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "f17b9e5c-0ebe-483d-a7c6-097c38435235",
+  "relatorio_id": "5d0d8b3d-f84b-4759-add9-ad0708c931c2",
+  "data": "2026-09-17",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "f17b9e5c-0ebe-483d-a7c6-097c38435235",
+  "relatorio_id": "bf0aae9e-fbfa-4982-bb74-5dd9abffde7c",
+  "data": "2026-10-12",
+  "tipo_treino": "força",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "f17b9e5c-0ebe-483d-a7c6-097c38435235",
+  "relatorio_id": "bcdbf539-9d57-49f2-bf46-a2ffda6dbccd",
+  "data": "2026-10-15",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "f17b9e5c-0ebe-483d-a7c6-097c38435235",
+  "relatorio_id": "c128c27c-89f8-41f4-842b-74409aa485ed",
+  "data": "2026-10-19",
+  "tipo_treino": "força",
+  "observacoes": "Mostrou mais confiança nas mudanças de direção."
+ },
+ {
+  "atleta_id": "9c7a38ec-0faf-45c7-83bb-a9fd0197af35",
+  "relatorio_id": "e20067df-c146-4c4d-a3f6-86bb834b9cac",
+  "data": "2026-09-16",
+  "tipo_treino": "força",
+  "observacoes": "Boa evolução na técnica de corrida; manter o trabalho de frequência de passada."
+ },
+ {
+  "atleta_id": "9c7a38ec-0faf-45c7-83bb-a9fd0197af35",
+  "relatorio_id": "96ea7f75-47e3-411f-9b30-351f61aa9513",
+  "data": "2026-09-23",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "9c7a38ec-0faf-45c7-83bb-a9fd0197af35",
+  "relatorio_id": "c98b4877-a004-4e1e-9e29-f2b72be589ed",
+  "data": "2026-09-25",
+  "tipo_treino": "força",
+  "observacoes": "Precisa reforçar o aquecimento de tornozelo antes dos saltos."
+ },
+ {
+  "atleta_id": "9c7a38ec-0faf-45c7-83bb-a9fd0197af35",
+  "relatorio_id": "b9b92573-dece-461d-ac6d-513e6a8cbd13",
+  "data": "2026-10-16",
+  "tipo_treino": "força",
+  "observacoes": "Cumpriu toda a série de força com boa execução."
+ },
+ {
+  "atleta_id": "9c7a38ec-0faf-45c7-83bb-a9fd0197af35",
+  "relatorio_id": "0f420fcd-5a91-4dfe-8e41-451d6ccd32fa",
+  "data": "2026-10-26",
+  "tipo_treino": "força",
+  "observacoes": "Relatou leve desconforto no joelho; observar na próxima sessão."
+ },
+ {
+  "atleta_id": "9c7a38ec-0faf-45c7-83bb-a9fd0197af35",
+  "relatorio_id": "f6dd477e-0dca-44d0-9456-7b458fd4f341",
+  "data": "2026-11-04",
+  "tipo_treino": "força",
+  "observacoes": null
+ }
+]
