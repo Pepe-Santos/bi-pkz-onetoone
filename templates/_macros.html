@@ -1,0 +1,290 @@
+{#- Componentes visuais dos relatórios. Os estilos são os dos modelos oficiais (templates/referencia). -#}
+{%- set CORES = {'azul': '#12228E', 'verde': '#157a4b', 'vermelho': '#be123c', 'cinza': '#64748b'} -%}
+{%- set BADGES = {
+  'verde': 'background:#157a4b; color:#fff',
+  'vermelho': 'background:#be123c; color:#fff',
+  'cinza': 'background:#f1f4f9; color:#475569',
+  'ambar': 'background:#fef3c7; color:#92400e',
+  'azul': 'background:#e0e7ff; color:#12228E'} -%}
+
+{% macro destaque(texto) -%}
+<span style="padding:1px 5px; margin:0 -2px; border-radius:4px; background:#c2f24a; color:#0e1a6b; font-weight:700; white-space:nowrap">{{ texto }}</span>
+{%- endmacro %}
+
+{% macro badge(texto, estilo='cinza') -%}
+<span style="display:inline-flex; align-items:center; gap:6px; padding:3px 9px; border-radius:6px; font-size:11.5px; font-weight:600; white-space:nowrap; {{ BADGES.get(estilo, BADGES['cinza']) }}">{{ texto }}</span>
+{%- endmacro %}
+
+{% macro secao(titulo, subtitulo=none, caixa=false) -%}
+<section style="{% if caixa %}border:1px solid #dbe0f0; border-radius:14px; padding:18px 20px; break-inside:avoid{% endif %}">
+  <h2 style="margin:0 0 4px; font-size:16px; font-weight:700; color:#0f172a">{{ titulo }}</h2>
+  {% if subtitulo %}<p style="margin:0 0 14px; font-size:12.5px; line-height:1.55; color:#475569; text-wrap:pretty">{{ subtitulo }}</p>{% endif %}
+  {{ caller() }}
+</section>
+{%- endmacro %}
+
+{#- Cartão do atleta + frase do período (topo de todos os relatórios) -#}
+{% macro topo(ctx) -%}
+{% set c = ctx.card %}{% set h = ctx.hero %}
+<section style="display:grid; grid-template-columns:236px 1fr; gap:22px; align-items:stretch; break-inside:avoid">
+  <div style="border:1px solid #12228E; border-radius:16px; overflow:hidden; align-self:start">
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:15px; background:radial-gradient(circle at 50% 122%,transparent 0 54px,rgba(255,255,255,.13) 54px 56px,transparent 56px),linear-gradient(90deg,transparent 0 49.2%,rgba(255,255,255,.13) 49.2% 50.6%,transparent 50.6%),linear-gradient(160deg,#1b30b4,#0e1a6b)">
+      <span style="display:flex; align-items:center; gap:12px">
+        <span style="width:78px; height:78px; flex-shrink:0; border-radius:50%; box-shadow:0 0 0 2px #c2f24a; display:grid; place-items:center; background:#eef1f6; color:#12228E; font-size:26px; font-weight:800">{{ ctx.atleta.iniciais }}</span>
+        <span>
+          <span class="num" style="display:block; font-size:38px; font-weight:700; line-height:1; color:#fff">{{ c.numero }}</span>
+          <span style="display:block; margin-top:3px; font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:#c2f24a">{{ c.legenda }}</span>
+        </span>
+      </span>
+    </div>
+    <div style="padding:12px 15px 10px; border-bottom:1px solid #eef1f6">
+      <p style="margin:0; font-size:15px; font-weight:600; line-height:1.2; color:#0f172a">{{ ctx.atleta.nome }}</p>
+      {% if c.linha %}<p class="num" style="margin:3px 0 0; font-size:11.5px; color:#475569">{{ c.linha }}</p>{% endif %}
+      {% if c.rodape %}<p class="num" style="margin:3px 0 0; font-size:11px; color:#475569">{{ c.rodape }}</p>{% endif %}
+    </div>
+    {% if c.itens %}
+    <div style="padding:10px 12px 14px">
+      {% if c.titulo_itens %}<p style="margin:0 0 8px; font-size:9.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#475569; text-align:center">{{ c.titulo_itens }}</p>{% endif %}
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:9px 4px">
+        {% for i in c.itens %}
+        <span style="display:flex; flex-direction:column; align-items:center; min-width:0">
+          <span style="font-size:9.5px; font-weight:600; line-height:1.2; color:#475569; text-align:center; max-width:100%; min-height:2.4em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden">{{ i.rotulo }}</span>
+          <span class="num" style="font-size:{{ '11' if i.pequeno else '16' }}px; font-weight:700; line-height:{{ '22px' if i.pequeno else '1.3' }}; color:{{ CORES[i.cor] }}; max-width:100%; text-align:center">{{ i.valor }}</span>
+          {% if i.unidade %}<span style="font-size:9.5px; color:#475569; margin-top:-2px">{{ i.unidade }}</span>{% endif %}
+          {% if i.nota %}<span class="num" style="font-size:9.5px; color:#475569">{{ i.nota }}</span>{% endif %}
+        </span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  <div style="border-radius:16px; background:#0e1a6b; padding:22px 24px; display:flex; flex-direction:column; justify-content:center; gap:14px">
+    <p style="margin:0; font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#c2f24a">{{ h.rotulo }}</p>
+    {% if h.frase %}
+    <p style="margin:0; font-size:19px; line-height:1.45; font-weight:600; color:#fff; text-wrap:pretty">{% for texto, realce in h.frase %}{% if realce %}{{ destaque(texto) }}{% else %}{{ texto }}{% endif %}{% endfor %}</p>
+    {% endif %}
+    {% if h.apoio %}<p style="margin:0; font-size:14px; line-height:1.6; color:#e7eaf7; text-wrap:pretty">{{ h.apoio }}</p>{% endif %}
+  </div>
+</section>
+{%- endmacro %}
+
+{% macro tiles(ctx) -%}
+{% if ctx.numeros %}
+{% call secao('Números ' ~ ('da semana' if ctx.periodo == 'semanal' else 'do mês' if ctx.periodo == 'mensal' else 'do ano'), ctx.numeros_sub) %}
+<div style="display:grid; grid-template-columns:repeat({{ ctx.numeros | length }},1fr); gap:12px">
+  {% for t in ctx.numeros %}
+  <div style="border:1px solid #dbe0f0; border-radius:12px; padding:14px 15px; break-inside:avoid">
+    <p class="num" style="margin:0; font-size:30px; font-weight:700; line-height:1; color:{{ CORES[t.cor] }}">{{ t.valor }}{% if t.sufixo %}<span style="font-size:16px; color:#475569">{{ t.sufixo }}</span>{% endif %}</p>
+    <p style="margin:6px 0 0; font-size:12.5px; font-weight:600; color:#0f172a">{{ t.rotulo }}</p>
+    <p class="num" style="margin:1px 0 0; font-size:11.5px; color:#475569">{{ t.nota }}</p>
+  </div>
+  {% endfor %}
+</div>
+{% endcall %}
+{% endif %}
+{%- endmacro %}
+
+{% macro agenda(ctx, titulo='O que aconteceu em cada treino', subtitulo='Cada sessão agendada na semana e como ela foi registrada.') -%}
+{% if ctx.agenda %}
+{% call secao(titulo, subtitulo) %}
+<div style="display:flex; flex-direction:column; gap:11px">
+  {% for a in ctx.agenda %}
+  <div style="display:flex; align-items:center; gap:14px; border-radius:12px; padding:12px 16px; break-inside:avoid; {% if a.destaque %}border:1px solid #cde3d7; background:#f6fbf8{% else %}border:1px solid #dbe0f0{% endif %}">
+    <div style="width:96px; flex-shrink:0">
+      <p class="num" style="margin:0; font-size:13.5px; font-weight:700; color:#0f172a">{{ a.dia }}</p>
+      <p class="num" style="margin:1px 0 0; font-size:12px; color:#475569">{{ a.data_hora }}</p>
+    </div>
+    <p style="margin:0; flex:1; font-size:14px; font-weight:600; color:#0f172a">Treino</p>
+    <div>{{ badge(a.status, a.estilo) }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endcall %}
+{% endif %}
+{%- endmacro %}
+
+{% macro grafico_presenca(ctx) -%}
+{% if ctx.grafico_presenca %}
+{% call secao(ctx.grafico_presenca_titulo, 'Cada barra soma as presenças e as faltas do intervalo. Cancelamentos e agendamentos não entram.', caixa=true) %}
+<div>{{ ctx.grafico_presenca }}</div>
+<div style="display:flex; flex-wrap:wrap; gap:9px 20px; margin-top:12px; padding-top:12px; border-top:1px solid #eef1f6">
+  {% for cor, texto in ctx.grafico_presenca_legenda %}
+  <span style="display:flex; align-items:center; gap:8px; font-size:12px; color:#334155"><span style="width:13px; height:13px; border-radius:3px; background:{{ cor }}"></span>{{ texto }}</span>
+  {% endfor %}
+</div>
+{% endcall %}
+{% endif %}
+{%- endmacro %}
+
+{% macro comparacoes(ctx) -%}
+{% if ctx.comparacoes %}
+{% call secao('Resultados dos testes: antes e agora',
+  'Cada teste medido no período, comparado com a medição anterior. A barra mostra o valor atual e o risco azul marca o anterior.') %}
+<div style="display:flex; flex-direction:column; gap:11px">
+  {% for c in ctx.comparacoes %}
+  <div style="display:grid; grid-template-columns:1.25fr 1fr auto; gap:16px; align-items:center; border:1px solid {{ '#cde3d7' if c.situacao == 'melhorou' else '#dbe0f0' }}; {% if c.situacao == 'melhorou' %}background:#f6fbf8;{% endif %} border-radius:12px; padding:12px 16px; break-inside:avoid">
+    <div>
+      <p style="margin:0; font-size:14px; font-weight:600; color:#0f172a">{{ c.nome }}</p>
+      <p class="num" style="margin:2px 0 0; font-size:11.5px; color:#475569">medido em {{ c.data_atual }}{% if c.menor_melhor %} · menor = melhor{% endif %}</p>
+    </div>
+    <div>
+      <p class="num" style="margin:0 0 4px; font-size:13px; color:#334155"><span style="color:#64748b">{{ c.anterior }}</span> → <strong style="color:#0f172a">{{ c.atual }}</strong>{% if c.variacao %} <span style="color:{{ CORES[c.cor] }}; font-weight:700">{{ c.variacao }}</span>{% endif %}</p>
+      {% if c.barra %}{{ c.barra }}{% endif %}
+    </div>
+    <div style="text-align:right">{{ badge(c.situacao_texto, c.estilo) }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% if ctx.em_validacao %}
+<p style="margin:12px 0 0; font-size:12px; line-height:1.55; color:#475569">Resultados em validação pela PKZ não aparecem como confirmados nem entram nos gráficos.</p>
+{% endif %}
+{% endcall %}
+{% endif %}
+{%- endmacro %}
+
+{% macro evolucao(ctx) -%}
+{% if ctx.evolucao %}
+{% call secao('Evolução em cada teste', ctx.evolucao_sub) %}
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+  {% for e in ctx.evolucao %}
+  <div style="border:1px solid #dbe0f0; border-radius:12px; padding:12px 14px; break-inside:avoid">
+    <p style="margin:0 0 2px; font-size:13px; font-weight:600; color:#0f172a">{{ e.nome }}{% if e.unidade %} <span style="font-weight:500; color:#475569">({{ e.unidade }})</span>{% endif %}</p>
+    {% if e.menor_melhor %}<p style="margin:0; font-size:11px; color:#157a4b; font-weight:600">menor = melhor resultado</p>{% endif %}
+    {{ e.grafico }}
+  </div>
+  {% endfor %}
+</div>
+{% endcall %}
+{% endif %}
+{%- endmacro %}
+
+{% macro destaques(ctx) -%}
+{% if ctx.foi_bem or ctx.atencao %}
+<section style="display:grid; grid-template-columns:{{ '1fr 1fr' if ctx.foi_bem and ctx.atencao else '1fr' }}; gap:18px">
+  {% if ctx.foi_bem %}
+  <div style="border:1px solid #cde3d7; background:#f6fbf8; border-radius:14px; padding:18px 20px; break-inside:avoid">
+    <h2 style="margin:0 0 11px; font-size:15px; font-weight:700; color:#0f172a">O que foi bem</h2>
+    <div style="display:flex; flex-direction:column; gap:10px">
+      {% for d in ctx.foi_bem %}<div><p style="margin:0; font-size:13.5px; font-weight:600; color:#0d5132">{{ d.titulo }}</p><p class="num" style="margin:2px 0 0; font-size:12.5px; color:#334155">{{ d.texto }}</p></div>{% endfor %}
+    </div>
+  </div>
+  {% endif %}
+  {% if ctx.atencao %}
+  <div style="border:1px solid #f1c8d0; background:#fff8f9; border-radius:14px; padding:18px 20px; break-inside:avoid">
+    <h2 style="margin:0 0 11px; font-size:15px; font-weight:700; color:#0f172a">Pontos de atenção</h2>
+    <div style="display:flex; flex-direction:column; gap:10px">
+      {% for d in ctx.atencao %}<div><p style="margin:0; font-size:13.5px; font-weight:600; color:#9f1239">{{ d.titulo }}</p><p class="num" style="margin:2px 0 0; font-size:12.5px; color:#334155">{{ d.texto }}</p></div>{% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</section>
+{% endif %}
+{%- endmacro %}
+
+{% macro linha_do_tempo(ctx) -%}
+{% if ctx.avaliacoes %}
+{% call secao('Avaliações do ano', 'Cada avaliação registrada em ' ~ ctx.rotulo_periodo ~ ', com a quantidade de testes medidos.') %}
+<div style="display:grid; grid-template-columns:repeat({{ [ctx.avaliacoes | length, 4] | min }},1fr); gap:12px">
+  {% for a in ctx.avaliacoes %}
+  <div style="border:1px solid #dbe0f0; border-radius:12px; padding:14px 15px; break-inside:avoid">
+    <p class="num" style="margin:0; font-size:18px; font-weight:700; color:#12228E">{{ a.data }}</p>
+    <p class="num" style="margin:6px 0 0; font-size:12.5px; color:#334155">{{ a.testes }} resultado{{ '' if a.testes == 1 else 's' }} · {{ a.validados }} confirmado{{ '' if a.validados == 1 else 's' }}</p>
+  </div>
+  {% endfor %}
+</div>
+{% endcall %}
+{% endif %}
+{%- endmacro %}
+
+{% macro distribuicoes(ctx) -%}
+{% if ctx.distribuicoes %}
+<section style="display:grid; grid-template-columns:{{ '1fr 1fr' if ctx.distribuicoes | length > 1 else '1fr' }}; gap:18px">
+  {% for titulo, lista in ctx.distribuicoes %}
+  <div style="border:1px solid #dbe0f0; border-radius:14px; padding:18px 20px; break-inside:avoid">
+    <h2 style="margin:0 0 11px; font-size:15px; font-weight:700; color:#0f172a">{{ titulo }}</h2>
+    <div style="display:flex; flex-direction:column; gap:10px">
+      {% for d in lista %}
+      <div>
+        <div style="display:flex; justify-content:space-between; gap:10px; font-size:12.5px; color:#334155"><span style="font-weight:600">{{ d.nome }}</span><span class="num">{{ d.quantidade }} ({{ d.percentual | round | int }}%)</span></div>
+        <div style="margin-top:4px; height:8px; border-radius:4px; background:#eef1f6"><div style="width:{{ d.percentual | round(1) }}%; height:8px; border-radius:4px; background:#12228E"></div></div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</section>
+{% endif %}
+{%- endmacro %}
+
+{% macro treinos(ctx, titulo='Histórico de treinos') -%}
+{% if ctx.treinos %}
+{% call secao(titulo, 'Total de treinos no período: ' ~ ctx.treinos_total ~ '.') %}
+{% if ctx.treinos_campos %}
+<table style="width:100%; border-collapse:separate; border-spacing:0; font-size:12px; color:#334155">
+  <thead style="display:table-header-group">
+    <tr>
+      <th style="text-align:left; padding:9px 10px; background:#0e1a6b; color:#fff; font-weight:600; border-radius:8px 0 0 0; white-space:nowrap">Data</th>
+      {% for c in ctx.treinos_campos %}<th style="text-align:left; padding:9px 10px; background:#0e1a6b; color:#fff; font-weight:600{% if loop.last %}; border-radius:0 8px 0 0{% endif %}">{{ c }}</th>{% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in ctx.treinos %}
+    <tr style="break-inside:avoid">
+      <td class="num" style="padding:9px 10px; border-bottom:1px solid #eef1f6; font-weight:600; color:#0f172a; white-space:nowrap; vertical-align:top; {% if loop.index is even %}background:#f8fafc{% endif %}">{{ t.data }}</td>
+      {% for v in t.campos %}<td style="padding:9px 10px; border-bottom:1px solid #eef1f6; vertical-align:top; line-height:1.5">{{ v }}</td>{% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p style="margin:0; font-size:12.5px; color:#475569">Os detalhes dos treinos, como objetivos, tipo e desempenho, ainda não estão registrados na base de dados. Datas: {% for t in ctx.treinos %}{{ t.data }}{{ ', ' if not loop.last }}{% endfor %}.</p>
+{% endif %}
+{% if ctx.treinos_limitados %}
+<p style="margin:12px 0 0; font-size:12px; line-height:1.55; color:#475569">São apresentados os 10 treinos mais recentes. O total considera todos os treinos do período.</p>
+{% endif %}
+{% endcall %}
+{% endif %}
+{%- endmacro %}
+
+{% macro treinos_cartoes(ctx) -%}
+{% if ctx.treinos %}
+{% call secao('O que aconteceu em cada treino', 'Os treinos registrados na semana, com os dados que o professor preencheu.') %}
+<div style="display:flex; flex-direction:column; gap:11px">
+  {% for t in ctx.treinos %}
+  <div style="display:flex; gap:14px; border:1px solid #dbe0f0; border-radius:12px; padding:14px 16px; break-inside:avoid">
+    <div style="width:110px; flex-shrink:0"><p class="num" style="margin:0; font-size:13.5px; font-weight:700; color:#0f172a">{{ t.data }}</p></div>
+    <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:6px">
+      {% for v in t.campos %}{% if v != '—' %}<p style="margin:0; font-size:12.5px; line-height:1.55; color:#334155"><strong style="color:#0f172a">{{ ctx.treinos_campos[loop.index0] }}:</strong> {{ v }}</p>{% endif %}{% endfor %}
+      {% if not ctx.treinos_campos %}<p style="margin:0; font-size:12.5px; color:#475569">Detalhes ainda não registrados na base de dados.</p>{% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endcall %}
+{% endif %}
+{%- endmacro %}
+
+{% macro nota(texto) -%}
+<p style="margin:0; font-size:11.5px; line-height:1.55; color:#475569">{{ texto }}</p>
+{%- endmacro %}
+
+{#- Blocos de apoio que preenchem o fim da última página (escolhidos conforme o espaço livre) -#}
+{% macro extras(ctx) -%}
+{% for e in ctx.extras if e.id in ctx.incluir_extras %}
+<div data-extra="{{ e.id }}" style="break-inside:avoid">
+{% call secao(e.titulo, e.subtitulo, caixa=true) %}
+  {% if e.grafico %}<div>{{ e.grafico }}</div>{% endif %}
+  {% if e.legenda %}
+  <div style="display:flex; flex-wrap:wrap; gap:9px 20px; margin-top:12px; padding-top:12px; border-top:1px solid #eef1f6">
+    {% for cor, texto in e.legenda %}<span style="display:flex; align-items:center; gap:8px; font-size:12px; color:#334155"><span style="width:13px; height:13px; border-radius:3px; background:{{ cor }}"></span>{{ texto }}</span>{% endfor %}
+  </div>
+  {% endif %}
+  {% if e.get('linhas') %}
+  <div style="display:flex; flex-direction:column; gap:8px">
+    {% for nome, texto in e.linhas %}<p style="margin:0; font-size:12.5px; line-height:1.55; color:#334155"><strong style="color:#0f172a">{{ nome }}:</strong> {{ texto }}</p>{% endfor %}
+  </div>
+  {% endif %}
+{% endcall %}
+</div>
+{% endfor %}
+{%- endmacro %}

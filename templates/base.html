@@ -1,0 +1,49 @@
+{#- Estrutura comum: cabeçalho, corpo e rodapé dos modelos oficiais. Os 6 relatórios estendem este arquivo. -#}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>{{ titulo }} · {{ marca.nome }} · {{ rotulo_periodo }}</title>
+<style>
+{% include "fonts/_fontes.css.j2" %}
+html, body { margin:0; background:#fff; font-family:'Inter',system-ui,sans-serif; }
+.num { font-variant-numeric: tabular-nums; }
+.cond { font-family:'Barlow Condensed','Inter',sans-serif; letter-spacing:.01em; }
+* { -webkit-print-color-adjust:exact; print-color-adjust:exact; box-sizing:border-box; }
+@page { size:A4; margin:12mm 0 12mm 0; }
+@page :first { margin:0 0 12mm 0; }
+h2 { break-after:avoid; page-break-after:avoid; }
+h2 + p { break-after:avoid; page-break-after:avoid; }
+svg { max-width:100%; }
+</style>
+</head>
+<body data-template="{{ template }}" data-unidade="{{ unidade }}" data-periodo="{{ periodo }}">
+<div style="width:{{ largura }}px; background:#fff">
+
+  <header style="display:flex; align-items:center; justify-content:space-between; gap:24px; padding:24px 32px; background:linear-gradient(105deg,#0e1a6b,#1b30b4)">
+    <div style="display:flex; align-items:center; gap:16px">
+      <img src="{{ asset('logo_cabecalho.png') }}" alt="{{ marca.alt_logo }}" style="display:block; width:46px; height:46px">
+      <div style="padding-left:16px; border-left:1px solid rgba(255,255,255,.28)">
+        <p class="cond" style="margin:0; font-size:28px; font-weight:700; line-height:1.05; text-transform:uppercase; color:#fff">{{ titulo }}</p>
+        <p style="margin:3px 0 0; font-size:12px; color:#aab4e8">{{ marca.subtitulo }}</p>
+      </div>
+    </div>
+    <p class="num" style="margin:0; padding:6px 13px; border-radius:7px; background:rgba(255,255,255,.14); font-size:13.5px; font-weight:600; color:#fff; white-space:nowrap">{{ rotulo_periodo }}</p>
+  </header>
+
+  <div style="padding:26px 32px; display:flex; flex-direction:column; gap:24px">
+    {% block corpo %}{% endblock %}
+  </div>
+
+  {% if espaco %}<div style="height:{{ espaco }}px"></div>{% endif %}
+  <footer data-rodape style="display:flex; align-items:center; justify-content:space-between; gap:20px; padding:18px 32px; background:#0e1a6b; break-inside:avoid">
+    <div>
+      <p class="num" style="margin:0; font-size:12px; color:#e7eaf7">(21) 97265-7566 · @playmakerz_pkz</p>
+      <p style="margin:2px 0 0; font-size:12px; color:#aab4e8">Av. Armando Lombardi 949 — Loja G</p>
+    </div>
+    <p style="margin:0; max-width:220px; font-size:12.5px; line-height:1.45; color:#e7eaf7">{{ marca.rodape_extra }}</p>
+    <img src="{{ asset('logo_rodape.png') }}" alt="PKZ One to One Studio" style="display:block; width:54px; height:54px; border-radius:50%">
+  </footer>
+</div>
+</body>
+</html>

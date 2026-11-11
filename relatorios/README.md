@@ -49,6 +49,27 @@ Os exemplos em `exemplos/api/` são fictícios. O repositório não contém a am
 
 Para mandar outro PDF: `python relatorios/enviar_email.py caminho/do/arquivo.pdf`.
 
+## Relatórios a partir dos modelos HTML (`--renderizador html`)
+
+Além do gerador ReportLab (padrão), o `gerar_pdf.py` gera os relatórios a partir dos seis modelos HTML oficiais em `templates/`: dados da API → indicadores (`gerador_pkz/contexto_relatorio.py`) → template Jinja2 → Chromium (Playwright) → PDF A4.
+
+```bash
+pip install -r gerador_pkz/requirements.txt
+python -m playwright install chromium     # uma vez por máquina
+
+python gerador_pkz/gerar_pdf.py <atleta_id> --renderizador html --periodo mensal --referencia 2026-08-20
+python gerador_pkz/gerar_pdf.py <atleta_id> --one-to-one --renderizador html --periodo anual --referencia 2026-08-20
+python gerador_pkz/gerar_pdf.py --json-dir exemplos/api --renderizador html --periodo anual --referencia 2026-08-20
+```
+
+O PDF sai em `gerador_pkz/relatorios/relatorio_html_<unidade>_<atleta>_<periodo>_<data>.pdf`, sem sobrescrever o do ReportLab, para comparar os dois.
+
+- **Templates:** `templates/PKZ_relatorio_{semanal,mensal,anual}.html` e `templates/OneToOne_relatorio_{semanal,mensal,anual}.html` (Jinja2), com cabeçalho e rodapé em `base.html` e componentes em `_macros.html`. Os HTMLs originais aprovados ficam em `templates/referencia/` só para comparação.
+- **Offline:** fontes (Inter e Barlow Condensed, em `templates/fonts/`) e logotipos (`templates/assets/`) vão embutidos no HTML; o PDF não depende de internet.
+- **Sem dados inventados:** o que o modelo mostrava e a API não tem (nota/nível do atleta, atributos 0–99, PSE, tonelagem, 1RM, composição corporal, mensagem do professor, próximas sessões) não aparece. Blocos sem dado são ocultados; resultados não confirmados aparecem como "Em validação". No One to One não há nenhuma informação de dor.
+- **Indicadores:** frequência = presenças ÷ (presenças + faltas); variação = (atual − anterior) ÷ anterior × 100, respeitando `maior_melhor`; só testes medidos dentro do período entram na comparação; no One to One anual, tabela com os 10 treinos mais recentes e total do período.
+- **Páginas:** A4, com quebra de página que não corta cartões. Cada modelo é escalado para a largura da folha.
+
 ## Testes automatizados do gerador
 
 Instale as dependências de teste e rode a suíte. Os testes usam fixtures sintéticas, mocks da API e PDFs temporários fora do repositório; nenhuma chamada é feita ao Supabase.
