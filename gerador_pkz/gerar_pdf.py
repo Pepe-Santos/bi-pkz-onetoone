@@ -960,12 +960,38 @@ def main():
         ),
     )
 
+    parser.add_argument(
+        "--renderizador",
+        choices=["reportlab", "html"],
+        default="reportlab",
+        help=(
+            "reportlab (padrão): gerador atual. html: usa os modelos HTML oficiais "
+            "(templates/) renderizados com Jinja2 e Playwright/Chromium."
+        ),
+    )
+
     args = parser.parse_args()
 
     try:
         referencia = date.fromisoformat(args.referencia)
     except ValueError:
         parser.error("--referencia deve estar no formato YYYY-MM-DD")
+
+    if args.renderizador == "html":
+        try:
+            from gerador_pkz.render_html import gerar_relatorio_html
+        except ImportError:
+            import sys
+            sys.path.insert(0, str(BASE_DIR))
+            from gerador_pkz.render_html import gerar_relatorio_html
+        try:
+            gerar_relatorio_html(
+                "ONE_TO_ONE" if args.one_to_one else "PKZ",
+                args.atleta_id, args.periodo, referencia, args.json_dir,
+            )
+        except ValueError as erro:
+            parser.error(str(erro))
+        return
 
     if args.one_to_one:
         if args.json_dir is not None:
