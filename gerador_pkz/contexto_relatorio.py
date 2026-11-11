@@ -475,7 +475,7 @@ def montar_contexto_pkz(atleta, evolucoes, presencas, periodo, referencia):
     ctx["agenda"] = agenda(presencas_periodo) if periodo == "semanal" else []
 
     baldes = baldes_presenca(periodo, inicio, fim, presencas_periodo)
-    ctx["grafico_presenca"] = gs.barras_empilhadas(baldes) if baldes else None
+    ctx["grafico_presenca"] = gs.barras_empilhadas(baldes, altura=155) if baldes else None
     ctx["grafico_presenca_legenda"] = [(gs.COR_VERDE, "presenças"), (gs.COR_VERMELHO, "faltas")]
     ctx["grafico_presenca_titulo"] = "Presença semana a semana" if periodo == "mensal" else "Presença mês a mês"
 
@@ -490,16 +490,20 @@ def montar_contexto_pkz(atleta, evolucoes, presencas, periodo, referencia):
         for _chave, regs in sorted(grupos.items(), key=lambda kv: (str(kv[0][0]), str(kv[0][1] or ""))):
             regs.sort(key=lambda r: g.data_avaliacao(r))
             pontos = [(f"{g.data_avaliacao(r):%d/%m/%y}", r["valor"]) for r in regs]
-            grafico = gs.linha_evolucao(pontos)
-            if grafico is None:
+            if len(pontos) < 2:
                 continue
             direcao = next((r.get("maior_melhor") for r in reversed(regs) if r.get("maior_melhor") is not None), None)
             ctx["evolucao"].append({
                 "nome": g.nome_com_lado(regs[0]),
                 "unidade": regs[0].get("unidade_medida") or "",
-                "grafico": grafico,
+                "pontos": pontos,
                 "menor_melhor": direcao is False,
             })
+        # Até 3 testes, gráficos largos; a partir de 4, até 5 por linha, desenhados já no tamanho menor
+        # para os números dentro do gráfico continuarem legíveis.
+        largura, altura = (360, 104) if len(ctx["evolucao"]) <= 3 else (210, 92)
+        for e in ctx["evolucao"]:
+            e["grafico"] = gs.linha_evolucao(e.pop("pontos"), largura=largura, altura=altura)
     ctx["evolucao_sub"] = (
         f"Resultados confirmados até {fim:%d/%m/%Y}" if periodo == "mensal" else f"Resultados confirmados em {inicio.year}"
     )
@@ -638,7 +642,7 @@ def montar_contexto_one_to_one(atleta, presencas, treinos, periodo, referencia):
     ctx["agenda"] = agenda(presencas) if periodo == "semanal" else []
 
     baldes = baldes_presenca(periodo, inicio, fim, presencas)
-    ctx["grafico_presenca"] = gs.barras_empilhadas(baldes) if baldes else None
+    ctx["grafico_presenca"] = gs.barras_empilhadas(baldes, altura=155) if baldes else None
     ctx["grafico_presenca_legenda"] = [(gs.COR_VERDE, "presenças"), (gs.COR_VERMELHO, "faltas")]
     ctx["grafico_presenca_titulo"] = "Presença semana a semana" if periodo == "mensal" else "Presença mês a mês"
 

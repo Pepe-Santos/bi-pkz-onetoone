@@ -271,9 +271,18 @@ def test_paginacao_sem_paginas_vazias_e_rodape_so_no_fim(pdfs, unidade, periodo)
     assert all("RELATÓRIO DO" not in t.upper() and "RELATÓRIO DA" not in t.upper() for t in paginas[1:])
 
 
-def test_pkz_mensal_e_anual_tem_mais_de_uma_pagina(pdfs):
-    assert len(PdfReader(str(pdfs[("PKZ", "anual")])).pages) >= 2
-    assert len(PdfReader(str(pdfs[("PKZ", "mensal")])).pages) >= 2
+@pytest.mark.parametrize("unidade,periodo", SEIS)
+def test_semanal_e_mensal_em_uma_folha_anual_em_duas(pdfs, unidade, periodo):
+    """Pedido de 10/11/2026: semanal e mensal numa folha só; o anual, com mais informação, em duas."""
+    assert len(PdfReader(str(pdfs[(unidade, periodo)])).pages) == R.PAGINAS_ALVO[periodo]
+
+
+@pytest.mark.parametrize("unidade,periodo", [s for s in SEIS if s[1] != "anual"])
+def test_relatorio_de_uma_folha_tem_rodape_no_fim_da_folha(pdfs, unidade, periodo):
+    """Sem margem embaixo: o rodapé encosta no fim da folha, sem faixa branca."""
+    pagina = PdfReader(str(pdfs[(unidade, periodo)])).pages[0]
+    y = R._y_do_texto(pagina, "Armando")
+    assert y is not None and y < 40, y  # endereço do rodapé a menos de ~14 mm da borda de baixo
 
 
 def test_fundos_coloridos_foram_renderizados(pdfs):
@@ -350,6 +359,8 @@ def test_rodape_fica_no_fim_da_ultima_pagina(pdfs, unidade, periodo):
 
 @pytest.mark.parametrize("unidade,periodo", SEIS)
 def test_espaco_vazio_da_ultima_pagina_e_preenchido_com_blocos_de_apoio(pdfs, unidade, periodo):
+    if R.PAGINAS_ALVO[periodo] == 1:
+        pytest.skip("relatório de uma folha: o conteúdo ocupa a folha toda, não sobra espaço para blocos de apoio")
     ctx = contexto(unidade, periodo)
     titulos = [e["titulo"] for e in ctx["extras"]]
     texto = " ".join(p.extract_text() for p in PdfReader(str(pdfs[(unidade, periodo)])).pages)
@@ -362,7 +373,9 @@ def test_blocos_de_apoio_nao_aumentam_o_numero_de_paginas(unidade, periodo, tmp_
     base = tmp_path / "base.pdf"
     R.html_para_pdf(R.renderizar_html(ctx, incluir_extras=[]), base, ctx["largura"])
     final = R.renderizar_pdf(ctx, tmp_path / "final.pdf")
-    assert len(PdfReader(str(final)).pages) == len(PdfReader(str(base)).pages)
+    # O ajuste de largura pode reduzir as folhas (semanal e mensal viram uma só); nunca aumentar.
+    assert len(PdfReader(str(final)).pages) <= len(PdfReader(str(base)).pages)
+    assert len(PdfReader(str(final)).pages) == R.PAGINAS_ALVO[periodo]
 
 
 def test_blocos_de_apoio_usam_apenas_dados_reais_do_periodo():

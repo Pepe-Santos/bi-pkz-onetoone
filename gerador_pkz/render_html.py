@@ -47,7 +47,10 @@ def renderizar_html(contexto, incluir_extras=None, espaco=0):
     """
     if incluir_extras is None:
         incluir_extras = [e["id"] for e in contexto.get("extras", [])]
-    dados = {**contexto, "incluir_extras": list(incluir_extras), "espaco": int(espaco)}
+    dados = {**contexto, "incluir_extras": list(incluir_extras), "espaco": int(espaco),
+             "uma_folha": _uma_folha(contexto),
+             # altura da folha A4 em px do layout, 2 px a menos para o arredondamento nunca abrir outra folha
+             "altura_folha": int(1122.5 * contexto["largura"] / A4_LARGURA_PX) - 2}
     template = _ambiente().get_template(contexto["template"])
     return template.render(r=dados, **dados)
 
@@ -99,7 +102,11 @@ def _y_do_texto(pagina_pdf, trecho):
     return achados[-1] if achados else None
 
 
-def _espaco_livre_px(pdf_bytes, rodape_abaixo_do_texto_px, escala):
+def _uma_folha(contexto):
+    return PAGINAS_ALVO.get(contexto.get("periodo")) == 1
+
+
+def _espaco_livre_px(pdf_bytes, rodape_abaixo_do_texto_px, escala, margem_pt=MARGEM_PT):
     """Espaço vazio (px do layout) entre o rodapé e o fim da área útil da última página."""
     import io
     from pypdf import PdfReader
@@ -109,7 +116,7 @@ def _espaco_livre_px(pdf_bytes, rodape_abaixo_do_texto_px, escala):
     if y_texto is None:
         return 0
     y_base_rodape = y_texto - rodape_abaixo_do_texto_px * escala * 0.75
-    return max(0.0, (y_base_rodape - MARGEM_PT) / 0.75 / escala)
+    return max(0.0, (y_base_rodape - margem_pt) / 0.75 / escala)
 
 
 def _paginas(pdf_bytes):
@@ -119,58 +126,107 @@ def _paginas(pdf_bytes):
     return len(PdfReader(io.BytesIO(pdf_bytes)).pages)
 
 
-def renderizar_pdf(contexto, destino):
-    """PDF A4 do relatório: preenche o fim da última página com blocos de apoio e fixa o rodapé embaixo.
+# Quantas folhas A4 cada relatório deve ocupar: semanal e mensal numa folha só, anual em duas.
+PAGINAS_ALVO = {"semanal": 1, "mensal": 1, "anual": 2}
+# Se o conteúdo não couber, o layout fica um pouco mais largo (e a letra, um pouco menor) até caber.
+# O teto evita letra pequena demais: 1,3 da largura do modelo deixa o texto do corpo em ~8 pt.
+PASSO_LARGURA_PX = 30
+LARGURA_MAXIMA_FATOR = 1.3
 
-    Passagens: (1) conteúdo base; (2) mede o espaço livre e a altura de cada bloco de apoio, escolhe os
-    que cabem, e (3) gera de novo com eles e um espaçador. Se a paginação mudar, mantém a passagem 1.
+
+def _pdf_com_largura(pagina, contexto, largura):
+    """PDF na largura pedida: (1) conteúdo base; (2) blocos de apoio que cabem no fim; (3) rodapé no fim da folha."""
+    ctx = {**contexto, "largura": int(largura)}
+    escala = A4_LARGURA_PX / largura
+    extras = ctx.get("extras", [])
+    pagina.set_viewport_size({"width": int(largura), "height": 1200})
+
+    def carregar(html):
+        pagina.set_content(html, wait_until="load")
+        pagina.evaluate("document.fonts.ready.then(() => true)")
+
+    carregar(renderizar_html(ctx, incluir_extras=[], espaco=0))
+    base = pagina.pdf(**_opcoes_pdf(escala))
+    final = base
+    # distância do fundo do rodapé até a base do texto do endereço (layout contínuo)
+    distancia = pagina.evaluate(
+        """() => { const f = document.querySelector('[data-rodape]');
+                   const t = f.querySelectorAll('p')[1].getBoundingClientRect();
+                   return f.getBoundingClientRect().bottom - (t.bottom - 3.5); }""")
+    if extras:
+        livre = _espaco_livre_px(base, distancia, escala, 0 if _uma_folha(ctx) else MARGEM_PT) - SEGURANCA_PX
+
+        carregar(renderizar_html(ctx, espaco=0))  # todos os blocos, só para medir
+        alturas = pagina.evaluate(
+            """() => Object.fromEntries([...document.querySelectorAll('[data-extra]')]
+                        .map(e => [e.dataset.extra, e.offsetHeight + 12]  /* 12 = espaço entre os blocos */))""")
+        escolhidos, restante = [], livre
+        for e in extras:
+            h = alturas.get(e["id"], 0)
+            if h and h <= restante:
+                escolhidos.append(e["id"])
+                restante -= h
+        if escolhidos or restante > 0:
+            carregar(renderizar_html(ctx, incluir_extras=escolhidos, espaco=max(0, int(restante))))
+            candidato = pagina.pdf(**_opcoes_pdf(escala))
+            if _paginas(candidato) == _paginas(base):
+                final = candidato
+    return final, _paginas(base), distancia, escala
+
+
+def _rodape_no_fim_da_folha(pdf_bytes, rodape_abaixo_do_texto_px, escala):
+    """Relatório de várias folhas: encosta o rodapé da última folha na borda de baixo.
+
+    A margem de baixo (12 mm) protege as quebras de página, mas o Chromium a aplica em todas as folhas,
+    e a última ficava com uma faixa branca embaixo do rodapé. A última folha desce exatamente o espaço
+    que sobrou embaixo do rodapé; esse espaço passa para o topo, como respiro abaixo da quebra.
+    """
+    import io
+    from pypdf import PdfReader, PdfWriter, Transformation
+
+    if len(PdfReader(io.BytesIO(pdf_bytes)).pages) < 2:
+        return pdf_bytes
+    ultima = PdfReader(io.BytesIO(pdf_bytes)).pages[-1]
+    y_texto = _y_do_texto(ultima, "Armando")
+    if y_texto is None:
+        return pdf_bytes
+    fundo_do_rodape = y_texto - rodape_abaixo_do_texto_px * escala * 0.75  # pontos acima da borda de baixo
+    if fundo_do_rodape <= 0.5:
+        return pdf_bytes
+    escritor = PdfWriter(clone_from=io.BytesIO(pdf_bytes))
+    escritor.pages[-1].add_transformation(Transformation().translate(0, -fundo_do_rodape))
+    saida = io.BytesIO()
+    escritor.write(saida)
+    return saida.getvalue()
+
+
+def renderizar_pdf(contexto, destino):
+    """PDF A4 do relatório no número de folhas do período (PAGINAS_ALVO), com o rodapé no fim da última.
+
+    Começa na largura do modelo; se passar do número de folhas, alarga o layout aos poucos até caber,
+    respeitando o teto de LARGURA_MAXIMA_FATOR. Se nem no teto couber, fica com a versão do teto.
     """
     from playwright.sync_api import sync_playwright
 
     destino = Path(destino)
     destino.parent.mkdir(parents=True, exist_ok=True)
-    largura = contexto["largura"]
-    escala = A4_LARGURA_PX / largura
-    extras = contexto.get("extras", [])
+    largura_modelo = contexto["largura"]
+    alvo = PAGINAS_ALVO.get(contexto.get("periodo"), 99)
+    teto = int(largura_modelo * LARGURA_MAXIMA_FATOR)
 
     with sync_playwright() as p:
         navegador = p.chromium.launch()
         try:
-            pagina = navegador.new_page(viewport={"width": int(largura), "height": 1200})
-
-            def carregar(html):
-                pagina.set_content(html, wait_until="load")
-                pagina.evaluate("document.fonts.ready.then(() => true)")
-
-            carregar(renderizar_html(contexto, incluir_extras=[], espaco=0))
-            base = pagina.pdf(**_opcoes_pdf(escala))
-            final = base
-            if extras:
-                # distância do fundo do rodapé até a base do texto do endereço (layout contínuo)
-                distancia = pagina.evaluate(
-                    """() => { const f = document.querySelector('[data-rodape]');
-                               const t = f.querySelectorAll('p')[1].getBoundingClientRect();
-                               return f.getBoundingClientRect().bottom - (t.bottom - 3.5); }""")
-                livre = _espaco_livre_px(base, distancia, escala) - SEGURANCA_PX
-
-                carregar(renderizar_html(contexto, espaco=0))  # todos os blocos, só para medir
-                alturas = pagina.evaluate(
-                    """() => Object.fromEntries([...document.querySelectorAll('[data-extra]')]
-                                .map(e => [e.dataset.extra, e.offsetHeight + 24]))""")
-                escolhidos, restante = [], livre
-                for e in extras:
-                    h = alturas.get(e["id"], 0)
-                    if h and h <= restante:
-                        escolhidos.append(e["id"])
-                        restante -= h
-                if escolhidos or restante > 0:
-                    carregar(renderizar_html(contexto, incluir_extras=escolhidos, espaco=max(0, int(restante))))
-                    candidato = pagina.pdf(**_opcoes_pdf(escala))
-                    if _paginas(candidato) == _paginas(base):
-                        final = candidato
+            pagina = navegador.new_page(viewport={"width": int(largura_modelo), "height": 1200})
+            largura = largura_modelo
+            while True:
+                final, paginas, distancia, escala = _pdf_com_largura(pagina, contexto, largura)
+                if paginas <= alvo or largura >= teto:
+                    break
+                largura = min(teto, largura + PASSO_LARGURA_PX)
         finally:
             navegador.close()
-    destino.write_bytes(final)
+    destino.write_bytes(_rodape_no_fim_da_folha(final, distancia, escala))
     return destino
 
 
