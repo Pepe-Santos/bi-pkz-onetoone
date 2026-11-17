@@ -21,7 +21,9 @@ Modo teste (até a PKZ autorizar): todos os relatórios vão para EMAIL_LOTE_TES
 estar em EMAILS_TESTE, com [TESTE] e o nome do aluno no assunto.
 
 Variáveis do backend/.env (veja backend/env.example): SUPABASE_URL, SUPABASE_SECRET_KEY e as
-do enviar_email.py, mais EMAIL_LOTE_TESTE.
+do enviar_email.py, mais EMAIL_LOTE_TESTE. RELATORIO_RENDERIZADOR escolhe o gerador do PDF:
+html (padrão, modelos oficiais em templates/, precisa do Chromium do Playwright) ou reportlab
+(gerador anterior).
 """
 
 import argparse
@@ -123,9 +125,20 @@ def guardar_no_bucket(caminho_pdf, destino):
 def gerar_relatorio(aluno, periodo, referencia):
     """Caminho do PDF do período, ou None se o aluno não tem dados nele.
 
-    As duas unidades usam o gerador_pkz/gerar_pdf.py (Henrique): gerar_relatorio() para a PKZ
-    e gerar_relatorio_one_to_one() para o One to One.
+    Padrão (RELATORIO_RENDERIZADOR=html): os modelos oficiais da equipe de design, em
+    templates/, pelo gerador_pkz/render_html.py. Com RELATORIO_RENDERIZADOR=reportlab, o
+    gerador anterior do gerador_pkz/gerar_pdf.py: gerar_relatorio() para a PKZ e
+    gerar_relatorio_one_to_one() para o One to One.
     """
+    if aluno["unidade"] not in ("PKZ", "ONE_TO_ONE"):
+        return None
+
+    if os.environ.get("RELATORIO_RENDERIZADOR", "html").strip().lower() != "reportlab":
+        sys.path.insert(0, str(BASE_DIR))
+        from gerador_pkz.render_html import gerar_relatorio_html
+
+        return gerar_relatorio_html(aluno["unidade"], aluno["atleta_id"], periodo, referencia)
+
     sys.path.insert(0, str(BASE_DIR / "gerador_pkz"))
     import gerar_pdf
 

@@ -69,6 +69,7 @@ O PDF sai em `gerador_pkz/relatorios/relatorio_html_<unidade>_<atleta>_<periodo>
 - **Sem dados inventados:** o que o modelo mostrava e a API não tem (nota/nível do atleta, atributos 0–99, PSE, tonelagem, 1RM, composição corporal, mensagem do professor, próximas sessões) não aparece. Blocos sem dado são ocultados; resultados não confirmados aparecem como "Em validação". No One to One não há nenhuma informação de dor.
 - **Indicadores:** frequência = presenças ÷ (presenças + faltas); variação = (atual − anterior) ÷ anterior × 100, respeitando `maior_melhor`; só testes medidos dentro do período entram na comparação; no One to One anual, tabela com os 10 treinos mais recentes e total do período.
 - **Páginas:** A4, com quebra de página que não corta cartões. Cada modelo é escalado para a largura da folha.
+- **Envio por e-mail:** o `enviar_lote.py` e o workflow `relatorios.yml` usam estes modelos HTML. Para voltar ao ReportLab no lote, defina `RELATORIO_RENDERIZADOR=reportlab` no `backend/.env` (ou no `env` do workflow).
 
 ## Testes automatizados do gerador
 
