@@ -69,7 +69,7 @@ O PDF sai em `gerador_pkz/relatorios/relatorio_html_<unidade>_<atleta>_<periodo>
 - **Sem dados inventados:** o que o modelo mostrava e a API não tem (nota/nível do atleta, atributos 0–99, PSE, tonelagem, 1RM, composição corporal, mensagem do professor, próximas sessões) não aparece. Blocos sem dado são ocultados; resultados não confirmados aparecem como "Em validação". No One to One não há nenhuma informação de dor.
 - **Indicadores:** frequência = presenças ÷ (presenças + faltas); variação = (atual − anterior) ÷ anterior × 100, respeitando `maior_melhor`; só testes medidos dentro do período entram na comparação; no One to One anual, tabela com os 10 treinos mais recentes e total do período.
 - **Páginas:** A4, com quebra de página que não corta cartões. Cada modelo é escalado para a largura da folha.
-- **Envio por e-mail:** o `enviar_lote.py` e o workflow `relatorios.yml` usam estes modelos HTML. Para voltar ao ReportLab no lote, defina `RELATORIO_RENDERIZADOR=reportlab` no `backend/.env` (ou no `env` do workflow).
+- **Envio por e-mail:** o `enviar_lote.py` e o workflow `relatorios.yml` usam os **relatórios v2** (`gerador_pkz/v2`, veja `RELATORIOS_V2.md`). Para voltar a estes modelos HTML no lote, defina `RELATORIO_RENDERIZADOR=html` no `backend/.env` (ou no `env` do workflow); para o ReportLab, `RELATORIO_RENDERIZADOR=reportlab`.
 
 ## Testes automatizados do gerador
 
@@ -95,13 +95,13 @@ python relatorios/enviar_lote.py --periodo mensal --referencia 2026-08-26 --limi
 Para cada aluno das duas unidades (`api.atleta`):
 
 1. pula quem já recebeu este período (`trat.envio_relatorio`, pela função `api.relatorios_enviados`);
-2. gera o PDF com o `gerador_pkz/gerar_pdf.py`; aluno sem dados no período é pulado;
+2. gera o PDF com o gerador v2 (`gerador_pkz/v2`); aluno sem nenhum registro no período é pulado, e contrato com erro de validação ou de layout conta como erro do aluno;
 3. guarda o PDF no bucket privado `relatorios`, em `teste/<unidade>/<periodo>/<inicio>/<aluno_id>.pdf`;
 4. envia por e-mail e registra o envio (`api.registrar_envio_relatorio`).
 
 Erro em um aluno não para os outros: o lote mostra o erro, segue e termina com código 1. Quem não foi registrado é tentado de novo na próxima execução. O envio de teste é registrado separado (`teste = true`), então não impede o envio real do mesmo período.
 
-**One to One:** usa o `gerar_relatorio_one_to_one()` do `gerador_pkz/gerar_pdf.py`, chamado pela função `gerar_relatorio()` do `enviar_lote.py`. Aluno sem agendamento nem treino no período é pulado, como na PKZ.
+**One to One:** o v2 usa a mesma função para as duas unidades. Aluno sem agendamento nem treino no período é pulado (no One to One, avaliação física sozinha não conta).
 
 ### Agendamento (GitHub Actions)
 
