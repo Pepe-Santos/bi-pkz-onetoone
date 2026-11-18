@@ -41,6 +41,10 @@ st.html("""
   [data-testid="stHeader"] { height: 0; background: transparent; }
   /* Aviso de desenvolvedor do Streamlit ("Help agents write better apps"): não é do produto. */
   [data-testid="stSkillsNudge"] { display: none !important; }
+  .obs-ficticia { display: flex; gap: 10px; align-items: baseline; padding: 8px 14px; border: 1px solid #dbe0f0; border-left: 4px solid #12228e;
+                  border-radius: 10px; background: #fff; font-size: 13px; line-height: 1.45; color: #334155; }
+  .obs-ficticia p { margin: 0; flex: 1; min-width: 0; }
+  .obs-ficticia span { flex-shrink: 0; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #12228e; }
   /* Blocos que só carregam estilo ou script não ocupam lugar: sem eles, a barra do topo encosta no alto da tela. */
   [data-testid="stElementContainer"]:has(> [data-testid="stHtml"] > :is(style, script):first-child):not(:has(> [data-testid="stHtml"] > :not(style, script))) { display: none; }
 
@@ -58,7 +62,17 @@ st.html("""
   /* Filtros, numa linha só */
   .st-key-filtros { padding: 12px clamp(14px, 1.2vw, 20px); border: 1px solid #dbe0f0; border-radius: 14px; background: #fff; }
   .st-key-filtros [data-testid="stWidgetLabel"] p { font-size: 13px; font-weight: 600; color: #475569; }
-  .st-key-anterior button, .st-key-proximo button { min-height: 40px; padding: 0; }
+  .st-key-anterior button, .st-key-proximo button, .st-key-lupa button { min-height: 40px; padding: 0; }
+  .st-key-lupa button [data-testid="stIconMaterial"] { font-size: 22px; }
+  .sinal-atleta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; font-size: 14px; color: #475569; }
+  .sinal-atleta b { font-weight: 700; color: #0f172a; }
+  .sinal-atleta span { padding: 2px 9px; border-radius: 999px; background: #f3f5fd; font-size: 12.5px; font-weight: 600; color: #12228e; }
+  .atleta-atual { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .atleta-atual span { font-size: 13px; font-weight: 600; color: #475569; }
+  .atleta-atual b { display: block; min-height: 40px; padding: 9px 12px; border-radius: 8px; background: #f3f5fd; font-size: 15px; font-weight: 500;
+                    color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .st-key-busca { margin-top: 2px; }
+  .st-key-busca [data-baseweb="select"] > div { border-color: #12228e; }
   .st-key-anterior button p, .st-key-proximo button p { font-size: 22px; font-weight: 700; line-height: 1; }
   .st-key-inativos { padding-bottom: 8px; }
   .st-key-inativos p { font-size: 14px; font-weight: 500; color: #0f172a; }
@@ -85,7 +99,7 @@ st.html("""
   .linha-topo { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 4fr) minmax(0, 5fr); gap: clamp(12px, 1vw, 18px); align-items: stretch; }
   @media (max-width: 1250px) { .linha-topo { grid-template-columns: repeat(2, minmax(0, 1fr)); } .linha-topo > :last-child { grid-column: 1 / -1; } }
   @media (max-width: 900px) { .linha-topo { grid-template-columns: minmax(0, 1fr); } .heroi { grid-template-columns: minmax(0, 1fr); } }
-  @media (max-width: 640px) { .st-key-anterior, .st-key-proximo { display: none; } }
+  @media (max-width: 640px) { .st-key-anterior, .st-key-proximo { display: none; } .atleta-atual b { white-space: normal; } }
 
   [data-testid="stExpander"] details { border-color: #dbe0f0; border-radius: 14px; background: #fff; }
   [data-testid="stExpander"] summary p { font-weight: 600; color: #12228e; }
@@ -98,7 +112,13 @@ st.html("""<script>
 (() => {
   if (window.__soEscolher) return;
   window.__soEscolher = true;
-  const ehCampo = (alvo) => alvo instanceof HTMLInputElement && alvo.closest('[data-testid="stSelectbox"], [data-testid="stMultiSelect"]');
+  const ehCampo = (alvo) => alvo instanceof HTMLInputElement && alvo.closest('[data-testid="stSelectbox"], [data-testid="stMultiSelect"]')
+                            && !alvo.closest('.st-key-busca');
+  // Ao abrir a pesquisa, o cursor já vai para o campo.
+  new MutationObserver(() => {
+    const campo = document.querySelector('.st-key-busca input');
+    if (campo && !campo.dataset.focado) { campo.dataset.focado = '1'; campo.focus(); }
+  }).observe(document.body, {childList: true, subtree: true});
   for (const evento of ["beforeinput", "paste", "drop", "cut"]) {
     document.addEventListener(evento, (e) => { if (ehCampo(e.target)) e.preventDefault(); }, true);
   }
@@ -106,7 +126,19 @@ st.html("""<script>
 </script>
 <style>
   [data-testid="stSelectbox"] input, [data-testid="stMultiSelect"] input { caret-color: transparent; cursor: pointer; }
+  .st-key-busca [data-testid="stSelectbox"] input { caret-color: auto; cursor: text; }
 </style>""", unsafe_allow_javascript=True)
+
+
+def observacao_ficticia() -> str:
+    """Nota discreta do modo apresentação: diz o que é fictício sem tomar a tela."""
+    partes = ["avaliações, presenças, treinos e resultados desta demonstração são <b>fictícios</b>, criados para mostrar como o sistema funciona"]
+    if dados.nomes_reais():
+        partes.append("alguns nomes são de alunos matriculados, usados só como exemplo, sem os resultados reais deles")
+    if cartao.PASTA_FOTOS.exists() and any(cartao.PASTA_FOTOS.glob("*.jpg")):
+        partes.append("as fotos foram geradas por inteligência artificial e não são de alunos")
+    texto = "; ".join(partes)
+    return (f'<div class="obs-ficticia"><span>Observação</span><p>{texto[:1].upper() + texto[1:]}.</p></div>')
 
 
 # ---------------------------------------------------------------- formatação
@@ -285,6 +317,18 @@ def _passar_atleta(ids: list[str], passo: int) -> None:
     st.session_state["atleta_escolhido"] = ids[(posicao + passo) % len(ids)]
 
 
+def _alternar_busca() -> None:
+    st.session_state["busca_aberta"] = not st.session_state.get("busca_aberta", False)
+
+
+def _escolher_pela_busca(chave: str) -> None:
+    """Atleta escolhido na pesquisa: vira o atleta da tela e a pesquisa fecha."""
+    if st.session_state.get(chave):
+        st.session_state["atleta_escolhido"] = st.session_state[chave]
+        st.session_state["busca_aberta"] = False
+    st.session_state.pop(chave, None)
+
+
 def _guardar(origem: str, destino: str) -> None:
     st.session_state[destino] = st.session_state[origem]
 
@@ -384,18 +428,23 @@ def barra_de_filtros(todos: list[dict]) -> dict | None:
         if ids and st.session_state.get("atleta_escolhido") not in ids:
             st.session_state["atleta_escolhido"] = ids[0]
 
-        anterior, escolha, proximo = st.columns([.32, 7.4, .32], vertical_alignment="bottom", gap="small")
-        anterior.button("‹", key="anterior", on_click=_passar_atleta, args=(ids, -1), width="stretch", disabled=not ids)
+        lupa, sinal = st.columns([.42, 7.6], vertical_alignment="center", gap="small")
+        atleta_id = st.session_state.get("atleta_escolhido") if ids else None
+        aberta = st.session_state.get("busca_aberta", False)
+        lupa.button(":material/close:" if aberta else ":material/search:", key="lupa", on_click=_alternar_busca, width="stretch",
+                    disabled=not ids)
         if ids:
-            chave = _chave_da_lista("atleta", ids)
-            st.session_state[chave] = st.session_state["atleta_escolhido"]
-            atleta_id = escolha.selectbox(
-                f"Atleta · {len(ids)} na lista", ids, key=chave, on_change=_guardar,
-                args=(chave, "atleta_escolhido"), **SO_ESCOLHER, format_func=lambda i: rotulo_do_atleta(por_id[i]),
-            )
+            sinal.html(f'<div class="sinal-atleta">Mostrando <b class="cartao-nome">{escape(por_id[atleta_id]["nome"] or "Sem nome")}</b></div>')
         else:
-            escolha.selectbox("Atleta", ["Nenhum atleta com esses filtros"], key="atleta_vazio", disabled=True, **SO_ESCOLHER)
-        proximo.button("›", key="proximo", on_click=_passar_atleta, args=(ids, 1), width="stretch", disabled=not ids)
+            sinal.html('<div class="sinal-atleta"><span>Nenhum atleta com esses filtros</span></div>')
+        if ids and aberta:
+            with st.container(key="busca"):
+                st.html(f'<div class="sinal-atleta"><span>{len(ids)} {"atleta disponível" if len(ids) == 1 else "atletas disponíveis"} com esses filtros</span></div>')
+                chave = _chave_da_lista("busca", ids)
+                st.selectbox("Pesquisar atleta", ids, index=None, key=chave, on_change=_escolher_pela_busca, args=(chave,),
+                             placeholder=f"Mostrando {por_id[atleta_id]['nome']} · digite o nome, a idade ou a modalidade",
+                             filter_mode="fuzzy", label_visibility="collapsed",
+                             format_func=lambda i: rotulo_do_atleta(por_id[i]))
         if nota:
             st.html(nota)
 
@@ -559,7 +608,7 @@ def tela_comparativo() -> None:
         st.html(comparativo.ranking(ordenados, cartoes, chave, nome_da_chave))
     else:
         st.html(comparativo.grade_de_cartoes(ordenados, cartoes, chave, nome_da_chave, presencas_por_atleta, hoje))
-    st.html(f'<div class="tst-rodape">{"Dados fictícios, só para teste." if dados.usando_exemplos() else "Dados reais, lidos da API, só para leitura."} Cada atributo é o percentil do atleta entre os da '
+    st.html(f'<div class="tst-rodape">{"Dados fictícios, para demonstração." if dados.usando_exemplos() else "Dados reais, lidos da API, só para leitura."} Cada atributo é o percentil do atleta entre os da '
             'mesma faixa de idade; até 5 pontos de diferença conta como na média. A nota é provisória: a fórmula definitiva é da escola.</div>')
 
 
@@ -610,7 +659,9 @@ with st.container(key="topo"):
 
 faltando = dados.variaveis_faltando()
 if dados.usando_exemplos():
-    if not dados.DADOS_FICTICIOS:  # no modo apresentação, quem explica é o apresentador
+    if dados.DADOS_FICTICIOS:
+        st.html(observacao_ficticia())
+    else:
         st.warning("**Dados de exemplo, fictícios.** Para ler a API, preencha o arquivo .env (veja o README).")
 elif faltando:
     st.error(f"Faltam variáveis no .env: {', '.join(faltando)}.")

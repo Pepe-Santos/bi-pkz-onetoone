@@ -5,10 +5,10 @@ App em Streamlit com três telas, escolhidas nos botões do topo: **Atleta**, **
 **Tela Atleta**
 
 - a mesma barra de filtros do Comparativo: área (PKZ ou One to One, conforme o login), modalidade, faixa de idade e inativos. O que se escolhe numa tela continua escolhido na outra;
-- embaixo, o atleta, com setas para passar de um para o outro;
+- embaixo, o atleta da tela (nome, idade, modalidade e avaliações), com setas para passar de um para o outro e uma lupa que abre a pesquisa: digite parte do nome, a idade ou a modalidade, sem precisar de acento, e escolha na lista;
 - no One to One, o aluno aparece com presença, relatórios de treino e, quando houver avaliação, os seis atributos da ficha (FIN, RES, POT, FSU, COR, MOB) e os gráficos de força, core, potência, resistência e mobilidade;
 - os campos de escolha só aceitam escolher: não dá para digitar nem apagar o texto deles;
-- cartão com foto de exemplo, gerada por IA, até a API ter foto;
+- cartão com foto ilustrativa, gerada por IA, nos atletas fictícios que têm uma (veja *Nomes reais e fotos*);
 - visão geral: avaliações, comparação, presença e reavaliação;
 - cartão do atleta, no desenho do painel comparativo, com nota, nível e os seis atributos da modalidade;
 - radar dos atributos, contra a média do grupo;
@@ -45,7 +45,14 @@ No Mac ou no Linux, ative o ambiente com `source .venv/bin/activate`. A tela abr
 
 **Com o `.env`, da API.** Copie o `.env.example` para `.env` e preencha a URL, a publishable key, o e-mail e a senha do usuário de teste. A senha é passada em particular pelo Miguel. O `.env` não vai para o GitHub.
 
-**Para apresentar, dados fictícios.** Rode `.presentacao.ps1` nesta pasta: abre em `http://localhost:8503`, com os 70 alunos inventados de `dados_ficticios/` e um aviso no topo. Nesse modo (`DADOS_FICTICIOS=1`) a tela ignora o `.env`, então nenhum dado real aparece. A base sai de `gerar_dados_ficticios.py`, com semente fixa: rode `python gerar_dados_ficticios.py AAAA-MM-DD` com o dia da apresentação para o *Resumo do dia* ter sessões.
+**Para apresentar, dados fictícios.** Rode `.\apresentacao.ps1` nesta pasta: abre em `http://localhost:8503`, com os 70 alunos inventados de `dados_ficticios/` e uma observação no topo dizendo o que é fictício. Nesse modo (`DADOS_FICTICIOS=1`) a tela ignora o `.env`: avaliações, presenças e treinos são todos inventados. A base sai de `gerar_dados_ficticios.py`, com semente fixa: rode `python gerar_dados_ficticios.py AAAA-MM-DD` com o dia da apresentação para o *Resumo do dia* ter sessões.
+
+**Nomes reais e fotos, só nesta máquina.** A pasta `dados_ficticios/locais/` (fora do GitHub, no `.gitignore`) pode ter:
+
+- `nomes_reais.csv` (`atleta_id;nome`): troca o nome de alguns atletas fictícios pelo de alunos matriculados. Cada nome fica num atleta da mesma idade e modalidade, e os resultados continuam fictícios; a observação do topo avisa isso.
+- `fotos/<atleta_id>.jpg`: foto ilustrativa no cartão, gerada por IA (não é de nenhum aluno). Atleta com nome real fica sem foto, para ninguém achar que o rosto é dele.
+
+Sem essa pasta, o dashboard mostra só os nomes inventados e o espaço *Foto* no cartão.
 
 **Sem o `.env`, dos exemplos.** A tela usa os JSON fictícios de `backend/exemplos/api/` e avisa no topo que são dados de exemplo. Como não existe `reavaliacao.json`, a situação da reavaliação é calculada pela mesma regra da view: 90 dias para vencer e aviso a 30 dias. Se a API falhar, a tela mostra o erro e não troca para os exemplos.
 
