@@ -1,0 +1,296 @@
+{#- Relatórios v2: uma folha A4 por <section class="folha">. Tamanhos em px (96 dpi): folha 794 × 1123. -#}
+{%- macro cabeca(b) -%}
+{% if b.titulo %}<h2>{{ b.titulo }}</h2>{% endif %}{% if b.sub %}<p class="sub">{{ b.sub }}</p>{% endif %}
+{%- endmacro -%}
+
+{%- macro desenhar(b) -%}
+{% set tam = "width:%.1fpx;height:%dpx" | format(b.w, b.h) %}
+{% if b.tipo == 'ident' %}
+<div class="bloco ident" style="{{ tam }}" data-bloco="ident">
+  <div class="avatar">{{ b.iniciais }}</div>
+  <div><div class="nome">{{ b.nome }}</div><div class="det">{{ b.detalhes }}</div><div class="per num">Período: {{ b.periodo }}</div></div>
+  <div class="chave"><b class="num">{{ b.valor }}</b><span>{{ b.chave }}</span></div>
+</div>
+{% elif b.tipo == 'cartao' %}
+<div class="bloco cartao" style="{{ tam }}" data-bloco="cartao">
+  <div class="topo">
+    {% if b.foto %}<img class="foto" src="{{ b.foto }}" alt="{{ 'Foto ilustrativa' if b.foto_ilustrativa else 'Foto do aluno' }}">
+    {% else %}<div class="foto vazia">{{ b.iniciais }}</div>{% endif %}
+    <div class="over"><b class="num">{{ b.numero }}</b><span>{{ b.legenda }}</span></div>
+    {% if b.nivel %}<div class="nivel"><i class="n{{ b.nivel }}">{{ b.nivel }}</i><span>{{ b.metal }}</span></div>{% endif %}
+  </div>
+  <div class="ident"><div class="nome">{{ b.nome }}</div><div class="det">{{ b.detalhes }}</div></div>
+  <div class="attrs">{% for x in b.atributos %}<div title="{{ x.titulo }}"><span>{{ x.sigla }}</span><b class="num {{ 'alerta' if x.alerta }}">{{ x.valor }}</b></div>{% endfor %}</div>
+  <p class="rodape">{{ b.nota_rodape }}{% if b.foto_ilustrativa %} Foto ilustrativa.{% endif %}</p>
+</div>
+{% elif b.tipo == 'kpis' %}
+<div class="bloco kpis {{ 'titulado' if b.titulo }}" style="{{ tam }}" data-bloco="kpis">
+  {% if b.titulo %}<h2>{{ b.titulo }}</h2>{% endif %}
+  <div class="tiles">{% for t in b.itens %}
+    <div class="tile"><b class="num cor-{{ t.cor }} {{ 'estado' if t.valor in ('Sem registro', 'Em validação', 'Não se aplica') }}">{{ t.valor }}</b>
+      <div class="rot">{{ t.rotulo }}</div><div class="nt">{{ t.nota }}</div></div>{% endfor %}</div>
+</div>
+{% elif b.tipo == 'resumo' %}
+<div class="bloco resumo" style="{{ tam }}" data-bloco="resumo">
+  <div class="rot">{{ b.titulo }}</div>
+  <div class="frase">{% for t, realce in b.frase %}{% if realce %}<mark>{{ t }}</mark>{% else %}{{ t }}{% endif %}{% endfor %}</div>
+  <ul>{% for i in b.itens %}<li>{{ i }}</li>{% endfor %}</ul>
+</div>
+{% elif b.tipo == 'grafico' %}
+<div class="bloco" style="{{ tam }}" data-bloco="grafico">
+  {{ cabeca(b) }}
+  <div class="area">{{ b.svg | safe }}</div>
+  {% if b.legenda %}<div class="legenda">{% for cor, t in b.legenda %}<span><i style="background:{{ cor }}"></i>{{ t }}</span>{% endfor %}</div>{% endif %}
+  {% if b.nota %}<p class="nota">{{ b.nota }}</p>{% endif %}
+</div>
+{% elif b.tipo == 'comparacoes' %}
+<div class="bloco" style="{{ tam }}" data-bloco="comparacoes">
+  {{ cabeca(b) }}
+  <div class="comp {{ 'duas' if b.colunas_duplas }}">{% for c in b.itens %}
+    <div class="item" style="border-left-color:{{ c.cor }}">
+      <div class="l1"><span class="n">{{ c.nome }}</span><span class="selo" style="background:{{ c.cor }}">{{ c.situacao }}</span></div>
+      <div class="l2"><span class="d">{% if c.data %}{{ c.data }} · {% endif %}{{ c.direcao }}</span>
+        <span class="v num"><s>{{ c.anterior }}</s> → <b>{{ c.atual }}</b>{% if c.variacao %} <b style="color:{{ c.cor }}">{{ c.variacao }}</b>{% endif %}</span></div>
+    </div>{% endfor %}</div>
+  {% if b.nota %}<p class="nota">{{ b.nota }}</p>{% endif %}
+</div>
+{% elif b.tipo == 'tabela' %}
+<div class="bloco" style="{{ tam }}" data-bloco="tabela">
+  {{ cabeca(b) }}
+  <table class="num {{ 'compacta' if b.compacta }}"><thead><tr>{% for c in b.colunas %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+  <tbody>{% for l in b.linhas %}<tr style="height:{{ b.altura_linha or 22 }}px">{% for v in l %}<td>{% if v is mapping %}<b style="color:{{ v.cor }}">{{ v.texto }}</b>{% else %}{{ v }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody></table>
+  {% if b.nota %}<p class="nota">{{ b.nota }}</p>{% endif %}
+</div>
+{% elif b.tipo == 'lista' %}
+<div class="bloco {{ b.tom }} {{ 'ampliada' if b.escala }}" style="{{ tam }}" data-bloco="lista"><div class="z" style="zoom:{{ b.escala or 1 }}">
+  {{ cabeca(b) }}
+  {% if b.itens %}<div class="lista">{% for t, d in b.itens %}<div class="it"><b>{{ t }}</b><span>{{ d }}</span></div>{% endfor %}</div>
+  {% else %}<p class="vazio">{{ b.vazio }}</p>{% endif %}
+  {% if b.nota %}<p class="nota">{{ b.nota }}</p>{% endif %}
+</div></div>
+{% elif b.tipo == 'texto' %}
+<div class="bloco texto {{ 'ampliada' if b.escala }}" style="{{ tam }}" data-bloco="texto"><div class="z" style="zoom:{{ b.escala or 1 }}">
+  {{ cabeca(b) }}{% for p in b.paragrafos %}<p>{{ p }}</p>{% endfor %}
+</div></div>
+{% elif b.tipo == 'criterios' %}
+<div class="bloco {{ 'ampliada' if b.escala }}" style="{{ tam }}" data-bloco="criterios"><div class="z" style="zoom:{{ b.escala or 1 }}">
+  {{ cabeca(b) }}<div class="crit">{% for t, d in b.itens %}<p><b>{{ t }}:</b> {{ d }}</p>{% endfor %}</div>
+</div></div>
+{% elif b.tipo == 'mini' %}
+<div class="bloco" style="{{ tam }}" data-bloco="mini">
+  {{ cabeca(b) }}
+  <div class="minis" style="grid-template-columns:repeat({{ b.colunas }},1fr)">{% for m in b.itens %}
+    <div class="mini" style="height:{{ '%d' | format(m.h) }}px"><b>{{ m.titulo }}</b><span>{{ m.sub }}</span>{{ m.svg | safe }}</div>{% endfor %}</div>
+  {% if b.nota %}<p class="nota">{{ b.nota }}</p>{% endif %}
+</div>
+{% else %}
+<div class="bloco semdado" style="{{ tam }}" data-bloco="sem_dados">
+  {{ cabeca(b) }}
+  <div class="msg"><i>—</i><span>{{ b.texto }}</span></div>
+</div>
+{% endif %}
+{%- endmacro -%}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>{{ titulo }} · {{ tema.nome }} · {{ rotulo_periodo }}</title>
+<style>
+{% include "fonts/_fontes.css.j2" %}
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; background: #fff; }
+body { font-family: 'Inter', system-ui, sans-serif; color: #0f172a; font-size: 11.5px; line-height: 1.4; }
+:root { --primaria: {{ tema.primaria }}; --escura: {{ tema.escura }}; --destaque: {{ tema.destaque }}; --suave: {{ tema.suave }}; --linha: {{ tema.linha }}; }
+.num { font-variant-numeric: tabular-nums; }
+.cond { font-family: 'Barlow Condensed', 'Inter', sans-serif; }
+.folha { position: relative; width: 794px; height: 1123px; overflow: hidden; page-break-after: always; break-after: page; display: flex; flex-direction: column; background: #fff; }
+.folha:last-child { page-break-after: auto; break-after: auto; }
+.corpo { height: {{ geo.corpo_a + 2 * geo.margem_y }}px; padding: {{ geo.margem_y }}px {{ geo.margem_x }}px; display: flex; flex-direction: column; gap: {{ geo.espaco }}px; }
+.linha { display: flex; gap: {{ geo.espaco }}px; flex: none; }
+.bloco { flex: none; border: 1px solid var(--linha); border-radius: 12px; padding: {{ geo.pad }}px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
+.bloco h2 { margin: 0; font-size: 13.5px; font-weight: 700; line-height: 18px; color: #0f172a; }
+.bloco .sub { margin: 0 0 6px; font-size: 10.5px; line-height: 15px; color: #475569; }
+.bloco .nota { margin: 4px 0 0; font-size: 10px; line-height: 14px; color: #64748b; }
+.legenda { display: flex; flex-wrap: wrap; gap: 4px 14px; height: 20px; align-items: center; font-size: 10.5px; color: #334155; }
+.legenda i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+.area { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
+
+/* Cabeçalho e rodapé de cada folha */
+.cab { height: {{ geo.cabecalho }}px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 {{ geo.margem_x }}px; }
+.cab .marca { display: flex; align-items: center; gap: 12px; }
+.cab img { width: 40px; height: 40px; display: block; }
+.cab .titulo { font-size: 23px; font-weight: 700; line-height: 1; text-transform: uppercase; }
+.cab .subt { margin-top: 3px; font-size: 10.5px; }
+.cab .direita { text-align: right; }
+.cab .periodo { display: inline-block; padding: 4px 10px; border-radius: 7px; font-size: 12px; font-weight: 700; }
+.cab .pagina { margin-top: 4px; font-size: 10px; }
+.rod { height: {{ geo.rodape }}px; flex: none; margin-top: auto; display: flex; align-items: center; justify-content: space-between; padding: 0 {{ geo.margem_x }}px; font-size: 9.5px; }
+
+/* PKZ: identidade esportiva, faixa azul cheia com destaque verde-limão */
+.pkz .cab { background: linear-gradient(105deg, #0e1a6b, #1b30b4); color: #fff; }
+.pkz .cab .marca > div { padding-left: 12px; border-left: 1px solid rgba(255,255,255,.3); }
+.pkz .cab .subt { color: #aab4e8; }
+.pkz .cab .periodo { background: rgba(255,255,255,.14); color: #fff; }
+.pkz .cab .pagina { color: #c2f24a; font-weight: 600; letter-spacing: .04em; }
+.pkz .rod { background: #0e1a6b; color: #c9d2f2; }
+/* One to One: individual e sóbria, folha clara com fio verde-água */
+.oto .cab { background: #fff; color: var(--escura); border-bottom: 2px solid var(--primaria); }
+.oto .cab .marca > div { padding-left: 12px; border-left: 3px solid var(--primaria); }
+.oto .cab .titulo { font-family: 'Inter', sans-serif; font-size: 20px; letter-spacing: .02em; color: var(--escura); }
+.oto .cab .subt { color: var(--primaria); font-weight: 600; }
+.oto .cab .periodo { background: var(--suave); color: var(--primaria); }
+.oto .cab .pagina { color: #64748b; }
+.oto .rod { border-top: 1px solid var(--linha); color: #475569; background: #fbfdfc; }
+.oto .bloco { border-radius: 6px; border-color: var(--linha); }
+.oto .bloco h2 { color: var(--escura); }
+.titulo-pagina { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--primaria); }
+
+/* Identificação */
+.ident { flex-direction: row; align-items: center; gap: 16px; background: var(--suave); border: 0; }
+.ident .avatar { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; font-weight: 800; flex: none; }
+.pkz .ident .avatar { background: #0e1a6b; color: #fff; box-shadow: 0 0 0 3px #c2f24a; }
+.oto .ident .avatar { background: #fff; color: var(--primaria); border: 2px solid var(--primaria); border-radius: 12px; }
+.ident .nome { font-size: 20px; font-weight: 700; line-height: 1.15; }
+.ident .det { margin-top: 3px; font-size: 12px; color: #475569; }
+.ident .per { margin-top: 3px; font-size: 11px; color: #64748b; }
+.ident .chave { margin-left: auto; text-align: right; }
+.ident .chave b { display: block; font-size: 30px; line-height: 1; color: var(--primaria); }
+.ident .chave span { display: block; margin-top: 3px; font-size: 10.5px; color: #475569; max-width: 170px; }
+
+/* Cartão do atleta, no desenho do card do dashboard */
+.cartao { padding: 0; border: 1.5px solid var(--primaria); border-radius: 16px; }
+.cartao .topo { position: relative; height: 128px; flex: none; display: flex; align-items: center; gap: 14px; padding: 0 16px;
+  background: radial-gradient(circle at 50% 135%, transparent 0 50px, rgba(255,255,255,.13) 50px 52px, transparent 52px),
+              linear-gradient(90deg, transparent 0 49.4%, rgba(255,255,255,.13) 49.4% 50.6%, transparent 50.6%), linear-gradient(160deg, #1b30b4, #0e1a6b); }
+.cartao .foto { width: 92px; height: 92px; flex: none; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 3px #c2f24a; background: #dbe0f0; }
+.cartao .foto.vazia { display: grid; place-items: center; font-size: 26px; font-weight: 800; color: #12228e; }
+.cartao .over { flex: 1; min-width: 0; color: #fff; }
+.cartao .over b { display: block; font-size: 50px; line-height: 1; font-weight: 800; }
+.cartao .over span { display: block; margin-top: 4px; font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #c2f24a;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cartao .nivel { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: none; }
+.cartao .nivel i { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; font-style: normal; font-size: 26px; font-weight: 800; }
+.cartao .nivel span { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #c2f24a; }
+.cartao .nA { background: linear-gradient(145deg, #2c2f38, #0b0c10); color: #e8c96a; }
+.cartao .nB { background: linear-gradient(145deg, #e8c96a, #bd9426); color: #3d2f05; }
+.cartao .nC { background: linear-gradient(145deg, #c8ced6, #8d97a3); color: #2b3138; }
+.cartao .nD, .cartao .nE { background: linear-gradient(145deg, #d8a97c, #a06a3a); color: #3a1f0b; }
+.cartao .ident { padding: 10px 16px 8px; border-bottom: 2px solid #eef1f6; }
+.cartao .ident .nome { font-size: 17px; font-weight: 700; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cartao .ident .det { margin-top: 2px; font-size: 12px; color: #475569; }
+.cartao .attrs { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); align-content: center; gap: 6px 4px; padding: 8px 12px; }
+.cartao .attrs div { text-align: center; }
+.cartao .attrs span { display: block; font-size: 11px; font-weight: 700; letter-spacing: .04em; color: #475569; }
+.cartao .attrs b { display: block; font-size: 24px; line-height: 1.1; font-weight: 800; color: #12228e; }
+.cartao .attrs b.alerta { color: #be123c; }
+.cartao .rodape { margin: 0; padding: 0 14px 9px; font-size: 9.5px; line-height: 1.3; color: #64748b; }
+
+/* Indicadores */
+.kpis { flex-direction: row; gap: 8px; padding: 0; border: 0; }
+.kpis.titulado { flex-direction: column; border: 1px solid var(--linha); padding: {{ geo.pad }}px; }
+.kpis .tiles { display: flex; gap: 8px; flex: 1; }
+.tile { flex: 1; min-width: 0; border: 1px solid var(--linha); border-radius: 10px; padding: 10px 11px; display: flex; flex-direction: column; justify-content: center; }
+.oto .tile { border-radius: 6px; border-top: 3px solid var(--primaria); }
+.tile b { font-size: 24px; line-height: 1.05; font-weight: 700; }
+.tile b.estado { font-size: 13px; color: #64748b; font-weight: 600; }
+.tile .rot { margin-top: 4px; font-size: 11px; font-weight: 600; }
+.tile .nt { font-size: 9.5px; color: #64748b; line-height: 1.3; }
+.cor-verde { color: #157a4b; } .cor-vermelho { color: #be123c; } .cor-primaria { color: var(--primaria); } .cor-texto { color: #0f172a; }
+
+/* Resumo */
+.resumo { background: var(--escura); border: 0; color: #fff; }
+.oto .resumo { background: #fff; color: #0f172a; border: 1px solid var(--linha); border-left: 4px solid var(--primaria); }
+.resumo .rot { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--destaque); }
+.oto .resumo .rot { color: var(--primaria); }
+.resumo .frase { margin: 6px 0 8px; font-size: 17px; line-height: 1.35; font-weight: 600; }
+.resumo mark { background: var(--destaque); color: #0e1a6b; padding: 0 5px; border-radius: 4px; font-weight: 700; }
+.oto .resumo mark { background: #ccfbf1; color: #0f5d56; }
+.resumo ul { margin: 0; padding-left: 16px; font-size: 11.5px; line-height: 1.5; color: #e2e8f8; }
+.oto .resumo ul { color: #334155; }
+
+/* Testes: antes e agora */
+.comp { display: grid; gap: 6px 10px; }
+.comp.duas { grid-template-columns: 1fr 1fr; }
+.comp .item { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-width: 0; border: 1px solid var(--linha); border-left: 3px solid; border-radius: 7px; padding: 4px 9px; height: 40px; }
+.comp .l1, .comp .l2 { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-width: 0; }
+.comp .n { flex: 1; min-width: 0; font-size: 11.5px; font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.comp .d { flex: 1; min-width: 0; font-size: 9.5px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.comp .v { flex: none; font-size: 10.5px; white-space: nowrap; }
+.comp .v s { text-decoration: none; color: #64748b; }
+.comp .barra { position: relative; height: 5px; border-radius: 3px; background: #eef1f6; margin-top: 3px; }
+.comp .barra i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+.comp .barra u { position: absolute; top: -3px; width: 2px; height: 11px; background: #0f172a; }
+.selo { flex: none; display: inline-block; padding: 1px 6px; border-radius: 5px; font-size: 9.5px; font-weight: 700; color: #fff; white-space: nowrap; }
+
+/* Tabelas */
+table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+th { text-align: left; padding: 0 7px; height: 24px; background: var(--escura); color: #fff; font-weight: 600; white-space: nowrap; }
+.oto th { background: var(--primaria); }
+td { padding: 0 7px; border-bottom: 1px solid #eef1f6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
+tr:nth-child(even) td { background: #f8fafc; }
+table.compacta { font-size: 9.6px; } table.compacta th, table.compacta td { padding: 0 4px; } table.compacta td:first-child { max-width: 190px; }
+
+/* Listas */
+.lista { display: flex; flex-direction: column; gap: 6px; }
+.lista .it { border-left: 3px solid #cbd5e1; padding: 2px 0 2px 8px; }
+.lista .it b { display: block; font-size: 11.5px; }
+.lista .it span { font-size: 10.5px; color: #475569; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.positivo { background: #f6fbf8; border-color: #cde3d7; } .positivo .it { border-color: #157a4b; } .positivo .it b { color: #0d5132; }
+.atencao { background: #fff8f9; border-color: #f1c8d0; } .atencao .it { border-color: #be123c; } .atencao .it b { color: #9f1239; }
+.vazio { font-size: 11px; color: #64748b; }
+
+/* Texto, critérios e painel sem dado */
+.texto p { margin: 0 0 5px; font-size: 11.5px; line-height: 1.5; }
+/* Folha de conclusão: blocos que crescem para fechar a folha ampliam o texto e distribuem o conteúdo na altura */
+.bloco > .z { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.ampliada .lista, .ampliada .crit { flex: 1; }
+.ampliada .lista { justify-content: space-evenly; }
+.ampliada .crit { align-content: space-evenly; }
+.ampliada.texto .z { justify-content: space-evenly; }
+.crit { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 16px; }
+.crit p { margin: 0; font-size: 10.3px; line-height: 1.38; color: #334155; }
+.crit b { color: #0f172a; }
+.semdado { background: #f8fafc; border-style: dashed; }
+.semdado .msg { flex: 1; display: flex; align-items: center; gap: 10px; font-size: 11.5px; color: #475569; line-height: 1.45; }
+.semdado .msg i { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: #e2e8f0; color: #64748b; font-style: normal; font-weight: 700; }
+
+/* Gráficos pequenos */
+.minis { display: grid; gap: 8px; flex: 1; }
+.mini { border: 1px solid #eef1f6; border-radius: 8px; padding: 6px 8px; overflow: hidden; }
+.mini b { display: block; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini span { display: block; font-size: 9.5px; color: #64748b; margin-bottom: 2px; }
+</style>
+</head>
+<body class="{{ 'pkz' if unidade == 'PKZ' else 'oto' }}">
+{% for pg in paginas %}
+<section class="folha" data-folha="{{ loop.index }}">
+  <header class="cab">
+    <div class="marca">
+      <img src="{{ logo }}" alt="{{ tema.marca }}">
+      <div>
+        <div class="titulo {{ 'cond' if unidade == 'PKZ' }}">{{ titulo }}</div>
+        <div class="subt">{{ tema.marca }} · {{ tema.subtitulo }}</div>
+      </div>
+    </div>
+    <div class="direita">
+      <span class="periodo num">{{ rotulo_periodo }}</span>
+      <div class="pagina">Página {{ loop.index }} de {{ paginas | length }} · {{ pg.titulo }}</div>
+    </div>
+  </header>
+  <div class="corpo">
+    {% for l in pg.linhas %}
+    <div class="linha" style="height:{{ l.px }}px">
+      {% for b in l.blocos %}{{ desenhar(b) }}{% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+  <footer class="rod">
+    <span>{{ aluno_nome }} · {{ rotulo_periodo }} · gerado em {{ gerado_em }}</span>
+    <span>{{ tema.rodape }}</span>
+    <span>(21) 97265-7566 · @playmakerz_pkz</span>
+  </footer>
+</section>
+{% endfor %}
+</body>
+</html>
