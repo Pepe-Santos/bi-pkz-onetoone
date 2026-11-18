@@ -230,3 +230,18 @@ def test_nenhum_bloco_cresce_alem_do_conteudo(unidade, tipo, volume):
             for b in l["blocos"]:
                 if b.get("maximo") == P.ROSCA["maximo"]:
                     assert l["px"] <= P.ROSCA["maximo"] + 1 or len(l["blocos"]) > 1
+
+
+@pytest.mark.parametrize("tipo", ["mensal", "anual"])
+def test_one_to_one_com_todos_os_campos_de_treino_cabe_na_largura(tipo, tmp_path):
+    """Tipo, objetivos, intensidade e desempenho longos em todos os treinos: a tabela não pode passar da largura do bloco."""
+    inicio = date(2026, 8, 3) if tipo == "mensal" else date(2026, 1, 5)
+    longos = [{"data": (inicio + timedelta(days=i * (2 if tipo == "mensal" else 7))).isoformat(),
+               "tipo_treino": ["Condicionamento", "Hipertrofia", "Mobilidade", "Força"][i % 4],
+               "objetivos": "Melhora do condicionamento aeróbico e ganho de força em membros inferiores",
+               "intensidade": ["Moderada", "Alta", "Leve"][i % 3],
+               "desempenho": "Completou o treino com carga acima da semana anterior e manteve o ritmo até o final",
+               "observacoes": "Registro de teste."} for i in range(14)]
+    s = [{"data": t["data"], "hora_inicio": "07:00", "status": "presente"} for t in longos]
+    _, _, problemas = R.gerar_pdf(contrato("ONE_TO_ONE", tipo, s, treinos=longos, idade=32), tmp_path / "r.pdf", hoje=HOJE)
+    assert not problemas

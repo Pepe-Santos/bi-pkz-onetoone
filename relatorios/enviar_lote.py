@@ -22,8 +22,8 @@ estar em EMAILS_TESTE, com [TESTE] e o nome do aluno no assunto.
 
 Variáveis do backend/.env (veja backend/env.example): SUPABASE_URL, SUPABASE_SECRET_KEY e as
 do enviar_email.py, mais EMAIL_LOTE_TESTE. RELATORIO_RENDERIZADOR escolhe o gerador do PDF:
-html (padrão, modelos oficiais em templates/, precisa do Chromium do Playwright) ou reportlab
-(gerador anterior).
+v2 (padrão, gerador_pkz/v2, 3, 4 e 5 páginas), html (modelos HTML anteriores) ou reportlab
+(gerador mais antigo). v2 e html precisam do Chromium do Playwright.
 """
 
 import argparse
@@ -43,6 +43,7 @@ from enviar_email import ENV_PATH, emails_teste, enviar_email, montar_texto
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 BUCKET = "relatorios"
+SAIDA_V2 = BASE_DIR / "relatorios" / "saida"  # no .gitignore: os PDFs têm dados de alunos
 PERIODOS = ("semanal", "mensal", "anual")
 FUSO_SP = timezone(timedelta(hours=-3))  # São Paulo: sem horário de verão desde 2019
 MESES = ("janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto",
@@ -122,18 +123,45 @@ def guardar_no_bucket(caminho_pdf, destino):
                     {"Content-Type": "application/pdf", "x-upsert": "true"})
 
 
+def gerar_relatorio_v2(aluno, periodo, referencia):
+    """Relatório v2 (gerador_pkz/v2): contrato da API -> validação -> PDF de 3, 4 ou 5 páginas.
+
+    Aluno sem nenhum registro no período devolve None, como nos outros geradores. Qualquer
+    outro erro de validação ou de layout sobe como exceção e o lote registra o erro do aluno.
+    """
+    sys.path.insert(0, str(BASE_DIR))
+    from gerador_pkz.v2 import contrato as C
+    from gerador_pkz.v2 import fontes, render
+
+    bruto = fontes.exportar_da_api(aluno["unidade"], aluno["atleta_id"], periodo, referencia)
+    _, erros, _ = C.validar(bruto)
+    if any(erro.startswith("Sem nenhum registro") for erro in erros):
+        return None
+    if erros:
+        raise C.ContratoInvalido(erros)
+    destino = SAIDA_V2 / (f"relatorio_v2_{aluno['unidade'].lower()}_{aluno['atleta_id']}_"
+                          f"{periodo}_{bruto['periodo']['inicio']}.pdf")
+    pdf, _avisos, _problemas = render.gerar_pdf(bruto, destino)
+    return pdf
+
+
 def gerar_relatorio(aluno, periodo, referencia):
     """Caminho do PDF do período, ou None se o aluno não tem dados nele.
 
-    Padrão (RELATORIO_RENDERIZADOR=html): os modelos oficiais da equipe de design, em
-    templates/, pelo gerador_pkz/render_html.py. Com RELATORIO_RENDERIZADOR=reportlab, o
-    gerador anterior do gerador_pkz/gerar_pdf.py: gerar_relatorio() para a PKZ e
-    gerar_relatorio_one_to_one() para o One to One.
+    RELATORIO_RENDERIZADOR escolhe o gerador:
+    - v2 (padrão): gerador_pkz/v2, relatórios de 3, 4 e 5 páginas (relatorios/RELATORIOS_V2.md);
+    - html: os modelos HTML anteriores, pelo gerador_pkz/render_html.py;
+    - reportlab: o gerador_pkz/gerar_pdf.py, gerar_relatorio() para a PKZ e
+      gerar_relatorio_one_to_one() para o One to One.
     """
     if aluno["unidade"] not in ("PKZ", "ONE_TO_ONE"):
         return None
 
-    if os.environ.get("RELATORIO_RENDERIZADOR", "html").strip().lower() != "reportlab":
+    renderizador = os.environ.get("RELATORIO_RENDERIZADOR", "v2").strip().lower() or "v2"
+    if renderizador == "v2":
+        return gerar_relatorio_v2(aluno, periodo, referencia)
+
+    if renderizador != "reportlab":
         sys.path.insert(0, str(BASE_DIR))
         from gerador_pkz.render_html import gerar_relatorio_html
 
