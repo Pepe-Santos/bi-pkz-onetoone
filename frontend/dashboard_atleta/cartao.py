@@ -11,6 +11,7 @@ import base64
 import json
 import math
 import unicodedata
+from functools import lru_cache
 from html import escape
 from pathlib import Path
 
@@ -38,9 +39,15 @@ ESTILO_MEDIA = {
 }
 SEM_TESTE, POUCOS_COLEGAS = "sem_teste", "poucos_colegas"
 
-# A API ainda não tem foto. Até ter, o cartão mostra uma foto de exemplo, gerada por IA (não é de nenhum aluno).
-ARQUIVO_FOTO_EXEMPLO = Path(__file__).resolve().parent / "foto_exemplo.jpg"
-FOTO_EXEMPLO = (base64.b64encode(ARQUIVO_FOTO_EXEMPLO.read_bytes()).decode() if ARQUIVO_FOTO_EXEMPLO.exists() else None)
+# A API ainda não tem foto. No modo apresentação, alguns atletas fictícios têm uma foto ilustrativa,
+# gerada por IA (não é de nenhum aluno), guardada só nesta máquina: dados_ficticios/locais/fotos/<atleta_id>.jpg.
+PASTA_FOTOS = Path(__file__).resolve().parent / "dados_ficticios" / "locais" / "fotos"
+
+
+@lru_cache(maxsize=None)
+def foto_de(atleta_id: str) -> str | None:
+    arquivo = PASTA_FOTOS / f"{atleta_id}.jpg"
+    return base64.b64encode(arquivo.read_bytes()).decode() if arquivo.exists() else None
 
 
 def _sem_acento(texto: str) -> str:
@@ -236,10 +243,9 @@ def html_do_cartao(atleta: dict, cartao: dict, rodape: str = "") -> str:
         d.get("aproximado") for d in cartao["definicoes"]) else ""
 
     medida = "width:clamp(72px,23cqi,132px);height:clamp(72px,23cqi,132px);flex-shrink:0;border-radius:50%;box-shadow:0 0 0 3px #c2f24a"
-    # A foto de exemplo é de um menino: em quem está registrada como menina, fica o espaço da foto.
-    com_foto = FOTO_EXEMPLO and atleta.get("sexo") != "F"
-    foto = (f'<img alt="Foto de exemplo, gerada por IA" title="Foto de exemplo, gerada por IA" src="data:image/jpeg;base64,{FOTO_EXEMPLO}" '
-            f'style="display:block;{medida};object-fit:cover;background:#dbe0f0">' if com_foto else
+    imagem = foto_de(atleta.get("atleta_id") or "")
+    foto = (f'<img alt="Foto ilustrativa, gerada por IA" title="Foto ilustrativa, gerada por IA: não é do aluno" src="data:image/jpeg;base64,{imagem}" '
+            f'style="display:block;{medida};object-fit:cover;background:#dbe0f0">' if imagem else
             f'<div style="display:grid;place-items:center;{medida};background:#dbe0f0;color:#6b7590;font-size:clamp(11px,3cqi,14px);font-weight:600">Foto</div>')
     return f"""
 <div style="container-type:inline-size;height:100%">

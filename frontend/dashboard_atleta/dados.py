@@ -17,6 +17,9 @@ from dotenv import load_dotenv
 
 PASTA = Path(__file__).resolve().parent
 DADOS_FICTICIOS = os.environ.get("DADOS_FICTICIOS", "").strip() in ("1", "sim", "true")
+# Modo apresentação: nomes reais de alguns alunos e fotos ficam só nesta máquina (fora do GitHub).
+LOCAIS = PASTA / "dados_ficticios" / "locais"
+ARQUIVO_NOMES_REAIS = LOCAIS / "nomes_reais.csv"
 EXEMPLOS = PASTA / "dados_ficticios" if DADOS_FICTICIOS else PASTA.parents[1] / "backend" / "exemplos" / "api"
 VARIAVEIS = ("SUPABASE_URL", "SUPABASE_PUBLISHABLE_KEY", "API_TESTE_EMAIL", "API_TESTE_SENHA")
 LIMITE = 1000  # teto de linhas por chamada no Supabase
@@ -113,7 +116,19 @@ def _ler_api(view: str, **filtros) -> list[dict]:
 def _ler_exemplo(view: str) -> list[dict]:
     """Views sem arquivo de exemplo (presenca, treino) voltam vazias."""
     arquivo = EXEMPLOS / f"{view}.json"
-    return json.loads(arquivo.read_text(encoding="utf-8")) if arquivo.exists() else []
+    linhas = json.loads(arquivo.read_text(encoding="utf-8")) if arquivo.exists() else []
+    if view == "atleta" and DADOS_FICTICIOS:
+        nomes = nomes_reais()
+        linhas = [{**a, "nome": nomes[a["atleta_id"]], "nome_real": True} if a["atleta_id"] in nomes else a for a in linhas]
+    return linhas
+
+
+def nomes_reais() -> dict[str, str]:
+    """{atleta_id fictício: nome real} da lista local. Cada nome real fica num atleta da mesma idade e modalidade."""
+    if not DADOS_FICTICIOS or not ARQUIVO_NOMES_REAIS.exists():
+        return {}
+    with ARQUIVO_NOMES_REAIS.open(encoding="utf-8-sig", newline="") as arquivo:
+        return {l["atleta_id"]: l["nome"].strip() for l in csv.DictReader(arquivo, delimiter=";") if (l.get("nome") or "").strip()}
 
 
 def _reavaliacao_de_exemplo() -> list[dict]:
