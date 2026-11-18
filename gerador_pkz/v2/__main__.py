@@ -7,8 +7,9 @@
       Confere o contrato: erros (impedem o PDF) e avisos.
 
   python -m gerador_pkz.v2 exportar-api --modalidade PKZ --aluno <id> --tipo mensal --referencia 2026-08-15 \\
-      --saida dados/contrato.json [--ficha "Ficha Matrícula_PKZ.csv.zip"] [--env caminho/.env]
+      --saida dados/contrato.json [--ficha "Ficha Matrícula_PKZ.csv.zip"] [--env caminho/.env] [--fotos pasta]
       Monta o contrato com os dados reais da API (e da ficha de matrícula, se o nome bater).
+      A foto do cartão é <atleta_id>.jpg/.png na pasta de fotos (padrão: dados-reais/fotos/, fora do Git).
 
   python -m gerador_pkz.v2 importar-csv --pasta dados/csv --modalidade ONE_TO_ONE --tipo semanal \\
       --referencia 2026-08-24 --nome "Nome do aluno" --saida dados/contrato.json
@@ -56,6 +57,7 @@ def main(argv=None):
     e.add_argument("--saida", required=True)
     e.add_argument("--ficha", help="ficha de matrícula (CSV ou ZIP)")
     e.add_argument("--env", help="arquivo .env com as credenciais da API")
+    e.add_argument("--fotos", help="pasta com as fotos dos alunos, <atleta_id>.jpg ou .png (padrão: dados-reais/fotos/)")
 
     i = sub.add_parser("importar-csv", help="monta o contrato a partir de CSVs")
     i.add_argument("--pasta", required=True)
@@ -95,8 +97,9 @@ def main(argv=None):
         return 1 if erros else 0
     if args.comando == "exportar-api":
         from . import fontes
-        c = fontes.exportar_da_api(args.modalidade, args.aluno, args.tipo, args.referencia, args.env, args.ficha)
-        print(f"Contrato salvo em {C.salvar(c, args.saida)} (ficha: {c['origem'].get('ficha', 'não informada')}).")
+        c = fontes.exportar_da_api(args.modalidade, args.aluno, args.tipo, args.referencia, args.env, args.ficha, fotos=args.fotos)
+        foto = "com foto" if c["aluno"].get("foto") else f"sem foto em {fontes.pasta_de_fotos(args.fotos)}"
+        print(f"Contrato salvo em {C.salvar(c, args.saida)} (ficha: {c['origem'].get('ficha', 'não informada')}; {foto}).")
         return 0
     if args.comando == "importar-csv":
         from . import fontes

@@ -8,6 +8,12 @@ Credenciais da API, nesta ordem:
 3. backend/.env e frontend/dashboard_atleta/.env do repositório.
 Aceita a chave de serviço (SUPABASE_SECRET_KEY) ou o login de teste do dashboard
 (SUPABASE_PUBLISHABLE_KEY + API_TESTE_EMAIL + API_TESTE_SENHA). As credenciais nunca vão para o contrato.
+
+Fotos dos alunos (cartão do atleta), nesta ordem:
+1. a pasta indicada em --fotos (ou PKZ_FOTOS);
+2. dados-reais/fotos/ do repositório (fora do Git, como todo dado de aluno).
+O arquivo tem o nome do atleta_id: <atleta_id>.jpg, .jpeg, .png ou .webp. Sem arquivo, o cartão mostra as iniciais.
+Com PKZ_FOTOS_ILUSTRATIVAS=1 (ex.: fotos geradas por IA para demonstração), o cartão avisa "Foto ilustrativa".
 """
 import csv
 import json
@@ -90,7 +96,24 @@ def faixa_de_idade(idade):
     return None
 
 
-def exportar_da_api(unidade, atleta_id, tipo, referencia, arquivo_env=None, ficha=None, hoje=None):
+EXTENSOES_FOTO = (".jpg", ".jpeg", ".png", ".webp")
+
+
+def pasta_de_fotos(pasta=None):
+    return Path(pasta or os.environ.get("PKZ_FOTOS") or RAIZ / "dados-reais" / "fotos")
+
+
+def foto_do_aluno(atleta_id, pasta=None):
+    """Caminho da foto do aluno (<atleta_id>.jpg/.jpeg/.png/.webp na pasta de fotos), ou None."""
+    base = pasta_de_fotos(pasta)
+    for extensao in EXTENSOES_FOTO:
+        for nome in (f"{atleta_id}{extensao}", f"{atleta_id}{extensao.upper()}"):
+            if (base / nome).is_file():
+                return str(base / nome)
+    return None
+
+
+def exportar_da_api(unidade, atleta_id, tipo, referencia, arquivo_env=None, ficha=None, hoje=None, fotos=None):
     """Monta o contrato de um aluno a partir da API (todo o histórico disponível; o período fica marcado)."""
     unidade = C.MODALIDADES.get(str(unidade).upper().replace("-", " "), "PKZ")
     api = Api(arquivo_env)
@@ -107,7 +130,9 @@ def exportar_da_api(unidade, atleta_id, tipo, referencia, arquivo_env=None, fich
     contrato.update({
         "periodo": {"inicio": inicio.isoformat(), "fim": fim.isoformat()},
         "aluno": {"id": a["atleta_id"], "nome": a.get("nome"), "data_nascimento": None, "idade": a.get("idade"),
-                  "categoria": a.get("categoria"), "modalidade": a.get("modalidade"), "clube": None, "turno": None},
+                  "categoria": a.get("categoria"), "modalidade": a.get("modalidade"), "clube": None, "turno": None,
+                  "foto": foto_do_aluno(a["atleta_id"], fotos),
+                  "foto_ilustrativa": os.environ.get("PKZ_FOTOS_ILUSTRATIVAS", "").strip().lower() in ("1", "sim", "true")},
         "sessoes": [{"data": s["data"], "hora_inicio": s.get("hora_inicio"), "status": s["status"]} for s in sessoes],
         "treinos": [{c: t.get(c) for c in ("data",) + C.CAMPOS_TREINO} for t in treinos],
         "origem": {"fonte": "api", "gerado_em": datetime.now().isoformat(timespec="seconds"), "view": "api.*"},
