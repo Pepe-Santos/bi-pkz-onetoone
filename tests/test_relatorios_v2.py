@@ -245,3 +245,22 @@ def test_one_to_one_com_todos_os_campos_de_treino_cabe_na_largura(tipo, tmp_path
     s = [{"data": t["data"], "hora_inicio": "07:00", "status": "presente"} for t in longos]
     _, _, problemas = R.gerar_pdf(contrato("ONE_TO_ONE", tipo, s, treinos=longos, idade=32), tmp_path / "r.pdf", hoje=HOJE)
     assert not problemas
+
+
+# ---------------------------------------------------------------- fotos dos alunos
+def test_foto_do_aluno_pelo_atleta_id(tmp_path, monkeypatch):
+    monkeypatch.delenv("PKZ_FOTOS", raising=False)
+    (tmp_path / "abc-123.png").write_bytes(b"png")
+    assert F.foto_do_aluno("abc-123", tmp_path) == str(tmp_path / "abc-123.png")
+    assert F.foto_do_aluno("outro", tmp_path) is None
+    monkeypatch.setenv("PKZ_FOTOS", str(tmp_path))
+    assert F.foto_do_aluno("abc-123") == str(tmp_path / "abc-123.png")
+
+
+def test_foto_entra_no_cartao_do_relatorio(tmp_path):
+    import base64
+    foto = tmp_path / "aluno.png"
+    foto.write_bytes(base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="))
+    c = contrato("ONE_TO_ONE", "semanal", sessoes(REF["semanal"], 5), foto=str(foto), foto_ilustrativa=True)
+    html = R.montar_html(C.validar_ou_falhar(c, HOJE)[0], HOJE)[0]
+    assert 'class="foto" src="data:image/png;base64,' in html and "Foto ilustrativa" in html

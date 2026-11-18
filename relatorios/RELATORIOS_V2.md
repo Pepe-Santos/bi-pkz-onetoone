@@ -51,8 +51,11 @@ O mesmo card do dashboard, ao lado do resumo do período. Mostra foto, nota ("ov
   - **INT** intensidade = média da intensidade registrada (leve 33, moderada 66, alta 100);
   - atributo abaixo de 50 aparece em vermelho.
 - **Foto**:
-  - vai em `aluno.foto` (caminho de um JPG ou PNG nesta máquina) e é embutida no PDF;
-  - com `aluno.foto_ilustrativa: true` (por exemplo, uma foto gerada por IA), o card avisa "Foto ilustrativa";
+  - o `exportar-api` (e o envio em lote, que usa o mesmo caminho) põe a foto sozinho: procura `<atleta_id>.jpg`, `.jpeg`, `.png` ou `.webp` na pasta de fotos;
+  - a pasta é a de `--fotos`, ou a da variável `PKZ_FOTOS`, ou `dados-reais/fotos/` do repositório. As três ficam fora do Git: fotos de alunos nunca vão para o GitHub;
+  - a foto é embutida no PDF; o arquivo do aluno não precisa estar junto do relatório depois;
+  - com `PKZ_FOTOS_ILUSTRATIVAS=1` (por exemplo, fotos geradas por IA para demonstração), o card avisa "Foto ilustrativa";
+  - num contrato montado à mão, a foto vai em `aluno.foto` (caminho do arquivo) e `aluno.foto_ilustrativa`;
   - sem foto, aparecem as iniciais.
 
 ## Cálculos
@@ -131,6 +134,7 @@ python -m gerador_pkz.v2 importar-csv --pasta dados-reais/csv --modalidade ONE_T
 ```
 
 - **`--env`**: aceita o `.env` do backend (`SUPABASE_SECRET_KEY`) ou o do dashboard (login de teste). As credenciais nunca vão para o contrato.
+- **`--fotos`**: pasta das fotos dos alunos, com o nome do arquivo igual ao `atleta_id` (padrão: `dados-reais/fotos/`).
 - **`--ficha`**: completa nascimento, modalidade, clube e turno quando o nome bate exatamente com o da ficha.
   - Lê só essas colunas. CPF, endereço, telefone, e-mail e responsável são descartados na leitura.
   - Nome repetido na ficha não é usado.
