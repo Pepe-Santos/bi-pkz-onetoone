@@ -408,7 +408,7 @@ def montar(paginas):
 
 
 def _preparar(b):
-    for campo in ("titulo", "sub", "nota", "colunas_duplas", "altura_linha", "svg", "compacta", "escala"):
+    for campo in ("titulo", "sub", "nota", "colunas_duplas", "altura_linha", "svg", "compacta", "escala", "larguras"):
         b.setdefault(campo, None)
     b.setdefault("legenda", [])
     iw, ih = b["w"] - 2 * PAD, b["h"] - 2 * PAD
@@ -891,13 +891,16 @@ def treinos_tabela(ind, span=12, titulo="Treinos registrados"):
     campos = [("tipo_treino", "Tipo"), ("objetivos", "Objetivos"), ("intensidade", "Intensidade"), ("desempenho", "Desempenho")]
     # Coluna sem nenhum registro no período não aparece.
     campos = [(c, n) for c, n in campos if any(t.get(c) for t in ind["treinos_lista"])]
+    # Largura fixa por coluna: texto longo (objetivos, desempenho) termina em "…" em vez de alargar a tabela.
+    pesos = [16] + [{"tipo_treino": 15, "objetivos": 30, "intensidade": 12, "desempenho": 27}[c] for c, _ in campos]
+    larguras = [round(100 * p / sum(pesos), 1) for p in pesos]
     linhas = []
     for t in sorted(ind["treinos_lista"], key=lambda t: t["data"], reverse=ind["tipo"] == "anual"):
         d = ler_data(t["data"])
         linhas.append([f"{I.DIAS_CURTOS[d.weekday()]} {d:%d/%m/%Y}"] + [t.get(c) or I.SEM_REGISTRO for c, _ in campos])
     return bloco("tabela", span, titulo=titulo, sub="Cada treino como o professor registrou." + (" Campo vazio num treino aparece como sem registro." if any(
                      not t.get(c) for t in ind["treinos_lista"] for c, _ in campos) else ""),
-                 colunas=["Data"] + [n for _, n in campos], linhas=linhas, onde_resto="mais antigos")
+                 colunas=["Data"] + [n for _, n in campos], linhas=linhas, onde_resto="mais antigos", larguras=larguras)
 
 
 def cobertura_oto(ind, span=6):

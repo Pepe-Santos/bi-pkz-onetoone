@@ -57,7 +57,7 @@
 {% elif b.tipo == 'tabela' %}
 <div class="bloco" style="{{ tam }}" data-bloco="tabela">
   {{ cabeca(b) }}
-  <table class="num {{ 'compacta' if b.compacta }}"><thead><tr>{% for c in b.colunas %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+  <table class="num {{ 'compacta' if b.compacta }} {{ 'fixa' if b.larguras }}">{% if b.larguras %}<colgroup>{% for p in b.larguras %}<col style="width:{{ p }}%">{% endfor %}</colgroup>{% endif %}<thead><tr>{% for c in b.colunas %}<th>{{ c }}</th>{% endfor %}</tr></thead>
   <tbody>{% for l in b.linhas %}<tr style="height:{{ b.altura_linha or 22 }}px">{% for v in l %}<td>{% if v is mapping %}<b style="color:{{ v.cor }}">{{ v.texto }}</b>{% else %}{{ v }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody></table>
   {% if b.nota %}<p class="nota">{{ b.nota }}</p>{% endif %}
 </div>
@@ -229,6 +229,7 @@ th { text-align: left; padding: 0 7px; height: 24px; background: var(--escura); 
 .oto th { background: var(--primaria); }
 td { padding: 0 7px; border-bottom: 1px solid #eef1f6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
 tr:nth-child(even) td { background: #f8fafc; }
+table.fixa { table-layout: fixed; } table.fixa td, table.fixa th { max-width: none; overflow: hidden; text-overflow: ellipsis; }
 table.compacta { font-size: 9.6px; } table.compacta th, table.compacta td { padding: 0 4px; } table.compacta td:first-child { max-width: 190px; }
 
 /* Listas */
